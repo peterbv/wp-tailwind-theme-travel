@@ -1,0 +1,213 @@
+/* Estilos para el editor del bloque de Galería */
+
+/* Contenedor principal del bloque */
+.wp-block-wptbt-gallery-block-editor {
+    border: 1px dashed #d9adb7;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-family: "Montserrat", "Arial", sans-serif;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Efecto al seleccionar el bloque */
+.is-selected .wp-block-wptbt-gallery-block-editor {
+    border-color: #4f8a8b;
+    box-shadow: 0 0 0 1px #4f8a8b;
+}
+
+/* Encabezado de la galería */
+.gallery-block-header {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.gallery-block-header h2 {
+    font-family: "Playfair Display", "Georgia", serif;
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    position: relative;
+    display: inline-block;
+}
+
+.gallery-block-header h2::after {
+    content: "";
+    position: absolute;
+    bottom: -7px;
+    left: 50%;
+    width: 60%;
+    height: 2px;
+    transform: translateX(-50%) scaleX(0.6);
+}
+
+/* Vista previa de la galería */
+.gallery-preview {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.gallery-preview-item {
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.gallery-preview-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.gallery-preview-item img {
+    display: block;
+    width: 100%;
+    transition: transform 0.5s ease;
+}
+
+.gallery-preview-item:hover img {
+    transform: scale(1.05);
+}
+
+.gallery-preview-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 8px 12px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0));
+    color: white;
+    font-size: 13px;
+    transition: opacity 0.3s ease;
+}
+
+.gallery-preview-more {
+    height: 100%;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f5f5;
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+}
+
+/* Estilo para carrusel */
+.carousel-preview {
+    position: relative;
+}
+
+.carousel-preview::before {
+    content: "Vista previa de carrusel";
+    position: absolute;
+    top: -30px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+    font-style: italic;
+}
+
+/* Lista de imágenes en el panel de control */
+.gallery-images-list {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+    padding-right: 10px;
+}
+
+.gallery-image-item {
+    position: relative;
+    transition: all 0.2s ease;
+    margin-bottom: 15px;
+}
+
+.gallery-image-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+}
+
+.gallery-image-item:last-child {
+    margin-bottom: 0;
+}
+
+/* Media placeholder personalizado */
+.components-placeholder.wp-block-wptbt-gallery-block-editor {
+    min-height: 200px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #f9f9f9;
+}
+
+.components-placeholder__label svg {
+    color: #d9adb7;
+}
+
+.components-button.is-primary {
+    background-color: #4f8a8b;
+    color: #fff;
+}
+
+.components-button.is-primary:hover {
+    background-color: #43767c;
+}
+
+.components-button.is-secondary {
+    color: #4f8a8b;
+    border-color: #4f8a8b;
+}
+
+.components-button.is-secondary:hover {
+    background-color: #f0f7f7;
+    color: #43767c;
+    border-color: #43767c;
+}
+
+.select-images-button {
+    margin-top: 15px;
+    width: 100%;
+}
+
+/* Controles de opción */
+.components-base-control + .components-base-control {
+    margin-top: 16px;
+}
+
+.components-base-control__label {
+    margin-bottom: 8px !important;
+    display: block;
+}
+
+/* Estilos para el icono del bloque en la lista de Gutenberg */
+.editor-block-list-item-wptbt-gallery-block .editor-block-types-list__item-icon {
+    color: #d9adb7;
+}
+
+.editor-block-list-item-wptbt-gallery-block .editor-block-types-list__item-icon svg {
+    fill: #d9adb7;
+}
+
+/* Mensaje informativo */
+.gallery-editor-note {
+    margin-top: 20px;
+    text-align: center;
+    color: #777;
+    font-style: italic;
+    font-size: 13px;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+    .wp-block-wptbt-gallery-block-editor {
+        padding: 15px;
+    }
+
+    .gallery-preview {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+    }
+}

@@ -1,0 +1,7 @@
+# .gitignore
+node_modules/
+assets/
+.vite/
+.DS_Store
+.env
+*.log

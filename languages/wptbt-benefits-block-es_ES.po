@@ -1,0 +1,76 @@
+# Copyright (C) 2025 WPTBT Benefits Block
+# This file is distributed under the same license as the WPTBT Benefits Block package.
+msgid ""
+msgstr ""
+"Project-Id-Version: WPTBT Benefits Block 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wptbt\n"
+"POT-Creation-Date: 2025-04-01 12:00:00+00:00\n"
+"PO-Revision-Date: 2025-04-01 12:00:00+00:00\n"
+"Last-Translator: Admin <admin@example.com>\n"
+"Language-Team: Spanish <es@example.com>\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.2\n"
+
+#: class-wptbt-benefits-block.php:65
+msgid "Experience True Relaxation"
+msgstr "Experimenta Verdadera Relajación"
+
+#: class-wptbt-benefits-block.php:69
+msgid "WHY CHOOSE US"
+msgstr "POR QUÉ ELEGIRNOS"
+
+#: class-wptbt-benefits-block.php:73
+msgid "Discover what makes our spa treatments special"
+msgstr "Descubre lo que hace especiales nuestros tratamientos de spa"
+
+#: class-wptbt-benefits-block.php:77
+msgid "Experience relaxation and rejuvenation with our exclusive treatments tailored to your needs. Our holistic approach ensures that every visit leaves you feeling refreshed and balanced."
+msgstr "Experimenta relajación y rejuvenecimiento con nuestros tratamientos exclusivos adaptados a tus necesidades. Nuestro enfoque holístico garantiza que cada visita te deje sintiéndote renovado y equilibrado."
+
+#: class-wptbt-benefits-block.php:102
+msgid "EXPERT THERAPISTS"
+msgstr "TERAPEUTAS EXPERTOS"
+
+#: class-wptbt-benefits-block.php:103
+msgid "Our team consists of certified professionals with years of experience in spa and wellness."
+msgstr "Nuestro equipo está formado por profesionales certificados con años de experiencia en spa y bienestar."
+
+#: class-wptbt-benefits-block.php:106
+msgid "PREMIUM TREATMENTS"
+msgstr "TRATAMIENTOS PREMIUM"
+
+#: class-wptbt-benefits-block.php:107
+msgid "We offer a wide range of exclusive treatments using only the highest quality products."
+msgstr "Ofrecemos una amplia gama de tratamientos exclusivos utilizando solo productos de la más alta calidad."
+
+#: class-wptbt-benefits-block.php:110
+msgid "PEACEFUL ATMOSPHERE"
+msgstr "AMBIENTE TRANQUILO"
+
+#: class-wptbt-benefits-block.php:111
+msgid "Our carefully designed spaces create the perfect environment for complete relaxation."
+msgstr "Nuestros espacios cuidadosamente diseñados crean el ambiente perfecto para una relajación completa."
+
+#: class-wptbt-benefits-block.php:318
+msgid "Your browser does not support the video tag."
+msgstr "Tu navegador no soporta la etiqueta de vídeo."
+
+
+msgid "Number of Visitors"
+msgstr "Número de Visitantes"
+
+msgid "Number of people"
+msgstr "Número de personas"
+
+msgid "Select between 1 and 20 people"
+msgstr "Seleccione entre 1 y 20 personas"
+
+msgid "Decrease Visitors"
+msgstr "Disminuir visitantes"
+
+msgid "Increase Visitors"
+msgstr "Aumentar visitantes"

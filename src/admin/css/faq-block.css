@@ -1,0 +1,212 @@
+/* faq-block-style.css - Estilos para el bloque de FAQ en el editor */
+
+/* Contenedor principal del bloque */
+.wp-block-wptbt-faq-block-editor {
+    border: 1px dashed #d9adb7;
+    border-radius: 10px;
+    padding: 30px;
+    margin-bottom: 20px;
+    text-align: center;
+    background-color: #f9f9f9;
+    font-family: "Montserrat", "Arial", sans-serif;
+}
+
+/* Efecto al seleccionar el bloque */
+.is-selected .wp-block-wptbt-faq-block-editor {
+    border-color: #4f8a8b;
+    box-shadow: 0 0 0 1px #4f8a8b;
+}
+
+/* Icono del bloque */
+.faq-icon-preview {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 15px;
+    display: block;
+    opacity: 0.8;
+}
+
+/* Título del bloque en el editor */
+.wptbt-faq-block-editor h2 {
+    font-family: "Playfair Display", "Georgia", serif;
+    font-size: 24px;
+    font-weight: 500;
+    color: #424242;
+    margin-bottom: 10px;
+    position: relative;
+    display: inline-block;
+}
+
+.wptbt-faq-block-editor h2:after {
+    content: "";
+    position: absolute;
+    bottom: -7px;
+    left: 50%;
+    width: 60%;
+    height: 2px;
+    background-color: #d4b254;
+    transform: translateX(-50%) scaleX(0.6);
+}
+
+/* Subtítulo */
+.faq-subtitle {
+    font-size: 16px;
+    font-style: italic;
+    color: #d4b254;
+    margin-bottom: 20px;
+}
+
+/* Previsualización de preguntas en el editor */
+.faq-preview {
+    max-width: 450px;
+    margin: 25px auto;
+    text-align: left;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.faq-preview-item,
+.faq-preview-item-collapsed {
+    border-bottom: 1px solid #eee;
+    padding: 15px;
+    position: relative;
+}
+
+.faq-preview-item:last-child,
+.faq-preview-item-collapsed:last-child {
+    border-bottom: none;
+}
+
+.faq-preview-item h3,
+.faq-preview-item-collapsed h3 {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0 0 10px 0;
+    padding-left: 28px;
+    position: relative;
+}
+
+.faq-preview-item h3:before,
+.faq-preview-item-collapsed h3:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #d4b254;
+}
+
+.faq-preview-item h3:after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 9px;
+    width: 10px;
+    height: 2px;
+    background-color: white;
+    transform: rotate(90deg);
+}
+
+.faq-preview-item h3:before {
+    content: "+";
+    font-size: 16px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.faq-preview-item-collapsed h3:before {
+    content: "+";
+    font-size: 16px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.faq-preview-item p {
+    margin: 0 0 0 28px;
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+}
+
+.faq-preview-more {
+    padding: 10px 15px;
+    text-align: center;
+    background-color: #f8f8f8;
+    color: #999;
+    font-size: 13px;
+    font-style: italic;
+    border-top: 1px dashed #eee;
+}
+
+.faq-preview-empty {
+    padding: 20px;
+    text-align: center;
+    color: #999;
+    font-style: italic;
+}
+
+/* Mensaje informativo */
+.faq-editor-note {
+    font-size: 13px;
+    color: #777;
+    font-style: italic;
+    margin-top: 20px;
+}
+
+/* Estiliza el icono del bloque en la lista de bloques de Gutenberg */
+.editor-block-list-item-wptbt-faq-block .editor-block-types-list__item-icon {
+    color: #d9adb7;
+}
+
+/* Estilos para el panel de control */
+.faq-item-control {
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.faq-item-control:hover {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.components-button.is-destructive {
+    color: #cc1818;
+}
+
+.components-button.is-destructive:hover {
+    color: #fff;
+    background-color: #cc1818;
+}
+
+.components-button.is-primary {
+    background-color: #4f8a8b;
+    color: #fff;
+}
+
+.components-button.is-primary:hover {
+    background-color: #43767c;
+}
+
+/* Estilo para el campo de respuesta en el panel */
+.components-textarea-control__input {
+    min-height: 100px;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+    .wp-block-wptbt-faq-block-editor {
+        padding: 20px;
+    }
+
+    .faq-preview {
+        max-width: 100%;
+    }
+}

@@ -1,0 +1,109 @@
+# Portuguese translation for WPTBT Google Reviews Block
+# This file is distributed under the same license as the WPTBT Theme package.
+msgid ""
+msgstr ""
+"Project-Id-Version: WPTBT Google Reviews Block\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/theme/wptbt\n"
+"POT-Creation-Date: 2025-03-27T12:00:00+00:00\n"
+"PO-Revision-Date: 2025-03-27 12:00+0000\n"
+"Last-Translator: Admin <admin@example.com>\n"
+"Language-Team: Portuguese <pt@example.com>\n"
+"Language: pt\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: WP-CLI\n"
+"X-Domain: wp-tailwind-blocks\n"
+
+#: SolidGoogleReviews.jsx:15 class-wptbt-google-reviews-block.php:331
+msgid "What Our Clients Say"
+msgstr "O que nossos clientes dizem"
+
+#: SolidGoogleReviews.jsx:16 class-wptbt-google-reviews-block.php:332
+msgid "Testimonials"
+msgstr "Depoimentos"
+
+#: SolidGoogleReviews.jsx:17
+msgid "Discover the experiences of those who have already enjoyed our services"
+msgstr "Descubra as experiências de quem já aproveitou nossos serviços"
+
+#: SolidGoogleReviews.jsx:24 class-wptbt-google-reviews-block.php:333
+msgid "Client"
+msgstr "Cliente"
+
+#: SolidGoogleReviews.jsx:58
+msgid "Google Reviews: Place ID and API Key are required to load dynamic reviews"
+msgstr "Avaliações do Google: ID do local e Chave API são necessários para carregar avaliações dinâmicas"
+
+#: SolidGoogleReviews.jsx:81
+msgid "Error in response"
+msgstr "Erro na resposta"
+
+#: SolidGoogleReviews.jsx:90
+msgid "Invalid response format"
+msgstr "Formato de resposta inválido"
+
+#: SolidGoogleReviews.jsx:94
+msgid "Error loading reviews:"
+msgstr "Erro ao carregar avaliações:"
+
+#: SolidGoogleReviews.jsx:98
+msgid "Unable to load reviews. Please try again later."
+msgstr "Não foi possível carregar as avaliações. Por favor, tente novamente mais tarde."
+
+#: SolidGoogleReviews.jsx:333 class-wptbt-google-reviews-block.php:334
+msgid "Loading testimonials..."
+msgstr "Carregando depoimentos..."
+
+#: SolidGoogleReviews.jsx:582 class-wptbt-google-reviews-block.php:64 class-wptbt-google-reviews-block.php:335
+msgid "Google Reviews"
+msgstr "Avaliações do Google"
+
+#: SolidGoogleReviews.jsx:508 class-wptbt-google-reviews-block.php:336
+msgid "Leave your review"
+msgstr "Deixe sua avaliação"
+
+#: SolidGoogleReviews.jsx:483 class-wptbt-google-reviews-block.php:337
+msgid "Previous testimonial"
+msgstr "Depoimento anterior"
+
+#: SolidGoogleReviews.jsx:521 class-wptbt-google-reviews-block.php:338
+msgid "Next testimonial"
+msgstr "Próximo depoimento"
+
+#: SolidGoogleReviews.jsx:421 class-wptbt-google-reviews-block.php:339
+msgid "Go to testimonial"
+msgstr "Ir para depoimento"
+
+#: class-wptbt-google-reviews-block.php:59
+msgid "WHAT OUR CLIENTS SAY"
+msgstr "O QUE NOSSOS CLIENTES DIZEM"
+
+#: class-wptbt-google-reviews-block.php:68
+msgid "See what our customers are saying about us"
+msgstr "Veja o que nossos clientes estão dizendo sobre nós"
+
+#: class-wptbt-google-reviews-block.php:155
+msgid "Excellent service! I highly recommend this place to everyone. The attention to detail and customer service were outstanding. I will definitely be coming back."
+msgstr "Serviço excelente! Recomendo este lugar a todos. A atenção aos detalhes e o atendimento ao cliente foram excepcionais. Certamente voltarei."
+
+#: class-wptbt-google-reviews-block.php:161
+msgid "Amazing experience. The staff was very professional and friendly. They made sure I was comfortable throughout my appointment. Truly a 5-star service!"
+msgstr "Experiência incrível. A equipe foi muito profissional e amigável. Garantiram que eu estivesse confortável durante todo o meu atendimento. Verdadeiramente um serviço 5 estrelas!"
+
+#: class-wptbt-google-reviews-block.php:167
+msgid "Very good service and friendly staff. The only reason I'm not giving 5 stars is because I had to wait a bit longer than expected. Otherwise, everything was perfect."
+msgstr "Serviço muito bom e equipe amigável. O único motivo pelo qual não estou dando 5 estrelas é porque tive que esperar um pouco mais do que o esperado. Caso contrário, tudo foi perfeito."
+
+#: class-wptbt-google-reviews-block.php:173
+msgid "I've been coming here for years and have never been disappointed. The quality of service is consistently excellent. Highly recommended!"
+msgstr "Venho aqui há anos e nunca fiquei decepcionado. A qualidade do serviço é consistentemente excelente. Altamente recomendado!"
+
+#: class-wptbt-google-reviews-block.php:179
+msgid "Fantastic experience from start to finish. The booking process was simple, the facilities were clean, and the staff was extremely professional. Will definitely return!"
+msgstr "Experiência fantástica do início ao fim. O processo de agendamento foi simples, as instalações estavam limpas e a equipe foi extremamente profissional. Certamente voltarei!"
+
+#: class-wptbt-google-reviews-block.php:202
+msgid "Invalid security token"
+msgstr "Token de segurança inválido"

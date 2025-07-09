@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Mystical Terra</title>
+    <meta name="description" content="Descubre la esencia de Mystical Terra, un santuario de bienestar en Cusco que combina tradiciones ancestrales andinas con técnicas modernas de masaje terapéutico.">
+    
+    <!-- Tailwind CDN (for preview purposes) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Custom Tailwind Config for Preview -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        spa: {
+                            primary: "#4F8A8B", // Azul-aguamarina
+                            secondary: "#F7EDE2", // Beige suave
+                            accent: "#D4B254", // Dorado suave
+                            sage: "#8BAB8D", // Verde salvia
+                            rose: "#D9ADB7", // Rosa polvo
+                        },
+                    },
+                    fontFamily: {
+                        sans: ["Montserrat", "ui-sans-serif", "system-ui", "sans-serif"],
+                        serif: ["Playfair Display", "ui-serif", "Georgia", "serif"],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Estilos adicionales */
+        .pattern-inca {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+        
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* Overlay para imágenes */
+        .overlay-gradient::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(79, 138, 139, 0.2), rgba(212, 178, 84, 0.5));
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body class="bg-spa-secondary/20 font-sans text-gray-800">
+    <!-- Hero Section -->
+    <section class="relative overflow-hidden bg-gradient-to-br from-spa-primary/10 to-spa-accent/10 py-20 md:py-28">
+        <div class="absolute inset-0 opacity-10 pattern-inca"></div>
+        
+        <!-- Decorative elements -->
+        <div class="absolute top-10 left-10 w-40 h-40 bg-spa-rose/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-10 right-10 w-60 h-60 bg-spa-primary/10 rounded-full blur-3xl"></div>
+        
+        <div class="relative container mx-auto px-6 z-10">
+            <div class="max-w-3xl mx-auto text-center">
+                <!-- Logotipo o símbolo -->
+                <div class="w-20 h-20 mx-auto mb-8 relative">
+                    <div class="absolute inset-0 bg-spa-accent/20 rounded-full animate-pulse-slow"></div>
+                    <div class="relative z-10 w-full h-full rounded-full bg-white shadow-md flex items-center justify-center">
+                        <span class="text-3xl text-spa-primary fancy-text">MT</span>
+                    </div>
+                </div>
+                
+                <!-- Títulos -->
+                <h1 class="text-3xl md:text-5xl text-spa-primary fancy-text mb-4">Nuestra Historia</h1>
+                <div class="flex justify-center">
+                    <div class="w-24 h-1 bg-spa-accent/40 mb-8"></div>
+                </div>
+                
+                <p class="text-xl md:text-2xl fancy-text text-spa-primary/80 italic mb-6">
+                    Donde la sabiduría ancestral se encuentra con el bienestar moderno
+                </p>
+                
+                <p class="text-lg text-gray-700 max-w-2xl mx-auto">
+                    Bienvenido a Mystical Terra, un santuario de bienestar ubicado en el corazón histórico de Cusco, 
+                    donde fusionamos las tradiciones andinas milenarias con las técnicas contemporáneas para ofrecer 
+                    experiencias transformadoras de sanación y relajación.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Franja decorativa con símbolo incaico -->
+    <div class="relative py-3 overflow-hidden">
+        <div class="absolute inset-0 flex justify-center items-center">
+            <div class="w-full h-px bg-gradient-to-r from-transparent via-spa-accent/30 to-transparent"></div>
+        </div>
+        <div class="relative flex justify-center">
+            <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                <div class="w-8 h-8 text-spa-accent">
+                    <!-- Símbolo Chakana (Cruz Andina) estilizado -->
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 2H15V7H22V9H17V15H22V17H15V22H9V17H2V15H7V9H2V7H9V2Z" fill="currentColor" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Nuestra Misión y Visión -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="order-2 lg:order-1">
+                    <span class="inline-block px-3 py-1 text-xs font-medium rounded-full bg-spa-accent/10 text-spa-accent mb-4">NUESTRA ESENCIA</span>
+                    <h2 class="text-3xl fancy-text text-spa-primary mb-6">Misión y Filosofía</h2>
+                    
+                    <p class="mb-6 text-gray-700">
+                        En Mystical Terra, nuestra misión es ofrecer un refugio donde cada visitante pueda reconectar con su bienestar físico y espiritual 
+                        a través de tratamientos que honran las tradiciones andinas y la sabiduría ancestral de los Incas.
+                    </p>
+                    
+                    <p class="mb-6 text-gray-700">
+                        Creemos en un enfoque holístico que considera la interconexión entre cuerpo, mente y espíritu. 
+                        Nuestras terapias están diseñadas no solo para aliviar tensiones físicas, sino también para 
+                        equilibrar energías y fomentar una profunda sensación de paz interior.
+                    </p>
+                    
+                    <div class="space-y-4 mt-8">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-spa-accent/10 flex items-center justify-center text-spa-accent mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-medium text-spa-primary">Autenticidad</h3>
+                                <p class="text-gray-600">Honramos las tradiciones ancestrales incorporando ingredientes y técnicas locales auténticas.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-spa-accent/10 flex items-center justify-center text-spa-accent mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-medium text-spa-primary">Equilibrio</h3>
+                                <p class="text-gray-600">Buscamos armonizar las energías según principios andinos de reciprocidad (ayni) y dualidad (yanantin).</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-spa-accent/10 flex items-center justify-center text-spa-accent mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-medium text-spa-primary">Transformación</h3>
+                                <p class="text-gray-600">Facilitamos experiencias que promueven la sanación y el crecimiento personal.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="order-1 lg:order-2 relative">
+                    <div class="absolute -top-6 -left-6 w-24 h-24 bg-spa-sage/20 rounded-full"></div>
+                    <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-spa-accent/10 rounded-full"></div>
+                    
+                    <div class="relative">
+                        <!-- Imagen principal con overlay -->
+                        <div class="relative rounded-lg overflow-hidden shadow-xl">
+                            <div class="overlay-gradient aspect-[4/5]">
+                                <img src="/api/placeholder/800/1000" alt="Terapia de bienestar en Mystical Terra" class="w-full h-full object-cover" />
+                            </div>
+                        </div>
+                        
+                        <!-- Elemento decorativo flotante -->
+                        <div class="absolute -bottom-10 -left-10 w-32 h-32 p-2 bg-white rounded-lg shadow-lg animate-float">
+                            <div class="w-full h-full rounded overflow-hidden">
+                                <img src="/api/placeholder/300/300" alt="Productos naturales de Mystical Terra" class="w-full h-full object-cover" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Nuestro Equipo -->
+    <section class="py-20 bg-spa-secondary/10">
+        <div class="container mx-auto px-6">
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <span class="inline-block px-3 py-1 text-xs font-medium rounded-full bg-spa-sage/20 text-spa-sage mb-4">EL ALMA DE MYSTICAL TERRA</span>
+                <h2 class="text-3xl fancy-text text-spa-primary mb-4">Nuestros Terapeutas</h2>
+                <p class="text-gray-700">
+                    Nuestro equipo está formado por expertos terapeutas que combinan conocimientos tradicionales andinos 
+                    con técnicas modernas de masaje, creando una experiencia única y transformadora.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                <!-- Terapeuta 1 -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-md group hover:shadow-lg transition-all duration-300">
+                    <div class="relative h-80 overflow-hidden">
+                        <img src="/api/placeholder/600/800" alt="Terapeuta en Mystical Terra" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-80"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+                            <h3 class="text-xl fancy-text mb-1">María Sánchez</h3>
+                            <p class="text-sm text-spa-accent">Especialista en Masaje Andino</p>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600">
+                            Con más de 10 años de experiencia, María combina técnicas andinas tradicionales con conocimientos 
+                            modernos para proporcionar una experiencia de masaje transformadora.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Terapeuta 2 -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-md group hover:shadow-lg transition-all duration-300">
+                    <div class="relative h-80 overflow-hidden">
+                        <img src="/api/placeholder/600/800" alt="Terapeuta en Mystical Terra" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-80"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+                            <h3 class="text-xl fancy-text mb-1">Carlos Mamani</h3>
+                            <p class="text-sm text-spa-accent">Experto en Reflexología</p>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600">
+                            Descendiente de una larga tradición de curanderos andinos, Carlos integra conocimientos ancestrales 
+                            con técnicas de reflexología para equilibrar el flujo energético del cuerpo.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Terapeuta 3 -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-md group hover:shadow-lg transition-all duration-300">
+                    <div class="relative h-80 overflow-hidden">
+                        <img src="/api/placeholder/600/800" alt="Terapeuta en Mystical Terra" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-80"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+                            <h3 class="text-xl fancy-text mb-1">Ana Quechua</h3>
+                            <p class="text-sm text-spa-accent">Especialista en Aromaterapia</p>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600">
+                            Ana es experta en el uso de aceites esenciales y hierbas nativas de los Andes. Sus tratamientos 
+                            estimulan los sentidos y promueven una profunda relajación y bienestar.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <a href="#" class="inline-flex items-center px-6 py-3 bg-spa-sage text-white font-medium rounded-sm hover:bg-opacity-90 transition duration-300 transform hover:-translate-y-0.5 hover:shadow-md">
+                    Conoce a Todo Nuestro Equipo
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Lo que nos hace únicos -->
+    <section class="py-20 bg-white relative overflow-hidden">
+        <!-- Elementos decorativos -->
+        <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-spa-secondary/10 to-transparent"></div>
+        <div class="absolute inset-0 pattern-inca opacity-5"></div>
+        
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="max-w-3xl mx-auto text-center mb-16">
+                <span class="inline-block px-3 py-1 text-xs font-medium rounded-full bg-spa-primary/10 text-spa-primary mb-4">NUESTRA DIFERENCIA</span>
+                <h2 class="text-3xl fancy-text text-spa-primary mb-4">Lo que nos hace únicos</h2>
+                <p class="text-gray-700">
+                    En Mystical Terra, cada detalle está cuidadosamente diseñado para ofrecerte una experiencia de bienestar excepcional 
+                    que conecta con la esencia mística de Cusco y las tradiciones andinas.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 items-center">
+                <div class="relative">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="relative aspect-square rounded-lg overflow-hidden shadow-md">
+                            <img src="/api/placeholder/400/400" alt="Productos naturales andinos" class="w-full h-full object-cover" />
+                        </div>
+                        <div class="relative aspect-square rounded-lg overflow-hidden shadow-md mt-12">
+                            <img src="/api/placeholder/400/400" alt="Técnicas de masaje ancestral" class="w-full h-full object-cover" />
+                        </div>
+                        <div class="relative aspect-square rounded-lg overflow-hidden shadow-md -mt-8">
+                            <img src="/api/placeholder/400/400" alt="Ambiente místico de nuestro spa" class="w-full h-full object-cover" />
+                        </div>
+                        <div class="relative aspect-square rounded-lg overflow-hidden shadow-md">
+                            <img src="/api/placeholder/400/400" alt="Experiencia de bienestar en Cusco" class="w-full h-full object-cover" />
+                        </div>
+                    </div>
+                    
+                    <!-- Elemento decorativo -->
+                    <div class="absolute -top-8 -left-8 w-16 h-16 bg-spa-accent/20 rounded-full blur-xl"></div>
+                    <div class="absolute -bottom-8 -right-8 w-16 h-16 bg-spa-rose/20 rounded-full blur-xl"></div>
+                </div>
+                
+                <div class="space-y-8">
+                    <!-- Característica 1 -->
+                    <div class="bg-spa-secondary/10 p-6 rounded-lg">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-spa-primary/10 to-spa-primary/5 flex items-center justify-center text-spa-primary border border-spa-primary/20 mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-medium text-spa-primary mb-2">Ingredientes Sagrados de los Andes</h3>
+                                <p class="text-gray-600">
+                                    Utilizamos plantas medicinales, hierbas aromáticas y aceites esenciales cultivados en las alturas 
+                                    andinas, conocidos por sus propiedades curativas y utilizados durante siglos por las culturas locales.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Característica 2 -->
+                    <div class="bg-spa-secondary/10 p-6 rounded-lg">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-spa-accent/10 to-spa-accent/5 flex items-center justify-center text-spa-accent border border-spa-accent/20 mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-medium text-spa-primary mb-2">Técnicas Ancestrales Incas</h3>
+                                <p class="text-gray-600">
+                                    Nuestras terapias incorporan métodos de sanación transmitidos por generaciones, 
+                                    como el "samay" (técnica de respiración energética) y la "limpieza con cuy" 
+                                    (diagnóstico energético), adaptados al contexto moderno.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Característica 3 -->
+                    <div class="bg-spa-secondary/10 p-6 rounded-lg">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-spa-rose/10 to-spa-rose/5 flex items-center justify-center text-spa-rose border border-spa-rose/20 mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-medium text-spa-primary mb-2">Ambiente Inspirado en la Cosmovisión Andina</h3>
+                                <p class="text-gray-600">
+                                    Nuestros espacios están diseñados siguiendo principios de la cosmovisión andina, 
+                                    con elementos como la chakana (cruz andina), textiles tradicionales y sonidos 
+                                    naturales que crean una atmósfera de profunda conexión con la energía de la tierra.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Nuestra Ubicación y Contacto -->
+    <section class="py-20 bg-spa-primary/5 relative">
+        <div class="absolute inset-0 pattern-inca opacity-10"></div>
+        
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="max-w-3xl mx-auto">
+                <!-- Contact information -->
+                <div>
+                    <span class="inline-block px-3 py-1 text-xs font-medium rounded-full bg-spa-accent/10 text-spa-accent mb-4">FIND US</span>
+                    <h2 class="text-3xl fancy-text text-spa-primary mb-6 text-center">Visit Us in the Heart of Cusco</h2>
+                    
+                    <p class="text-gray-700 mb-6 text-center">
+                        Mystical Terra is located in a restored colonial house in the historic center of Cusco, 
+                        just steps away from the Plaza de Armas and important archaeological sites. Our space combines 
+                        the rich architectural history of the city with an interior design that evokes tranquility and connection 
+                        with Andean traditions.
+                    </p>
+                    
+                    <div class="bg-white p-8 rounded-lg shadow-md mb-8">
+                        <h3 class="text-xl font-medium text-spa-primary mb-6 text-center">Contact Information</h3>
+                        
+                        <ul class="space-y-6 max-w-xl mx-auto">
+                            <li class="flex items-start">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-spa-accent/10 flex items-center justify-center text-spa-accent mr-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <strong class="block text-spa-primary text-lg">Address:</strong>
+                                    <span class="text-gray-600">Calle Triunfo 338 int., Historic Center, Cusco, Peru</span>
+                                </div>
+                            </li>
+                            
+                            <li class="flex items-start">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-spa-accent/10 flex items-center justify-center text-spa-accent mr-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C7.82 21 2 15.18 2 8V5z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <strong class="block text-spa-primary text-lg">Phone:</strong>
+                                    <a href="tel:+51906597850" class="text-gray-600 hover:text-spa-accent transition duration-300">+51 906 597 850</a>
+                                </div>
+                            </li>
+                            
+                            <li class="flex items-start">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-spa-accent/10 flex items-center justify-center text-spa-accent mr-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <strong class="block text-spa-primary text-lg">Email:</strong>
+                                    <a href="mailto:reservas@mysticalterra.com" class="text-gray-600 hover:text-spa-accent transition duration-300">reservas@mysticalterra.com</a>
+                                </div>
+                            </li>
+                            
+                            <li class="flex items-start">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-spa-accent/10 flex items-center justify-center text-spa-accent mr-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <strong class="block text-spa-primary text-lg">Opening Hours:</strong>
+                                    <span class="text-gray-600">Every day from 8:00 AM to 10:00 PM</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Call to Action -->
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="#" class="inline-flex justify-center items-center px-6 py-3 bg-spa-accent text-white font-medium rounded-sm hover:bg-opacity-90 transition duration-300 transform hover:-translate-y-0.5 hover:shadow-md">
+                            Book Appointment
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        
+                        <a href="#" class="inline-flex justify-center items-center px-6 py-3 bg-white text-spa-primary border border-spa-primary/20 font-medium rounded-sm hover:bg-spa-primary/5 transition duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C7.82 21 2 15.18 2 8V5z" />
+                            </svg>
+                            Direct Contact
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Testimonios -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <span class="inline-block px-3 py-1 text-xs font-medium rounded-full bg-spa-primary/10 text-spa-primary mb-4">VOCES DE TRANSFORMACIÓN</span>
+                <h2 class="text-3xl fancy-text text-spa-primary mb-4">Lo que dicen nuestros clientes</h2>
+                <p class="text-gray-700">
+                    Descubre las experiencias de quienes ya han vivido la magia sanadora de Mystical Terra 
+                    y han conectado con la energía ancestral de los Andes.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Testimonio 1 -->
+                <div class="bg-spa-secondary/10 p-6 rounded-lg relative">
+                    <!-- Comillas decorativas -->
+                    <div class="absolute -top-4 -left-2 text-6xl text-spa-accent/20">"</div>
+                    
+                    <div class="relative z-10">
+                        <p class="italic text-gray-700 mb-6">
+                            "Mi experiencia en Mystical Terra fue transformadora. La combinación de técnicas ancestrales 
+                            con productos naturales creó una sensación de bienestar que nunca había experimentado. 
+                            Los terapeutas son verdaderos maestros en su arte."
+                        </p>
+                        
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full overflow-hidden mr-4">
+                                <img src="/api/placeholder/100/100" alt="Cliente satisfecho" class="w-full h-full object-cover" />
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-spa-primary">Laura Martínez</h4>
+                                <p class="text-sm text-gray-500">España</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Testimonio 2 -->
+                <div class="bg-spa-secondary/10 p-6 rounded-lg relative">
+                    <!-- Comillas decorativas -->
+                    <div class="absolute -top-4 -left-2 text-6xl text-spa-accent/20">"</div>
+                    
+                    <div class="relative z-10">
+                        <p class="italic text-gray-700 mb-6">
+                            "Como parte de mi viaje por Perú, decidí darme un regalo en Mystical Terra. 
+                            La conexión con las tradiciones andinas y la calidad del servicio superaron todas mis expectativas. 
+                            Definitivamente volveré en mi próxima visita a Cusco."
+                        </p>
+                        
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full overflow-hidden mr-4">
+                                <img src="/api/placeholder/100/100" alt="Cliente satisfecho" class="w-full h-full object-cover" />
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-spa-primary">John Peterson</h4>
+                                <p class="text-sm text-gray-500">Estados Unidos</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Testimonio 3 -->
+                <div class="bg-spa-secondary/10 p-6 rounded-lg relative">
+                    <!-- Comillas decorativas -->
+                    <div class="absolute -top-4 -left-2 text-6xl text-spa-accent/20">"</div>
+                    
+                    <div class="relative z-10">
+                        <p class="italic text-gray-700 mb-6">
+                            "Como local, aprecio que Mystical Terra honre verdaderamente nuestras tradiciones. 
+                            He probado varios de sus tratamientos y cada uno ha sido una experiencia única. 
+                            Su respeto por nuestra cultura se siente en cada detalle."
+                        </p>
+                        
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full overflow-hidden mr-4">
+                                <img src="/api/placeholder/100/100" alt="Cliente satisfecho" class="w-full h-full object-cover" />
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-spa-primary">Gabriela Quispe</h4>
+                                <p class="text-sm text-gray-500">Cusco, Perú</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Indicador de más testimonios -->
+            <div class="flex justify-center mt-10">
+                <div class="flex space-x-2">
+                    <span class="w-3 h-3 rounded-full bg-spa-accent"></span>
+                    <span class="w-3 h-3 rounded-full bg-spa-accent/40"></span>
+                    <span class="w-3 h-3 rounded-full bg-spa-accent/40"></span>
+                    <span class="w-3 h-3 rounded-full bg-spa-accent/40"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA Final / Newsletter -->
+    <section class="py-16 bg-spa-primary/10 relative overflow-hidden">
+        <div class="absolute inset-0 pattern-inca opacity-10"></div>
+        
+        <!-- Elementos decorativos -->
+        <div class="absolute top-0 right-0 w-40 h-40 bg-spa-accent/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 w-60 h-60 bg-spa-rose/10 rounded-full blur-3xl"></div>
+        
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8 md:p-12">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl md:text-3xl fancy-text text-spa-primary mb-4">Mantente Conectado con Mystical Terra</h2>
+                    <p class="text-gray-700">
+                        Suscríbete a nuestro newsletter para recibir información sobre promociones especiales, 
+                        eventos exclusivos y consejos de bienestar inspirados en la sabiduría andina.
+                    </p>
+                </div>
+                
+                <div class="max-w-md mx-auto">
+                    <form class="flex flex-col sm:flex-row gap-3">
+                        <input type="email" placeholder="Tu correo electrónico" class="flex-grow px-4 py-3 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-spa-accent" required />
+                        <button type="submit" class="px-6 py-3 bg-spa-accent text-white font-medium rounded-sm hover:bg-opacity-90 transition duration-300 transform hover:-translate-y-0.5 hover:shadow-md">
+                            Suscribirse
+                        </button>
+                    </form>
+                    
+                    <p class="text-xs text-gray-500 mt-3 text-center">
+                        Al suscribirte, aceptas recibir comunicaciones de Mystical Terra. 
+                        Puedes cancelar tu suscripción en cualquier momento.
+                    </p>
+                </div>
+                
+                <!-- Social Media Links -->
+                <div class="mt-8 flex justify-center">
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-spa-primary/10 flex items-center justify-center text-spa-primary hover:bg-spa-primary hover:text-white transition-all duration-300">
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-spa-primary/10 flex items-center justify-center text-spa-primary hover:bg-spa-primary hover:text-white transition-all duration-300">
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-spa-primary/10 flex items-center justify-center text-spa-primary hover:bg-spa-primary hover:text-white transition-all duration-300">
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                            </svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-spa-primary/10 flex items-center justify-center text-spa-primary hover:bg-spa-primary hover:text-white transition-all duration-300">
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Script para animaciones en scroll -->
+    <script>
+        // Script simple para animar elementos al hacer scroll
+        document.addEventListener('DOMContentLoaded', function() {
+            // Para implementar animaciones según scroll si se requiere
+            console.log('Mystical Terra - About Us page loaded');
+        });
+    </script>
+    
+    <!-- Código JSON-LD para SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SpaAndBeautyBusiness",
+        "name": "Mystical Terra",
+        "description": "Santuario de bienestar en Cusco que combina tradiciones ancestrales andinas con técnicas modernas de masaje terapéutico.",
+        "image": "URL-DE-TU-IMAGEN",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Calle Triunfo 338 int.",
+            "addressLocality": "Cusco",
+            "addressRegion": "Cusco",
+            "postalCode": "",
+            "addressCountry": "PE"
+        },
+        "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "-13.516735",
+            "longitude": "-71.978688"
+        },
+        "priceRange": "$$",
+        "telephone": "+51906597850",
+        "email": "reservas@mysticalterra.com",
+        "openingHours": "Mo-Su 08:00-22:00",
+        "sameAs": [
+            "https://www.facebook.com/mysticalterra",
+            "https://www.instagram.com/mysticalterra",
+            "https://twitter.com/mysticalterra"
+        ]
+    }
+    </script>
+</body>
+</html>

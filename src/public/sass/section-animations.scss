@@ -1,0 +1,110 @@
+/* Clase base para elementos animados */
+.reveal-item {
+  /* Esencial: define las propiedades de transición */
+  transition-property: opacity, translate, scale, rotate;
+  transition-duration: 0.8s;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, translate, scale, rotate;
+}
+
+/* Clase que se agrega cuando el elemento se vuelve visible */
+.reveal-item.revealed {
+  /* Restaurar todos los valores a su estado normal */
+  opacity: 1 !important;
+  translate: 0 0 !important;
+  scale: 1 !important;
+  rotate: 0deg !important;
+}
+
+/* Retrasos para animaciones secuenciales */
+.delay-75 {
+  transition-delay: 75ms;
+}
+
+.delay-150 {
+  transition-delay: 150ms;
+}
+
+.delay-300 {
+  transition-delay: 300ms;
+}
+
+.delay-500 {
+  transition-delay: 500ms;
+}
+
+.delay-700 {
+  transition-delay: 700ms;
+}
+
+/* Curvas de aceleración personalizadas */
+.ease-smooth {
+  transition-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.ease-elastic {
+  transition-timing-function: cubic-bezier(0.16, 1.11, 0.3, 1.02);
+}
+
+.ease-bounce {
+  transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Velocidades personalizadas */
+.duration-fast {
+  transition-duration: 0.5s;
+}
+
+.duration-normal {
+  transition-duration: 0.8s;
+}
+
+.duration-slow {
+  transition-duration: 1.2s;
+}
+
+/* Soporte para prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-item {
+    transition: opacity 0.1s;
+  }
+
+  .reveal-item.revealed {
+    transition-duration: 0.1s;
+  }
+}
+
+/* Soporte para elementos escalonados */
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.6s,
+    transform 0.6s;
+  transition-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.reveal-stagger.revealed > *:nth-child(1) {
+  transition-delay: 0ms;
+}
+
+.reveal-stagger.revealed > *:nth-child(2) {
+  transition-delay: 100ms;
+}
+
+.reveal-stagger.revealed > *:nth-child(3) {
+  transition-delay: 200ms;
+}
+
+.reveal-stagger.revealed > *:nth-child(4) {
+  transition-delay: 300ms;
+}
+
+.reveal-stagger.revealed > *:nth-child(5) {
+  transition-delay: 400ms;
+}
+
+.reveal-stagger.revealed > * {
+  opacity: 1;
+  transform: translateY(0);
+}

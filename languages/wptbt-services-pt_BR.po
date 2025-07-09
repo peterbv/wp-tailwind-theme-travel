@@ -1,0 +1,265 @@
+# Copyright (C) 2025 WPTBT Services
+# This file is distributed under the same license as the WPTBT Services package.
+msgid ""
+msgstr ""
+"Project-Id-Version: WPTBT Services 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wptbt\n"
+"POT-Creation-Date: 2025-04-01 12:00:00+00:00\n"
+"PO-Revision-Date: 2025-04-01 12:00:00+00:00\n"
+"Last-Translator: Admin <admin@example.com>\n"
+"Language-Team: Portuguese (Brazil) <pt_br@example.com>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.2\n"
+
+#: service-booking.php:45
+msgid "Book your appointment"
+msgstr "Agende sua consulta"
+
+#: service-booking.php:54
+msgid "Complete the form to book your %s session"
+msgstr "Complete o formulário para agendar sua sessão de %s"
+
+#: archive-servicio.php:26
+msgid "Our Services"
+msgstr "Nossos Serviços"
+
+#: archive-servicio.php:31
+msgid "Luxury treatments for your wellbeing"
+msgstr "Tratamentos de luxo para seu bem-estar"
+
+#: archive-servicio.php:36
+msgid "Discover our complete range of services designed to provide you with an incomparable relaxation and wellness experience. Each treatment has been carefully designed to rejuvenate your body and mind."
+msgstr "Descubra nossa linha completa de serviços projetados para proporcionar uma experiência incomparável de relaxamento e bem-estar. Cada tratamento foi cuidadosamente projetado para rejuvenescer seu corpo e mente."
+
+#: archive-servicio.php:80
+msgid "All"
+msgstr "Todos"
+
+
+#: archive-servicio.php:218
+msgid "Ready to renew your wellbeing?"
+msgstr "Pronto para renovar seu bem-estar?"
+
+#: archive-servicio.php:221
+msgid "Book now and enjoy our exclusive services designed for your relaxation and wellbeing."
+msgstr "Agende agora e aproveite nossos serviços exclusivos projetados para seu relaxamento e bem-estar."
+
+
+#: single-servicio.php:39
+msgid "Back to Services"
+msgstr "Voltar para Serviços"
+
+#: single-servicio.php:102
+#: single-servicio.php:217
+msgid "Quick Information"
+msgstr "Informações Rápidas"
+
+#: single-servicio.php:116
+#: single-servicio.php:231
+msgid "Available hours:"
+msgstr "Horários disponíveis:"
+
+#: single-servicio.php:134
+#: single-servicio.php:249
+msgid "Book Now"
+msgstr "Agendar Agora"
+
+#: single-servicio.php:157
+#: single-servicio.php:198
+#: single-servicio.php:272
+#: single-servicio.php:313
+msgid "Categories"
+msgstr "Categorias"
+
+#: single-servicio.php:354
+msgid "Other services that may interest you"
+msgstr "Outros serviços que podem interessar você"
+
+#: single-servicio.php:418
+msgid "Duration:"
+msgstr "Duração:"
+
+#: single-servicio.php:429
+msgid "Price from:"
+msgstr "Preço a partir de:"
+
+#: single-servicio.php:442
+msgid "Benefits:"
+msgstr "Benefícios:"
+
+#: single-servicio.php:443
+msgid "Relaxing environment, premium products"
+msgstr "Ambiente relaxante, produtos premium"
+
+#: single-servicio.php:491
+msgid "There are no related services available."
+msgstr "Não há serviços relacionados disponíveis."
+
+#: class-wptbt-services.php:35
+msgctxt "post type general name"
+msgid "Services"
+msgstr "Serviços"
+
+#: class-wptbt-services.php:36
+msgctxt "post type singular name"
+msgid "Service"
+msgstr "Serviço"
+
+#: class-wptbt-services.php:37
+msgctxt "admin menu"
+msgid "Services"
+msgstr "Serviços"
+
+#: class-wptbt-services.php:38
+msgctxt "add new on admin bar"
+msgid "Service"
+msgstr "Serviço"
+
+#: class-wptbt-services.php:39
+msgctxt "service"
+msgid "Add New"
+msgstr "Adicionar Novo"
+
+#: class-wptbt-services.php:40
+msgid "Add New Service"
+msgstr "Adicionar Novo Serviço"
+
+#: class-wptbt-services.php:41
+msgid "New Service"
+msgstr "Novo Serviço"
+
+#: class-wptbt-services.php:42
+msgid "Edit Service"
+msgstr "Editar Serviço"
+
+#: class-wptbt-services.php:43
+msgid "View Service"
+msgstr "Ver Serviço"
+
+#: class-wptbt-services.php:44
+msgid "All Services"
+msgstr "Todos os Serviços"
+
+#: class-wptbt-services.php:45
+msgid "Search Services"
+msgstr "Pesquisar Serviços"
+
+#: class-wptbt-services.php:46
+msgid "Parent Services:"
+msgstr "Serviços Pai:"
+
+#: class-wptbt-services.php:47
+msgid "No services found."
+msgstr "Nenhum serviço encontrado."
+
+#: class-wptbt-services.php:48
+msgid "No services found in trash."
+msgstr "Nenhum serviço encontrado na lixeira."
+
+#: class-wptbt-services.php:51
+msgid "Services offered"
+msgstr "Serviços oferecidos"
+
+#: class-wptbt-services.php:65
+msgctxt "slug post type"
+msgid "service"
+msgstr "servico"
+
+#: class-wptbt-services.php:76
+msgid "Service Prices"
+msgstr "Preços do Serviço"
+
+#: class-wptbt-services.php:85
+msgid "Available Hours"
+msgstr "Horários Disponíveis"
+
+#: class-wptbt-services.php:114
+msgid "Set the available hours for this service."
+msgstr "Defina os horários disponíveis para este serviço."
+
+#: class-wptbt-services.php:118
+msgid "Add Hour"
+msgstr "Adicionar Horário"
+
+
+#: class-wptbt-services.php:136
+msgid "Remove"
+msgstr "Remover"
+
+#: class-wptbt-services.php:151
+msgid "Add Multiple Hours"
+msgstr "Adicionar Múltiplos Horários"
+
+#: class-wptbt-services.php:156
+msgid "Start time"
+msgstr "Hora de início"
+
+#: class-wptbt-services.php:160
+msgid "End time"
+msgstr "Hora de término"
+
+#: class-wptbt-services.php:165
+msgid "Interval (minutes)"
+msgstr "Intervalo (minutos)"
+
+#: class-wptbt-services.php:167
+#: class-wptbt-services.php:168
+#: class-wptbt-services.php:169
+msgid "minutes"
+msgstr "minutos"
+
+#: class-wptbt-services.php:175
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: class-wptbt-services.php:176
+msgid "Add"
+msgstr "Adicionar"
+
+#: class-wptbt-services.php:205
+msgid "Please enter start and end times."
+msgstr "Por favor, insira os horários de início e término."
+
+#: class-wptbt-services.php:214
+msgid "End time must be after start time."
+msgstr "O horário de término deve ser posterior ao horário de início."
+
+#: class-wptbt-services.php:287
+msgid "Prices by duration"
+msgstr "Preços por duração"
+
+#: class-wptbt-services.php:288
+msgid "Configure up to two duration and price options for this service."
+msgstr "Configure até duas opções de duração e preço para este serviço."
+
+#: class-wptbt-services.php:293
+msgid "Duration 1 (minutes)"
+msgstr "Duração 1 (minutos)"
+
+#: class-wptbt-services.php:299
+msgid "Price 1 (with $ symbol)"
+msgstr "Preço 1 (com símbolo $)"
+
+#: class-wptbt-services.php:307
+msgid "Duration 2 (minutes)"
+msgstr "Duração 2 (minutos)"
+
+#: class-wptbt-services.php:313
+msgid "Price 2 (with $ symbol)"
+msgstr "Preço 2 (com símbolo $)"
+
+#: single-servicio.php:322
+msgid "View details"
+msgstr "Ver detalhes"
+
+#: single-servicio.php:472
+msgid "See more"
+msgstr "Ver mais"
+
+#: single-servicio.php:316
+msgid "Your browser does not support the video tag."
+msgstr "Seu navegador não suporta a tag de vídeo."

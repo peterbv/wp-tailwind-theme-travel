@@ -1,0 +1,143 @@
+/* booking-block-style.css - Estilos para el bloque de reservas en el editor */
+
+/* Contenedor principal del bloque en el editor */
+.wp-block-wptbt-booking-block {
+    border: 1px dashed #d9adb7 !important;
+    border-radius: 10px !important;
+    padding: 32px !important;
+    background-color: #f9f9f9 !important;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05) !important;
+    font-family: "Montserrat", "Arial", sans-serif !important;
+    position: relative !important;
+    overflow: hidden !important;
+    margin-bottom: 20px !important;
+}
+
+/* Mejora la selección en el editor */
+.is-selected .wp-block-wptbt-booking-block {
+    border-color: #4f8a8b !important;
+    box-shadow: 0 0 0 2px rgba(79, 138, 139, 0.3) !important;
+}
+
+/* Estilos para los textos editables */
+.wp-block-wptbt-booking-block .booking-block-editor-content {
+    position: relative;
+    z-index: 1;
+}
+
+.wp-block-wptbt-booking-block h2 {
+    font-family: "Playfair Display", "Georgia", serif !important;
+    font-size: 30px !important;
+    font-weight: 500 !important;
+    margin-bottom: 15px !important;
+    color: #424242 !important;
+}
+
+.wp-block-wptbt-booking-block span[class*="text-lg"] {
+    font-style: italic !important;
+    color: #d4b254 !important;
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    display: block !important;
+    margin-bottom: 8px !important;
+}
+
+.wp-block-wptbt-booking-block p {
+    font-size: 15px !important;
+    color: #666 !important;
+    line-height: 1.6 !important;
+    margin-bottom: 24px !important;
+}
+
+/* Estilizar la previsualización del formulario */
+.wp-block-wptbt-booking-block .booking-form-preview {
+    background-color: white !important;
+    border-radius: 8px !important;
+    padding: 24px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+    margin-top: 24px !important;
+}
+
+.wp-block-wptbt-booking-block .booking-form-preview label {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    margin-bottom: 4px !important;
+    color: #555 !important;
+}
+
+.wp-block-wptbt-booking-block .booking-form-preview div[style*="height"] {
+    background-color: #f7f7f7 !important;
+    border: 1px solid #e5e5e5 !important;
+    border-radius: 4px !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Estilizar el botón */
+.wp-block-wptbt-booking-block .booking-form-preview div[style*="backgroundColor"] {
+    cursor: default !important;
+    font-weight: 600 !important;
+    padding: 12px 28px !important;
+    border-radius: 4px !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
+    display: inline-block !important;
+    transition: all 0.2s ease !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+/* Estilizar la imagen en el panel lateral */
+.editor-post-featured-image img {
+    max-width: 100% !important;
+    height: auto !important;
+    border-radius: 4px !important;
+    margin-top: 8px !important;
+}
+
+/* Mejorar el aspecto del icono */
+.booking-icon-preview > div {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 60px !important;
+    height: 60px !important;
+    margin: 0 auto !important;
+    border-radius: 50% !important;
+    margin-bottom: 20px !important;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Estiliza el icono del bloque en la lista de bloques de Gutenberg */
+.editor-block-list-item-wptbt-booking-block .editor-block-types-list__item-icon {
+    color: #d9adb7 !important;
+}
+
+/* Estiliza la línea decorativa */
+.wp-block-wptbt-booking-block div[style*="height: 3px"] {
+    margin: 0 auto 20px !important;
+    border-radius: 10px !important;
+}
+
+/* Estiliza el selector de medios */
+.components-button.editor-post-featured-image__toggle {
+    border: 1px dashed #d9adb7 !important;
+    border-radius: 4px !important;
+    padding: 12px 16px !important;
+    width: 100% !important;
+    text-align: center !important;
+    transition: all 0.2s ease !important;
+}
+
+.components-button.editor-post-featured-image__toggle:hover {
+    background-color: #f5f5f5 !important;
+    color: #4f8a8b !important;
+}
+
+/* Efecto hover en el botón de eliminar imagen */
+button.is-destructive:hover {
+    color: #d63638 !important;
+}
+
+/* Animación suave en transiciones */
+.wp-block-wptbt-booking-block * {
+    transition: all 0.2s ease-in-out !important;
+}

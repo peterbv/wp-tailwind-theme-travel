@@ -1,0 +1,8 @@
+.wp-block-wp-tailwind-blocks-info-box {
+  // Estilos específicos para el editor
+  border: 1px dashed #ccc;
+
+  &:focus {
+    border-color: #000;
+  }
+}

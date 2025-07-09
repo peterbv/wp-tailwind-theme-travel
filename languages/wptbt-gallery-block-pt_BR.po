@@ -1,0 +1,73 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Tailwind Blocks\n"
+"POT-Creation-Date: 2025-03-27 12:00+0000\n"
+"PO-Revision-Date: 2025-03-27 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.4\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: node_modules\n"
+
+#: class-wptbt-gallery-block.php:57
+msgid "Our Gallery"
+msgstr "Nossa Galeria"
+
+#: class-wptbt-gallery-block.php:61
+msgid "Relaxation Spaces"
+msgstr "Espaços de Relaxamento"
+
+#: class-wptbt-gallery-block.php:65
+msgid "Explore our facilities and services through our image gallery."
+msgstr "Explore nossas instalações e serviços através da nossa galeria de imagens."
+
+#: class-wptbt-gallery-block.php:131
+msgid "Please add images to the gallery from the block editor."
+msgstr "Por favor, adicione imagens à galeria a partir do editor de blocos."
+
+#: SolidGallery.jsx:328
+msgid "Gallery image"
+msgstr "Imagem da galeria"
+
+#: SolidGallery.jsx:396
+msgid "Previous slide"
+msgstr "Slide anterior"
+
+#: SolidGallery.jsx:439
+msgid "Go to slide"
+msgstr "Ir para o slide"
+
+#: SolidGallery.jsx:464
+msgid "Next slide"
+msgstr "Próximo slide"
+
+#: SolidGallery.jsx:628
+msgid "View full image"
+msgstr "Ver imagem completa"
+
+#: SolidGallery.jsx:647
+msgid "Close"
+msgstr "Fechar"
+
+#: SolidGallery.jsx:695
+msgid "Previous image"
+msgstr "Imagem anterior"
+
+#: SolidGallery.jsx:717
+msgid "Next image"
+msgstr "Próxima imagem"
+
+#: SolidGallery.jsx:775
+msgid "Thumbnail"
+msgstr "Miniatura"
+
+#: SolidGallery.jsx:50
+msgid "Loading gallery..."
+msgstr "Carregando galeria..."

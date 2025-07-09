@@ -1,0 +1,153 @@
+/* benefits-block-style.css - Estilos para el bloque de beneficios en el editor */
+
+/* Contenedor principal del bloque */
+.wp-block-wptbt-benefits-block-preview {
+    border: 1px dashed #d9adb7;
+    border-radius: 10px;
+    padding: 30px;
+    margin-bottom: 20px;
+    font-family: "Montserrat", "Arial", sans-serif;
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+/* Efecto al seleccionar el bloque */
+.is-selected .wp-block-wptbt-benefits-block-preview {
+    border-color: #4f8a8b;
+    box-shadow: 0 0 0 1px #4f8a8b;
+}
+
+/* Columnas en la vista previa */
+.benefits-text-column,
+.benefits-image-column {
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .benefits-preview-inner {
+        flex-direction: column-reverse !important;
+    }
+
+    .benefits-text-column,
+    .benefits-image-column {
+        width: 100% !important;
+        padding: 10px !important;
+    }
+
+    .benefits-image-column {
+        margin-bottom: 20px;
+    }
+}
+
+/* Estilos para los beneficios */
+.benefits-list-preview > div {
+    margin-bottom: 15px;
+    transition: transform 0.2s ease;
+}
+
+.benefits-list-preview > div:hover {
+    transform: translateX(5px);
+}
+
+/* Mejoras para imagen seleccionada */
+.editor-post-featured-image__preview {
+    width: 100%;
+    margin-bottom: 15px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.editor-post-featured-image__preview:hover {
+    opacity: 0.8;
+}
+
+.editor-post-featured-image__preview img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+/* Mejoras para los controles de beneficios */
+.benefit-item-control {
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.benefit-item-control:hover {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.benefit-item-control h4 {
+    color: #4f8a8b;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 8px;
+    margin-bottom: 12px !important;
+}
+
+/* Botones mejorados */
+.benefit-item-control .components-button.is-destructive {
+    margin-top: 10px;
+}
+
+.components-button.is-destructive {
+    color: #cc1818;
+}
+
+.components-button.is-destructive:hover {
+    color: #fff;
+    background-color: #cc1818;
+}
+
+.components-button.is-primary {
+    background-color: #4f8a8b;
+    color: #fff;
+}
+
+.components-button.is-primary:hover {
+    background-color: #43767c;
+}
+
+/* Estilos para panel de colores */
+.components-circular-option-picker__option {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    display: inline-block;
+    transition: transform 0.1s ease;
+}
+
+.components-circular-option-picker__option:hover {
+    transform: scale(1.1);
+}
+
+.components-base-control + .components-base-control {
+    margin-top: 16px;
+}
+
+/* Estilos para el panel de inspector */
+.components-panel__body {
+    border-top: 1px solid #e0e0e0;
+}
+
+.components-panel__body:first-child {
+    border-top: none;
+}
+
+/* Transiciones suaves */
+.wp-block-wptbt-benefits-block-preview * {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Efecto de zoom suave en imagen */
+.benefits-image-column img {
+    transition: transform 0.3s ease;
+}
+
+.benefits-image-column img:hover {
+    transform: scale(1.02);
+}

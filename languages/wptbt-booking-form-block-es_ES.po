@@ -1,0 +1,192 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WPTBT Booking Block\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/theme/wptbt\n"
+"Last-Translator: Admin <admin@example.com>\n"
+"Language-Team: Spanish <es@example.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-03-27T12:00:00+00:00\n"
+"PO-Revision-Date: 2025-03-27 12:00+0000\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: WP-CLI\n"
+"X-Domain: wp-tailwind-blocks\n"
+
+#: class-wptbt-booking-block.php:46
+msgid "Book Now"
+msgstr "Reservar Ahora"
+
+#: class-wptbt-booking-block.php:50
+msgid "Appointment"
+msgstr "Cita"
+
+#: class-wptbt-booking-block.php:54
+msgid "Book your spa treatment and enjoy a moment of relaxation."
+msgstr "Reserve su tratamiento de spa y disfrute de un momento de relajación."
+
+#: class-wptbt-booking-block.php:57
+msgid "Swedish Massage"
+msgstr "Masaje Sueco"
+
+#: class-wptbt-booking-block.php:57
+msgid "60 min"
+msgstr "60 min"
+
+#: class-wptbt-booking-block.php:57
+msgid "$90"
+msgstr "$90"
+
+#: class-wptbt-booking-block.php:58
+msgid "Deep Tissue Massage"
+msgstr "Masaje de Tejido Profundo"
+
+#: class-wptbt-booking-block.php:58
+msgid "$120"
+msgstr "$120"
+
+#: class-wptbt-booking-block.php:59
+msgid "Hot Stone Massage"
+msgstr "Masaje con Piedras Calientes"
+
+#: class-wptbt-booking-block.php:59
+msgid "90 min"
+msgstr "90 min"
+
+#: class-wptbt-booking-block.php:59
+msgid "$150"
+msgstr "$150"
+
+#: class-wptbt-booking-block.php:60
+msgid "Aromatherapy Massage"
+msgstr "Masaje de Aromaterapia"
+
+#: class-wptbt-booking-block.php:60
+msgid "$110"
+msgstr "$110"
+
+#: class-wptbt-booking-block.php:63
+msgid "BOOK NOW"
+msgstr "RESERVAR AHORA"
+
+#: class-wptbt-booking-block.php:360
+msgid "Professional Therapists"
+msgstr "Terapeutas Profesionales"
+
+#: class-wptbt-booking-block.php:361
+msgid "Certified experts with years of experience"
+msgstr "Expertos certificados con años de experiencia"
+
+#: class-wptbt-booking-block.php:371
+msgid "Flexible Scheduling"
+msgstr "Horarios Flexibles"
+
+#: class-wptbt-booking-block.php:372
+msgid "Choose the time that works best for you"
+msgstr "Elija el horario que mejor le convenga"
+
+#: SolidBookingForm.jsx:206
+msgid "Name"
+msgstr "Nombre"
+
+#: SolidBookingForm.jsx:264
+msgid "Email"
+msgstr "Correo Electrónico"
+
+#: SolidBookingForm.jsx:314
+msgid "Select Service"
+msgstr "Seleccionar Servicio"
+
+#: SolidBookingForm.jsx:352
+msgid "Select a service"
+msgstr "Seleccione un servicio"
+
+#: SolidBookingForm.jsx:377
+msgid "Select Date"
+msgstr "Seleccionar Fecha"
+
+#: SolidBookingForm.jsx:378
+msgid "Select date"
+msgstr "Seleccionar fecha"
+
+#: SolidBookingForm.jsx:392
+msgid "Select Duration"
+msgstr "Seleccionar Duración"
+
+#: SolidBookingForm.jsx:433
+msgid "Select Time"
+msgstr "Seleccionar Hora"
+
+#: SolidBookingForm.jsx:476
+msgid "Select available time"
+msgstr "Seleccione horario disponible"
+
+#: SolidBookingForm.jsx:484
+msgid "No available times"
+msgstr "No hay horarios disponibles"
+
+#: SolidBookingForm.jsx:504
+msgid "Additional Information (Optional)"
+msgstr "Información Adicional (Opcional)"
+
+#: SolidBookingForm.jsx:536
+msgid "Any special requests or additional information..."
+msgstr "Cualquier petición especial o información adicional..."
+
+#: SolidBookingForm.jsx:560
+msgid "Processing..."
+msgstr "Procesando..."
+
+#: SolidBookingForm.jsx:560
+msgid "CONFIRM BOOKING"
+msgstr "CONFIRMAR RESERVA"
+
+#: SolidBookingForm.jsx:151
+msgid "Please enter your name"
+msgstr "Por favor, ingrese su nombre"
+
+#: SolidBookingForm.jsx:158
+msgid "Please enter your email"
+msgstr "Por favor, ingrese su correo electrónico"
+
+#: SolidBookingForm.jsx:165
+msgid "Please select a service"
+msgstr "Por favor, seleccione un servicio"
+
+#: SolidBookingForm.jsx:174
+msgid "Please select a date for your booking"
+msgstr "Por favor, seleccione una fecha para su reserva"
+
+#: SolidBookingForm.jsx:182
+msgid "Please select a time"
+msgstr "Por favor, seleccione una hora"
+
+#: SolidBookingForm.jsx:190
+msgid "Processing your booking..."
+msgstr "Procesando su reserva..."
+
+#: SolidBookingForm.jsx:248
+msgid "Booking successfully made"
+msgstr "Reserva realizada con éxito"
+
+#: SolidBookingForm.jsx:275
+msgid "An error occurred. Please try again."
+msgstr "Ocurrió un error. Por favor, inténtelo de nuevo."
+
+#: SolidBookingForm.jsx:283
+msgid "Connection error. Please try again later."
+msgstr "Error de conexión. Por favor, inténtelo más tarde."
+
+#: SolidBookingForm.jsx:222
+msgid "Full name"
+msgstr "Nombre completo"
+
+#: service-booking.php:42
+msgid "Book your appointment"
+msgstr "Reserva tu cita"
+
+#: service-booking.php:49
+msgid "Complete the form to book your %s session"
+msgstr "Completa el formulario para reservar tu sesión de %s"
+

@@ -1,0 +1,304 @@
+# Copyright (C) 2025 WPTBT Theme
+# This file is distributed under the same license as the WPTBT Theme package.
+msgid ""
+msgstr ""
+"Project-Id-Version: WPTBT Booking Block\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/theme/wptbt\n"
+"POT-Creation-Date: 2025-03-27T12:00:00+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: WP-CLI\n"
+"X-Domain: wp-tailwind-blocks\n"
+
+#: class-wptbt-booking-block.php:46
+msgid "Book Now"
+msgstr ""
+
+#: class-wptbt-booking-block.php:50
+msgid "Appointment"
+msgstr ""
+
+#: class-wptbt-booking-block.php:54
+msgid "Book your spa treatment and enjoy a moment of relaxation."
+msgstr ""
+
+#: class-wptbt-booking-block.php:57
+msgid "Swedish Massage"
+msgstr ""
+
+#: class-wptbt-booking-block.php:57
+msgid "60 min"
+msgstr ""
+
+#: class-wptbt-booking-block.php:57
+msgid "$90"
+msgstr ""
+
+#: class-wptbt-booking-block.php:58
+msgid "Deep Tissue Massage"
+msgstr ""
+
+#: class-wptbt-booking-block.php:58
+msgid "$120"
+msgstr ""
+
+#: class-wptbt-booking-block.php:59
+msgid "Hot Stone Massage"
+msgstr ""
+
+#: class-wptbt-booking-block.php:59
+msgid "90 min"
+msgstr ""
+
+#: class-wptbt-booking-block.php:59
+msgid "$150"
+msgstr ""
+
+#: class-wptbt-booking-block.php:60
+msgid "Aromatherapy Massage"
+msgstr ""
+
+#: class-wptbt-booking-block.php:60
+msgid "$110"
+msgstr ""
+
+#: class-wptbt-booking-block.php:63
+msgid "BOOK NOW"
+msgstr ""
+
+#: class-wptbt-booking-block.php:360
+msgid "Professional Therapists"
+msgstr ""
+
+#: class-wptbt-booking-block.php:361
+msgid "Certified experts with years of experience"
+msgstr ""
+
+#: class-wptbt-booking-block.php:371
+msgid "Flexible Scheduling"
+msgstr ""
+
+#: class-wptbt-booking-block.php:372
+msgid "Choose the time that works best for you"
+msgstr ""
+
+#: SolidBookingForm.jsx:206
+msgid "Name"
+msgstr ""
+
+#: SolidBookingForm.jsx:264
+msgid "Email"
+msgstr ""
+
+#: SolidBookingForm.jsx:314
+msgid "Select Service"
+msgstr ""
+
+#: SolidBookingForm.jsx:352
+msgid "Select a service"
+msgstr ""
+
+#: SolidBookingForm.jsx:377
+msgid "Select Date"
+msgstr ""
+
+#: SolidBookingForm.jsx:378
+msgid "Select date"
+msgstr ""
+
+#: SolidBookingForm.jsx:392
+msgid "Select Duration"
+msgstr ""
+
+#: SolidBookingForm.jsx:433
+msgid "Select Time"
+msgstr ""
+
+#: SolidBookingForm.jsx:476
+msgid "Select available time"
+msgstr ""
+
+#: SolidBookingForm.jsx:484
+msgid "No available times"
+msgstr ""
+
+#: SolidBookingForm.jsx:504
+msgid "Additional Information (Optional)"
+msgstr ""
+
+#: SolidBookingForm.jsx:536
+msgid "Any special requests or additional information..."
+msgstr ""
+
+#: SolidBookingForm.jsx:560
+msgid "Processing..."
+msgstr ""
+
+#: SolidBookingForm.jsx:560
+msgid "CONFIRM BOOKING"
+msgstr ""
+
+#: SolidBookingForm.jsx:151
+msgid "Please enter your name"
+msgstr ""
+
+#: SolidBookingForm.jsx:158
+msgid "Please enter your email"
+msgstr ""
+
+#: SolidBookingForm.jsx:165
+msgid "Please select a service"
+msgstr ""
+
+#: SolidBookingForm.jsx:174
+msgid "Please select a date for your booking"
+msgstr ""
+
+#: SolidBookingForm.jsx:182
+msgid "Please select a time"
+msgstr ""
+
+#: SolidBookingForm.jsx:190
+msgid "Processing your booking..."
+msgstr ""
+
+#: SolidBookingForm.jsx:248
+msgid "Booking successfully made"
+msgstr ""
+
+#: SolidBookingForm.jsx:275
+msgid "An error occurred. Please try again."
+msgstr ""
+
+#: SolidBookingForm.jsx:283
+msgid "Connection error. Please try again later."
+msgstr ""
+
+#: SolidBookingForm.jsx:222
+msgid "Full name"
+msgstr ""
+
+#: service-booking.php:42
+msgid "Book your appointment"
+msgstr ""
+
+#: service-booking.php:49
+msgid "Complete the form to book your %s session"
+msgstr ""
+
+
+# Copyright (C) 2025 WPTBT Theme
+# This file is distributed under the same license as the WPTBT Theme package.
+msgid ""
+msgstr ""
+"Project-Id-Version: WPTBT Google Reviews Block\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/theme/wptbt\n"
+"POT-Creation-Date: 2025-03-27T12:00:00+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: WP-CLI\n"
+"X-Domain: wp-tailwind-blocks\n"
+
+#: SolidGoogleReviews.jsx:15 class-wptbt-google-reviews-block.php:331
+msgid "What Our Clients Say"
+msgstr ""
+
+#: SolidGoogleReviews.jsx:16 class-wptbt-google-reviews-block.php:332
+msgid "Testimonials"
+msgstr ""
+
+#: SolidGoogleReviews.jsx:17
+msgid "Discover the experiences of those who have already enjoyed our services"
+msgstr ""
+
+#: SolidGoogleReviews.jsx:24 class-wptbt-google-reviews-block.php:333
+msgid "Client"
+msgstr ""
+
+#: SolidGoogleReviews.jsx:58
+msgid "Google Reviews: Place ID and API Key are required to load dynamic reviews"
+msgstr ""
+
+#: SolidGoogleReviews.jsx:81
+msgid "Error in response"
+msgstr ""
+
+#: SolidGoogleReviews.jsx:90
+msgid "Invalid response format"
+msgstr ""
+
+#: SolidGoogleReviews.jsx:94
+msgid "Error loading reviews:"
+msgstr ""
+
+#: SolidGoogleReviews.jsx:98
+msgid "Unable to load reviews. Please try again later."
+msgstr ""
+
+#: SolidGoogleReviews.jsx:333 class-wptbt-google-reviews-block.php:334
+msgid "Loading testimonials..."
+msgstr ""
+
+#: SolidGoogleReviews.jsx:582 class-wptbt-google-reviews-block.php:64 class-wptbt-google-reviews-block.php:335
+msgid "Google Reviews"
+msgstr ""
+
+#: SolidGoogleReviews.jsx:508 class-wptbt-google-reviews-block.php:336
+msgid "Leave your review"
+msgstr ""
+
+#: SolidGoogleReviews.jsx:483 class-wptbt-google-reviews-block.php:337
+msgid "Previous testimonial"
+msgstr ""
+
+#: SolidGoogleReviews.jsx:521 class-wptbt-google-reviews-block.php:338
+msgid "Next testimonial"
+msgstr ""
+
+#: SolidGoogleReviews.jsx:421 class-wptbt-google-reviews-block.php:339
+msgid "Go to testimonial"
+msgstr ""
+
+#: class-wptbt-google-reviews-block.php:59
+msgid "WHAT OUR CLIENTS SAY"
+msgstr ""
+
+#: class-wptbt-google-reviews-block.php:68
+msgid "See what our customers are saying about us"
+msgstr ""
+
+#: class-wptbt-google-reviews-block.php:155
+msgid "Excellent service! I highly recommend this place to everyone. The attention to detail and customer service were outstanding. I will definitely be coming back."
+msgstr ""
+
+#: class-wptbt-google-reviews-block.php:161
+msgid "Amazing experience. The staff was very professional and friendly. They made sure I was comfortable throughout my appointment. Truly a 5-star service!"
+msgstr ""
+
+#: class-wptbt-google-reviews-block.php:167
+msgid "Very good service and friendly staff. The only reason I'm not giving 5 stars is because I had to wait a bit longer than expected. Otherwise, everything was perfect."
+msgstr ""
+
+#: class-wptbt-google-reviews-block.php:173
+msgid "I've been coming here for years and have never been disappointed. The quality of service is consistently excellent. Highly recommended!"
+msgstr ""
+
+#: class-wptbt-google-reviews-block.php:179
+msgid "Fantastic experience from start to finish. The booking process was simple, the facilities were clean, and the staff was extremely professional. Will definitely return!"
+msgstr ""
+
+#: class-wptbt-google-reviews-block.php:202
+msgid "Invalid security token"
+msgstr ""

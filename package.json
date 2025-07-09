@@ -1,0 +1,43 @@
+{
+  "name": "wp-tailwind-blocks-theme",
+  "version": "1.0.0",
+  "description": "Tema WordPress con TailwindCSS, bloques Gutenberg, Vite y Solid.js",
+  "author": "Tu Nombre",
+  "license": "GPL-2.0-or-later",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && node build-solid.js",
+    "build:solid": "node build-solid.js",
+    "preview": "vite preview",
+    "serve": "cross-env NODE_ENV=development node ./vite-hmr-server.js",
+    "build:css": "tailwindcss -i ./src/sass/main.scss -o ./assets/css/main.css --minify",
+    "dev:css": "tailwindcss -i ./src/sass/main.scss -o ./assets/css/main.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.14",
+    "@vitejs/plugin-react": "^4.2.0",
+    "@wordpress/blocks": "^12.35.0",
+    "@wordpress/components": "^25.16.0",
+    "@wordpress/element": "^5.35.0",
+    "@wordpress/i18n": "^4.58.0",
+    "@wordpress/scripts": "^26.17.0",
+    "autoprefixer": "^10.4.21",
+    "browser-sync": "^2.29.3",
+    "cross-env": "^7.0.3",
+    "express": "^4.18.2",
+    "postcss": "^8.5.3",
+    "sass": "^1.85.1",
+    "vite": "^5.0.0",
+    "vite-plugin-solid": "^2.9.1",
+    "ws": "^8.14.2"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.0.14",
+    "@wordpress/block-editor": "^14.15.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "solid-js": "^1.8.12",
+    "tailwindcss": "^4.0.14"
+  },
+  "type": "module"
+}

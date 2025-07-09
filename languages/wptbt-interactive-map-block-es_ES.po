@@ -1,0 +1,343 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Tailwind Blocks Theme\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-04-12 12:00+0000\n"
+"PO-Revision-Date: 2025-04-12 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.3.2\n"
+"X-Poedit-KeywordsList: __;_e;esc_html__;esc_html_e;esc_attr__;esc_attr_e\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-SearchPath-0: .\n"
+
+# Textos principales
+msgid "Find Us"
+msgstr "Encuéntranos"
+
+msgid "Our Location"
+msgstr "Nuestra Ubicación"
+
+msgid "Visit us and discover our relaxing spa in the heart of the city"
+msgstr "Visítanos y descubre nuestro relajante spa en el corazón de la ciudad"
+
+msgid "Your wellness sanctuary"
+msgstr "Tu santuario de bienestar"
+
+# Nombres de marcador predeterminados
+msgid "Mystical Terra Spa"
+msgstr "Mystical Terra Spa"
+
+msgid "Plaza de Armas"
+msgstr "Plaza de Armas"
+
+msgid "Main square of Cusco"
+msgstr "Plaza principal de Cusco"
+
+msgid "Qorikancha"
+msgstr "Qorikancha"
+
+msgid "The Inca's Sun Temple"
+msgstr "El Templo del Sol Inca"
+
+# Elementos de interfaz de mapa
+msgid "Loading map..."
+msgstr "Cargando mapa..."
+
+msgid "Loading map dependencies..."
+msgstr "Cargando dependencias del mapa..."
+
+msgid "Initializing map..."
+msgstr "Inicializando mapa..."
+
+msgid "Failed to load the map. Please try again later."
+msgstr "No se pudo cargar el mapa. Por favor, inténtalo más tarde."
+
+msgid "Reset Map View"
+msgstr "Restablecer Vista del Mapa"
+
+msgid "Fullscreen"
+msgstr "Pantalla Completa"
+
+msgid "Exit Fullscreen"
+msgstr "Salir de Pantalla Completa"
+
+msgid "Switch to Map View"
+msgstr "Cambiar a Vista de Mapa"
+
+msgid "Switch to Street View"
+msgstr "Cambiar a Vista de Calle"
+
+# Direcciones y navegación
+msgid "Get Directions"
+msgstr "Obtener Indicaciones"
+
+msgid "Directions"
+msgstr "Indicaciones"
+
+msgid "Starting point:"
+msgstr "Punto de partida:"
+
+msgid "Enter address or location"
+msgstr "Introducir dirección o ubicación"
+
+msgid "Use my current location"
+msgstr "Usar mi ubicación actual"
+
+msgid "Travel mode:"
+msgstr "Modo de viaje:"
+
+msgid "Driving"
+msgstr "Conduciendo"
+
+msgid "Walking"
+msgstr "Caminando"
+
+msgid "Bicycling"
+msgstr "En bicicleta"
+
+msgid "Transit"
+msgstr "Transporte público"
+
+msgid "Go"
+msgstr "Ir"
+
+msgid "Route Info"
+msgstr "Información de Ruta"
+
+msgid "Distance"
+msgstr "Distancia"
+
+msgid "Duration"
+msgstr "Duración"
+
+msgid "We couldn't get your current location. Please enable location services in your browser."
+msgstr "No pudimos obtener tu ubicación actual. Por favor habilita los servicios de ubicación en tu navegador."
+
+# Puntos de interés
+msgid "Points of Interest"
+msgstr "Puntos de Interés"
+
+msgid "from destination"
+msgstr "desde destino"
+
+msgid "Visit Website"
+msgstr "Visitar Sitio Web"
+
+# Información de contacto
+msgid "Contact Information"
+msgstr "Información de Contacto"
+
+msgid "Book an Appointment"
+msgstr "Reservar una Cita"
+
+# Mensajes de error
+msgid "Error"
+msgstr "Error"
+
+msgid "Retry"
+msgstr "Reintentar"
+
+msgid "Loading..."
+msgstr "Cargando..."
+
+msgid "Success"
+msgstr "Éxito"
+
+# Editor de bloque (Admin)
+msgid "Mapa Interactivo"
+msgstr "Mapa Interactivo"
+
+msgid "Configuración General"
+msgstr "Configuración General"
+
+msgid "Título"
+msgstr "Título"
+
+msgid "Subtítulo"
+msgstr "Subtítulo"
+
+msgid "Descripción (opcional)"
+msgstr "Descripción (opcional)"
+
+msgid "Altura del mapa"
+msgstr "Altura del mapa"
+
+msgid "Ejemplo: 500px, 60vh, etc."
+msgstr "Ejemplo: 500px, 60vh, etc."
+
+msgid "Ubicación y Marcador"
+msgstr "Ubicación y Marcador"
+
+msgid "Latitud"
+msgstr "Latitud"
+
+msgid "Longitud"
+msgstr "Longitud"
+
+msgid "Nivel de zoom"
+msgstr "Nivel de zoom"
+
+msgid "Título del marcador"
+msgstr "Título del marcador"
+
+msgid "Descripción del marcador"
+msgstr "Descripción del marcador"
+
+msgid "Opciones del Mapa"
+msgstr "Opciones del Mapa"
+
+msgid "Proveedor de mapas"
+msgstr "Proveedor de mapas"
+
+msgid "OpenStreetMap (gratuito)"
+msgstr "OpenStreetMap (gratuito)"
+
+msgid "Google Maps (requiere API key)"
+msgstr "Google Maps (requiere API key)"
+
+msgid "Es necesario proporcionar una API key de Google Maps para usar este proveedor."
+msgstr "Es necesario proporcionar una API key de Google Maps para usar este proveedor."
+
+msgid "OpenStreetMap es gratuito y no requiere API key, pero tiene funcionalidades limitadas."
+msgstr "OpenStreetMap es gratuito y no requiere API key, pero tiene funcionalidades limitadas."
+
+msgid "API Key de Google Maps"
+msgstr "API Key de Google Maps"
+
+msgid "Opcional. Ingresa tu API key de Google Maps para usar el mapa en producción."
+msgstr "Opcional. Ingresa tu API key de Google Maps para usar el mapa en producción."
+
+msgid "Estilo del mapa"
+msgstr "Estilo del mapa"
+
+msgid "Estándar"
+msgstr "Estándar"
+
+msgid "Plateado"
+msgstr "Plateado"
+
+msgid "Retro"
+msgstr "Retro"
+
+msgid "Oscuro"
+msgstr "Oscuro"
+
+msgid "Noche"
+msgstr "Noche"
+
+msgid "Berenjena"
+msgstr "Berenjena"
+
+msgid "Claro"
+msgstr "Claro"
+
+msgid "Satélite"
+msgstr "Satélite"
+
+msgid "Terreno"
+msgstr "Terreno"
+
+msgid "Vista previa del estilo"
+msgstr "Vista previa del estilo"
+
+msgid "Mostrar controles de zoom"
+msgstr "Mostrar controles de zoom"
+
+msgid "Habilitar pantalla completa"
+msgstr "Habilitar pantalla completa"
+
+msgid "Habilitar agrupación de marcadores"
+msgstr "Habilitar agrupación de marcadores"
+
+msgid "Agrupa marcadores cercanos cuando hay muchos puntos de interés"
+msgstr "Agrupa marcadores cercanos cuando hay muchos puntos de interés"
+
+msgid "Mostrar direcciones"
+msgstr "Mostrar direcciones"
+
+msgid "Mostrar Street View"
+msgstr "Mostrar Street View"
+
+msgid "Con OpenStreetMap se usará Mapillary como alternativa"
+msgstr "Con OpenStreetMap se usará Mapillary como alternativa"
+
+msgid "Mostrar vista a nivel de calle con Google Street View"
+msgstr "Mostrar vista a nivel de calle con Google Street View"
+
+msgid "Puntos de Interés"
+msgstr "Puntos de Interés"
+
+msgid "Punto"
+msgstr "Punto"
+
+msgid "Eliminar"
+msgstr "Eliminar"
+
+msgid "Añadir imagen"
+msgstr "Añadir imagen"
+
+msgid "Cambiar imagen"
+msgstr "Cambiar imagen"
+
+msgid "Eliminar imagen"
+msgstr "Eliminar imagen"
+
+msgid "Añadir punto de interés"
+msgstr "Añadir punto de interés"
+
+msgid "Información de Contacto"
+msgstr "Información de Contacto"
+
+msgid "Dirección"
+msgstr "Dirección"
+
+msgid "Teléfono"
+msgstr "Teléfono"
+
+msgid "Correo electrónico"
+msgstr "Correo electrónico"
+
+msgid "URL de Reserva"
+msgstr "URL de Reserva"
+
+msgid "Colores"
+msgstr "Colores"
+
+msgid "Color de Fondo"
+msgstr "Color de Fondo"
+
+msgid "Color de Texto"
+msgstr "Color de Texto"
+
+msgid "Color de Acento"
+msgstr "Color de Acento"
+
+msgid "Color Secundario"
+msgstr "Color Secundario"
+
+msgid "Vista previa del mapa (se mostrará el mapa real en el frontend)"
+msgstr "Vista previa del mapa (se mostrará el mapa real en el frontend)"
+
+msgid "Zoom"
+msgstr "Zoom"
+
+msgid "Proveedor: OpenStreetMap (gratuito)"
+msgstr "Proveedor: OpenStreetMap (gratuito)"
+
+msgid "Proveedor: Google Maps"
+msgstr "Proveedor: Google Maps"
+
+msgid "Puntos de interés configurados:"
+msgstr "Puntos de interés configurados:"
+
+msgid "más"
+msgstr "más"
+
+msgid "Configura todos los detalles del mapa en el panel lateral."
+msgstr "Configura todos los detalles del mapa en el panel lateral."
