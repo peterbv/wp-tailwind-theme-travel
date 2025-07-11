@@ -16,31 +16,31 @@ if (!defined('ABSPATH')) {
  * Renderiza el formulario de reserva para un servicio específico
  * ACTUALIZADO: Ahora usa el sistema de múltiples precios automáticamente
  * 
- * @param int|WP_Post $service_id_or_post ID del servicio o objeto WP_Post
+ * @param int|WP_Post $tour_id_or_post ID del servicio o objeto WP_Post
  * @return string HTML del formulario de reserva
  */
-function wptbt_render_service_booking_form($service_id_or_post)
+function wptbt_render_tour_booking_form($tour_id_or_post)
 {
     // Obtener el objeto post del servicio
-    if (is_numeric($service_id_or_post)) {
-        $service_post = get_post($service_id_or_post);
-    } elseif ($service_id_or_post instanceof WP_Post) {
-        $service_post = $service_id_or_post;
+    if (is_numeric($tour_id_or_post)) {
+        $tour_post = get_post($tour_id_or_post);
+    } elseif ($tour_id_or_post instanceof WP_Post) {
+        $tour_post = $tour_id_or_post;
     } else {
         global $post;
-        $service_post = $post;
+        $tour_post = $post;
     }
 
-    if (!$service_post || $service_post->post_type !== 'servicio') {
-        return '<div class="p-4 bg-red-100 text-red-800 rounded-md">Error: Invalid service data</div>';
+    if (!$tour_post || $tour_post->post_type !== 'tours') {
+        return '<div class="p-4 bg-red-100 text-red-800 rounded-md">Error: Invalid tour data</div>';
     }
 
-    $service_id = $service_post->ID;
-    $service_title = $service_post->post_title;
+    $tour_id = $tour_post->ID;
+    $tour_title = $tour_post->post_title;
     $form_id = 'booking-form-' . uniqid();
 
     // CORREGIDO: Obtener múltiples precios con formato consistente
-    $prices = get_post_meta($service_id, '_wptbt_service_prices', true);
+    $prices = get_post_meta($tour_id, '_wptbt_tour_prices', true);
     $durations = [];
 
     if (!empty($prices) && is_array($prices)) {
@@ -59,10 +59,10 @@ function wptbt_render_service_booking_form($service_id_or_post)
         }
     } else {
         // Fallback: usar formato anterior
-        $duration1 = get_post_meta($service_id, '_wptbt_service_duration1', true) ?: '';
-        $price1 = get_post_meta($service_id, '_wptbt_service_price1', true) ?: '';
-        $duration2 = get_post_meta($service_id, '_wptbt_service_duration2', true) ?: '';
-        $price2 = get_post_meta($service_id, '_wptbt_service_price2', true) ?: '';
+        $duration1 = get_post_meta($tour_id, '_wptbt_tour_duration1', true) ?: '';
+        $price1 = get_post_meta($tour_id, '_wptbt_tour_price1', true) ?: '';
+        $duration2 = get_post_meta($tour_id, '_wptbt_tour_duration2', true) ?: '';
+        $price2 = get_post_meta($tour_id, '_wptbt_tour_price2', true) ?: '';
 
         if (!empty($duration1) && !empty($price1)) {
             $minutes1 = intval($duration1);
@@ -88,23 +88,23 @@ function wptbt_render_service_booking_form($service_id_or_post)
     }
 
     // Obtener horarios disponibles
-    $service_hours = get_post_meta($service_id, '_wptbt_service_hours', true) ?: [];
-    $service_subtitle = get_post_meta($service_id, '_wptbt_service_subtitle', true) ?: '';
+    $tour_hours = get_post_meta($tour_id, '_wptbt_tour_hours', true) ?: [];
+    $tour_subtitle = get_post_meta($tour_id, '_wptbt_tour_subtitle', true) ?: '';
 
     // VERIFICACIÓN: Log de debug
     if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log("Single service {$service_id}: " . count($service_hours) . " hours, " . count($durations) . " durations");
-        error_log("Hours: " . print_r($service_hours, true));
+        error_log("Single tour {$tour_id}: " . count($tour_hours) . " hours, " . count($durations) . " durations");
+        error_log("Hours: " . print_r($tour_hours, true));
         error_log("Durations: " . print_r($durations, true));
     }
 
     // Preparar la información de servicio para JSON (FORMATO CORREGIDO)
-    $service_data = [
+    $tour_data = [
         [
-            'id' => (string)$service_id, // IMPORTANTE: Convertir a string
-            'title' => $service_title,
-            'subtitle' => $service_subtitle,
-            'hours' => array_values($service_hours), // CORREGIDO: Asegurar array indexado
+            'id' => (string)$tour_id, // IMPORTANTE: Convertir a string
+            'title' => $tour_title,
+            'subtitle' => $tour_subtitle,
+            'hours' => array_values($tour_hours), // CORREGIDO: Asegurar array indexado
             'durations' => array_values($durations), // CORREGIDO: Asegurar array indexado
             // Mantener compatibilidad
             'duration1' => !empty($durations[0]) ? $durations[0]['duration'] : '',
@@ -114,14 +114,14 @@ function wptbt_render_service_booking_form($service_id_or_post)
         ]
     ];
 
-    $json_data = wp_json_encode($service_data);
-    $form_email = get_theme_mod('services_booking_form_email', get_option('admin_email'));
+    $json_data = wp_json_encode($tour_data);
+    $form_email = get_theme_mod('tours_booking_form_email', get_option('admin_email'));
 
     wptbt_load_solid_component('booking-form');
 
     ob_start();
 ?>
-    <div class="service-booking-form max-w-4xl mx-auto reveal-item opacity-0 translate-y-8 relative">
+    <div class="tour-booking-form max-w-4xl mx-auto reveal-item opacity-0 translate-y-8 relative">
         <!-- El resto del HTML permanece igual -->
         <div class="absolute top-0 left-0 right-0 -translate-y-1/2 flex justify-center">
             <div class="w-32 h-0.5 bg-spa-accent/30"></div>
@@ -130,21 +130,21 @@ function wptbt_render_service_booking_form($service_id_or_post)
         <div class="rounded-lg shadow-xl mb-30">
             <div class="bg-spa-secondary/20 p-8 text-center">
                 <span class="block text-lg italic font-medium mb-2 text-spa-accent">
-                    <?php echo esc_html__('Book your appointment', 'wptbt-services'); ?>
+                    <?php echo esc_html__('Book your appointment', 'wptbt-tours'); ?>
                 </span>
                 <h3 class="text-3xl fancy-text font-medium mb-6 text-gray-800 relative inline-block">
-                    <?php echo esc_html($service_title); ?>
+                    <?php echo esc_html($tour_title); ?>
                     <span class="absolute bottom-0 left-0 w-full h-1 mt-2 bg-spa-accent transform" style="transform: scaleX(0.3); transform-origin: center;"></span>
                 </h3>
                 
-                <?php if (!empty($service_subtitle)) : ?>
+                <?php if (!empty($tour_subtitle)) : ?>
                     <p class="text-lg text-gray-700 font-medium mb-4">
-                        <?php echo esc_html($service_subtitle); ?>
+                        <?php echo esc_html($tour_subtitle); ?>
                     </p>
                 <?php endif; ?>
 
                 <p class="text-gray-600 max-w-md mx-auto mt-6">
-                    <?php echo esc_html(sprintf(__('Complete the form to book your %s session', 'wptbt-services'), $service_title)); ?>
+                    <?php echo esc_html(sprintf(__('Complete the form to book your %s session', 'wptbt-tours'), $tour_title)); ?>
                 </p>
 
                 <?php if (!empty($durations)) : ?>
@@ -161,7 +161,7 @@ function wptbt_render_service_booking_form($service_id_or_post)
             </div>
 
             <div class="p-8 bg-white">
-                <?php if (empty($service_hours) && empty($durations)) : ?>
+                <?php if (empty($tour_hours) && empty($durations)) : ?>
                     <!-- Mensaje de error si no hay configuración -->
                     <div class="text-center py-8">
                         <div class="bg-amber-50 border border-amber-200 rounded-lg p-6">
@@ -169,18 +169,18 @@ function wptbt_render_service_booking_form($service_id_or_post)
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                             </svg>
                             <h4 class="text-lg font-medium text-amber-800 mb-2">
-                                <?php echo esc_html__('Service Configuration Needed', 'wptbt-services'); ?>
+                                <?php echo esc_html__('tour Configuration Needed', 'wptbt-tours'); ?>
                             </h4>
                             <p class="text-amber-700 mb-4">
-                                <?php echo esc_html__('This service needs available times and prices before bookings can be made.', 'wptbt-services'); ?>
+                                <?php echo esc_html__('This tour needs available times and prices before bookings can be made.', 'wptbt-tours'); ?>
                             </p>
                             <?php if (current_user_can('edit_posts')) : ?>
-                                <a href="<?php echo esc_url(get_edit_post_link($service_id)); ?>" 
+                                <a href="<?php echo esc_url(get_edit_post_link($tour_id)); ?>" 
                                    class="inline-flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
-                                    <?php echo esc_html__('Configure Service', 'wptbt-services'); ?>
+                                    <?php echo esc_html__('Configure tour', 'wptbt-tours'); ?>
                                 </a>
                             <?php endif; ?>
                         </div>
@@ -189,10 +189,10 @@ function wptbt_render_service_booking_form($service_id_or_post)
                     <?php
                     echo wptbt_booking_form_component(
                         [
-                            'services' => $service_data,
+                            'tours' => $tour_data,
                             'darkMode' => false,
-                            'accentColor' => get_theme_mod('services_booking_form_accent_color', '#D4B254'),
-                            'useSingleService' => true,
+                            'accentColor' => get_theme_mod('tours_booking_form_accent_color', '#D4B254'),
+                            'useSingletour' => true,
                             'emailRecipient' => $form_email 
                         ],
                         [
@@ -216,9 +216,9 @@ function wptbt_render_service_booking_form($service_id_or_post)
             <details>
                 <summary class="cursor-pointer font-medium">Debug Info (Admin Only)</summary>
                 <div class="mt-2 space-y-2">
-                    <p><strong>Service ID:</strong> <?php echo esc_html($service_id); ?></p>
+                    <p><strong>tour ID:</strong> <?php echo esc_html($tour_id); ?></p>
                     <p><strong>Durations:</strong> <?php echo esc_html(count($durations)); ?></p>
-                    <p><strong>Hours:</strong> <?php echo esc_html(count($service_hours)); ?></p>
+                    <p><strong>Hours:</strong> <?php echo esc_html(count($tour_hours)); ?></p>
                     <p><strong>JSON Data:</strong> <code style="word-break: break-all;"><?php echo esc_html($json_data); ?></code></p>
                 </div>
             </details>
@@ -234,74 +234,74 @@ function wptbt_render_service_booking_form($service_id_or_post)
  * 
  * @return string HTML del formulario de reserva
  */
-function wptbt_render_current_service_booking_form()
+function wptbt_render_current_tour_booking_form()
 {
     global $post;
     
     if (!$post || $post->post_type !== 'servicio') {
-        return '<div class="p-4 bg-red-100 text-red-800 rounded-md">Error: Not a service page</div>';
+        return '<div class="p-4 bg-red-100 text-red-800 rounded-md">Error: Not a tour page</div>';
     }
 
-    return wptbt_render_service_booking_form($post);
+    return wptbt_render_tour_booking_form($post);
 }
 
 /**
  * FUNCIÓN DE COMPATIBILIDAD: Mantiene la firma anterior pero usando el nuevo sistema
  * Para evitar romper código existente
  * 
- * @deprecated Usar wptbt_render_service_booking_form() con service ID en su lugar
+ * @deprecated Usar wptbt_render_tour_booking_form() con tour ID en su lugar
  */
-function wptbt_render_service_booking_form_legacy($service_title, $service_duration1 = '', $service_price1 = '', $service_duration2 = '', $service_price2 = '', $service_hours = [])
+function wptbt_render_tour_booking_form_legacy($tour_title, $tour_duration1 = '', $tour_price1 = '', $tour_duration2 = '', $tour_price2 = '', $tour_hours = [])
 {
     // Crear datos de servicio temporal para compatibilidad
     $durations = [];
     
-    if (!empty($service_duration1) && !empty($service_price1)) {
+    if (!empty($tour_duration1) && !empty($tour_price1)) {
         $durations[] = [
-            'duration' => $service_duration1,
-            'price' => $service_price1,
-            'minutes' => intval($service_duration1),
-            'text' => $service_duration1 . ' - ' . $service_price1,
-            'value' => intval($service_duration1) . 'min-' . $service_price1
+            'duration' => $tour_duration1,
+            'price' => $tour_price1,
+            'minutes' => intval($tour_duration1),
+            'text' => $tour_duration1 . ' - ' . $tour_price1,
+            'value' => intval($tour_duration1) . 'min-' . $tour_price1
         ];
     }
     
-    if (!empty($service_duration2) && !empty($service_price2)) {
+    if (!empty($tour_duration2) && !empty($tour_price2)) {
         $durations[] = [
-            'duration' => $service_duration2,
-            'price' => $service_price2,
-            'minutes' => intval($service_duration2),
-            'text' => $service_duration2 . ' - ' . $service_price2,
-            'value' => intval($service_duration2) . 'min-' . $service_price2
+            'duration' => $tour_duration2,
+            'price' => $tour_price2,
+            'minutes' => intval($tour_duration2),
+            'text' => $tour_duration2 . ' - ' . $tour_price2,
+            'value' => intval($tour_duration2) . 'min-' . $tour_price2
         ];
     }
 
-    $service_data = [
+    $tour_data = [
         [
             'id' => 'legacy',
-            'title' => $service_title,
+            'title' => $tour_title,
             'subtitle' => '',
-            'hours' => $service_hours,
+            'hours' => $tour_hours,
             'durations' => $durations,
-            'duration1' => $service_duration1,
-            'price1' => $service_price1,
-            'duration2' => $service_duration2,
-            'price2' => $service_price2
+            'duration1' => $tour_duration1,
+            'price1' => $tour_price1,
+            'duration2' => $tour_duration2,
+            'price2' => $tour_price2
         ]
     ];
 
     $form_id = 'booking-form-' . uniqid();
-    $form_email = get_theme_mod('services_booking_form_email', get_option('admin_email'));
+    $form_email = get_theme_mod('tours_booking_form_email', get_option('admin_email'));
     
     wptbt_load_solid_component('booking-form');
 
     ob_start();
 ?>
-    <div class="service-booking-form max-w-4xl mx-auto">
+    <div class="tour-booking-form max-w-4xl mx-auto">
         <div class="rounded-lg shadow-xl bg-white p-8">
             <div class="text-center mb-8">
                 <h3 class="text-3xl font-medium mb-6 text-gray-800">
-                    <?php echo esc_html($service_title); ?>
+                    <?php echo esc_html($tour_title); ?>
                 </h3>
                 <p class="text-gray-600">
                     Complete the form to book your session
@@ -311,10 +311,10 @@ function wptbt_render_service_booking_form_legacy($service_title, $service_durat
             <?php
             echo wptbt_booking_form_component(
                 [
-                    'services' => $service_data,
+                    'tours' => $tour_data,
                     'darkMode' => false,
                     'accentColor' => '#D4B254',
-                    'useSingleService' => true,
+                    'useSingletour' => true,
                     'emailRecipient' => $form_email 
                 ],
                 [

@@ -59,7 +59,7 @@ class WPTBT_Theme_Init
             'inc/classes/class-wptbt-multisite.php',
             'inc/classes/class-wptbt-customizer.php',
             'inc/classes/class-wptbt-dynamic-css.php',
-            'inc/classes/class-wptbt-services.php',
+            'inc/classes/class-wptbt-tours.php',
             'inc/classes/class-wptbt-services-block.php',
             'inc/classes/class-wptbt-benefits-block.php',
             'inc/classes/class-wptbt-booking-block.php',
@@ -71,7 +71,7 @@ class WPTBT_Theme_Init
             'inc/classes/class-wptbt-banner-metabox.php',
             'inc/template-functions.php',
             'inc/template-tags.php',
-            '/inc/service-booking.php',
+            '/inc/tour-booking.php',
             'inc/wptbt-get-language-switcher.php'
         ];
 

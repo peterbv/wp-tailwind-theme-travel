@@ -1,93 +1,340 @@
-# wp-tailwind-theme
+# Travel Vibes - Tema WordPress para Agencias de Viajes
 
+![Travel Vibes Theme](https://img.shields.io/badge/Version-1.0.0-blue.svg)
+![WordPress](https://img.shields.io/badge/WordPress-6.0+-green.svg)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4+-06B6D4.svg)
+![PHP](https://img.shields.io/badge/PHP-7.4+-777BB4.svg)
 
+Un tema WordPress moderno y completamente responsivo diseñado específicamente para agencias de viajes, operadores turísticos y empresas del sector turismo. Construido con Tailwind CSS para un diseño elegante y rendimiento optimizado.
 
-## Getting started
+## 🌟 Características Principales
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+### ✈️ **Específico para Turismo**
+- **Custom Post Type "Tours"** con campos personalizados completos
+- **Taxonomías especializadas**: Categorías de tours, Destinos, Duración
+- **Campos meta avanzados**: Precio, duración, dificultad, incluye/excluye, itinerario
+- **Formulario de reservas** integrado en cada tour
+- **Sistema de filtros** por precio, categoría, destino y duración
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+### 🎨 **Diseño Moderno**
+- **Totalmente responsivo** - Optimizado para móviles, tablets y desktop
+- **Tailwind CSS 3.4+** - Framework CSS moderno y eficiente
+- **Componentes reutilizables** - Sistema de diseño consistente
+- **Animaciones suaves** - Transiciones y efectos visuales atractivos
+- **Modo oscuro preparado** - Fácil implementación de tema oscuro
 
-## Add your files
+### 🚀 **Rendimiento Optimizado**
+- **Lazy Loading** para imágenes
+- **Minimización de CSS/JS** en producción
+- **Código limpio y semántico**
+- **Core Web Vitals optimizado**
+- **SEO friendly** con meta tags y estructuras correctas
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+### 🔧 **Funcionalidades Avanzadas**
+- **Buscador avanzado** de tours con filtros múltiples
+- **Sistema de favoritos** (wishlist) con localStorage
+- **Integración WhatsApp** para consultas directas
+- **Formularios de contacto** optimizados
+- **Newsletter** con validación
+- **Breadcrumbs** automáticos
+- **Widgets personalizados** para sidebar
+
+## 📋 Requisitos
+
+- **WordPress:** 5.0 o superior
+- **PHP:** 7.4 o superior
+- **Node.js:** 16.0+ (para desarrollo)
+- **NPM:** 8.0+ (para desarrollo)
+
+## 🔧 Instalación
+
+### 1. Descargar e Instalar el Tema
+
+```bash
+# Clonar el repositorio
+git clone https://github.com/peterbv/wp-tailwind-theme-travel.git
+
+# O descargar como ZIP desde GitHub
+```
+
+### 2. Subir al WordPress
+
+1. Copia la carpeta del tema a `/wp-content/themes/`
+2. Ve a **Apariencia > Temas** en tu WordPress
+3. Activa el tema **Travel Vibes**
+
+### 3. Configuración de Desarrollo (Opcional)
+
+Si quieres personalizar los estilos:
+
+```bash
+# Instalar dependencias
+npm install
+
+# Desarrollo (watch mode)
+npm run dev
+
+# Producción (minificado)
+npm run build
+```
+
+## ⚙️ Configuración
+
+### 1. Configuración Básica
+
+1. **Logotipo**: Ve a **Apariencia > Personalizar > Identidad del sitio**
+2. **Menús**: Configura en **Apariencia > Menús**
+   - Menú Principal
+   - Menú Footer
+   - Menú Tours (opcional)
+
+### 2. Custom Post Types
+
+El tema crea automáticamente:
+
+- **Tours** (`/tours/`)
+- **Categorías de Tours** (`/categoria-tour/`)
+- **Destinos** (`/destino/`)
+- **Duración** (`/duracion/`)
+
+### 3. Widgets Disponibles
+
+- **Sidebar Principal**: Para páginas y posts
+- **Footer Widget 1, 2, 3**: Para el pie de página
+
+### 4. Configuración del Personalizador
+
+Ve a **Apariencia > Personalizar** para configurar:
+
+- **Información de Contacto**
+  - Dirección
+  - Teléfono
+  - Email
+  - WhatsApp
+- **Redes Sociales**
+  - Facebook
+  - Instagram
+  - Twitter
+  - YouTube
+- **Descripción Footer**
+
+## 📖 Uso del Tema
+
+### Crear Tours
+
+1. Ve a **Tours > Agregar Nuevo**
+2. Completa la información básica:
+   - Título del tour
+   - Descripción
+   - Imagen destacada
+   - Extracto
+
+3. En **Detalles del Tour**, completa:
+   - **Precio**: En USD
+   - **Duración**: Ej: "5 días / 4 noches"
+   - **Dificultad**: Fácil, Moderado, Difícil, Extremo
+   - **Máximo de Personas**: Número entero
+   - **Incluye**: Lista de lo que incluye el tour
+   - **No Incluye**: Lista de lo que no incluye
+   - **Itinerario**: Descripción detallada día a día
+
+4. Asigna **Categorías** y **Destinos**
+
+### Configurar Menús
+
+1. Ve a **Apariencia > Menús**
+2. Crea un menú para "Menú Principal"
+3. Agrega elementos:
+   - Inicio
+   - Tours (enlace a archivo de tours)
+   - Categorías de tours
+   - Blog
+   - Contacto
+
+### Configurar Widgets
+
+1. Ve a **Apariencia > Widgets**
+2. Arrastra widgets a las áreas disponibles:
+   - **Sidebar Principal**: Aparece en blog y páginas
+   - **Footer Widgets**: Aparecen en el pie de página
+
+## 🎨 Personalización
+
+### Colores y Estilos
+
+El tema usa un sistema de colores definido en `tailwind.config.js`:
+
+```javascript
+colors: {
+  primary: { /* Azul */ },
+  secondary: { /* Verde */ },
+  accent: { /* Naranja */ }
+}
+```
+
+### Componentes Principales
+
+- `.travel-card`: Tarjetas de tours
+- `.hero-travel`: Sección hero
+- `.btn-book-now`: Botón de reserva
+- `.destination-grid`: Grid de destinos
+
+### Hooks Disponibles
+
+```php
+// Después de setup del tema
+do_action('travel_vibes_after_setup');
+
+// Antes de mostrar tours
+do_action('travel_vibes_before_tours');
+
+// Después de mostrar tours
+do_action('travel_vibes_after_tours');
+```
+
+## 📱 Páginas Incluidas
+
+### Templates Principales
+
+- `index.php` - Página principal y blog
+- `single-tours.php` - Página individual de tour
+- `archive-tours.php` - Archivo de todos los tours
+- `taxonomy-tour_category.php` - Categorías de tours
+- `header.php` - Cabecera del sitio
+- `footer.php` - Pie de página
+- `sidebar.php` - Barra lateral
+
+### Funcionalidades JavaScript
+
+- **Menú móvil** responsive
+- **Búsqueda desplegable**
+- **Filtros de tours** dinámicos
+- **Sistema de favoritos**
+- **Formularios AJAX**
+- **Lightbox para imágenes**
+- **Scroll suave**
+- **Back to top**
+
+## 🛠️ Desarrollo
+
+### Estructura de Archivos
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/peterbayona/wp-tailwind-theme.git
-git branch -M main
-git push -uf origin main
+travel-vibes/
+├── style.css                 # CSS principal (compilado)
+├── index.php                 # Template principal
+├── functions.php             # Funciones del tema
+├── header.php               # Cabecera
+├── footer.php               # Pie de página
+├── sidebar.php              # Barra lateral
+├── single-tours.php         # Tour individual
+├── archive-tours.php        # Archivo de tours
+├── assets/
+│   ├── js/
+│   │   └── main.js         # JavaScript principal
+│   ├── css/
+│   └── images/
+├── src/
+│   └── tailwind.css        # Archivo fuente de Tailwind
+├── template-parts/          # Partes de templates
+├── inc/                     # Archivos de funciones
+├── languages/               # Archivos de traducción
+├── package.json             # Dependencias npm
+├── tailwind.config.js       # Configuración Tailwind
+├── postcss.config.js        # Configuración PostCSS
+└── README.md
 ```
 
-## Integrate with your tools
+### Scripts NPM
 
-- [ ] [Set up project integrations](https://gitlab.com/peterbayona/wp-tailwind-theme/-/settings/integrations)
+```bash
+# Desarrollo con watch
+npm run dev
 
-## Collaborate with your team
+# Build de producción
+npm run build
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+# Linting CSS
+npm run lint
 
-## Test and Deploy
+# Formatear código
+npm run format
 
-Use the built-in continuous integration in GitLab.
+# Limpiar node_modules
+npm run clean
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+### Configuración Tailwind
 
-***
+El archivo `tailwind.config.js` incluye:
 
-# Editing this README
+- **Colores personalizados** para turismo
+- **Componentes** reutilizables (`.btn`, `.card`)
+- **Utilidades** específicas (`.text-shadow`, `.glass`)
+- **Animaciones** personalizadas
+- **Responsive** breakpoints optimizados
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+## 🌐 Internacionalización
 
-## Suggestions for a good README
+El tema está preparado para traducciones:
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+- **Text Domain**: `travel-vibes`
+- **Archivos .pot** incluidos en `/languages/`
+- **Funciones** `__()` y `_e()` implementadas
 
-## Name
-Choose a self-explaining name for your project.
+### Idiomas Soportados
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+- **Español** (por defecto)
+- **Inglés** (preparado)
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+## 🤝 Soporte y Contribuciones
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+### Reportar Problemas
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+Si encuentras algún problema:
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+1. Revisa los [issues existentes](https://github.com/peterbv/wp-tailwind-theme-travel/issues)
+2. Crea un nuevo issue con:
+   - Descripción del problema
+   - Pasos para reproducir
+   - Screenshots (si aplica)
+   - Versión de WordPress y PHP
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+### Contribuir
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+1. Fork el repositorio
+2. Crea una rama para tu feature (`git checkout -b feature/nueva-caracteristica`)
+3. Commit tus cambios (`git commit -am 'Agregar nueva característica'`)
+4. Push a la rama (`git push origin feature/nueva-caracteristica`)
+5. Crea un Pull Request
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+## 📄 Licencia
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+Este tema está licenciado bajo [GPL v2 o posterior](https://www.gnu.org/licenses/gpl-2.0.html).
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+## 🙏 Créditos
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+### Frameworks y Librerías
 
-## License
-For open source projects, say how it is licensed.
+- [Tailwind CSS](https://tailwindcss.com/) - Framework CSS
+- [WordPress](https://wordpress.org/) - CMS
+- [Lucide Icons](https://lucide.dev/) - Iconos SVG
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+### Inspiración
+
+- Diseños modernos de agencias de viajes
+- Mejores prácticas de UX/UI para turismo
+- Tendencias de diseño web 2024
+
+## 📧 Contacto
+
+- **Autor**: Peter BV
+- **Email**: [tu-email@ejemplo.com](mailto:tu-email@ejemplo.com)
+- **GitHub**: [@peterbv](https://github.com/peterbv)
+- **Website**: [tu-website.com](https://tu-website.com)
+
+---
+
+**Travel Vibes Theme** - Transformando la manera en que las agencias de viajes se presentan en línea ✈️🌍
+
+¿Te gusta este tema? ¡Dale una ⭐ en GitHub!
