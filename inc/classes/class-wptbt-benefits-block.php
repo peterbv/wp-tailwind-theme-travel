@@ -63,19 +63,19 @@ class WPTBT_Benefits_Block
             'attributes' => [
                 'title' => [
                     'type' => 'string',
-                    'default' => __('Experience True Relaxation', $this->translate)
+                    'default' => __('Vive Experiencias Únicas', $this->translate)
                 ],
                 'subtitle' => [
                     'type' => 'string',
-                    'default' => __('WHY CHOOSE US', $this->translate)
+                    'default' => __('POR QUÉ ELEGIRNOS', $this->translate)
                 ],
                 'description' => [
                     'type' => 'string',
-                    'default' => __('Discover what makes our spa treatments special', $this->translate)
+                    'default' => __('Descubre qué hace especiales nuestros viajes y destinos', $this->translate)
                 ],
                 'content' => [
                     'type' => 'string',
-                    'default' => __('Experience relaxation and rejuvenation with our exclusive treatments tailored to your needs. Our holistic approach ensures that every visit leaves you feeling refreshed and balanced.', $this->translate)
+                    'default' => __('Vive aventuras increíbles con nuestros tours personalizados diseñados para cada tipo de viajero. Nuestro enfoque integral garantiza que cada viaje sea memorable y transformador.', $this->translate)
                 ],
                 'mediaType' => [
                     'type' => 'string',
@@ -107,16 +107,16 @@ class WPTBT_Benefits_Block
                     'type' => 'array',
                     'default' => [
                         [
-                            'title' => __('EXPERT THERAPISTS', $this->translate),
-                            'description' => __('Our team consists of certified professionals with years of experience in spa and wellness.', $this->translate)
+                            'title' => __('GUÍAS EXPERTOS', $this->translate),
+                            'description' => __('Nuestro equipo está formado por guías certificados con años de experiencia en turismo y aventura.', $this->translate)
                         ],
                         [
-                            'title' => __('PREMIUM TREATMENTS', $this->translate),
-                            'description' => __('We offer a wide range of exclusive treatments using only the highest quality products.', $this->translate)
+                            'title' => __('DESTINOS EXCLUSIVOS', $this->translate),
+                            'description' => __('Ofrecemos una amplia gama de destinos únicos y experiencias exclusivas cuidadosamente seleccionadas.', $this->translate)
                         ],
                         [
-                            'title' => __('PEACEFUL ATMOSPHERE', $this->translate),
-                            'description' => __('Our carefully designed spaces create the perfect environment for complete relaxation.', $this->translate)
+                            'title' => __('SEGURIDAD GARANTIZADA', $this->translate),
+                            'description' => __('Todos nuestros tours cuentan con las máximas medidas de seguridad para tu tranquilidad y disfrute.', $this->translate)
                         ]
                     ]
                 ],

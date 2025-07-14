@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Bloque de Reservas para Spa
+ * Bloque de Reservas para Tours
  * Versión integrada con Solid.js para una mejor experiencia de usuario
  * Version con soporte para internacionalización (i18n)
  *
@@ -91,15 +91,15 @@ class WPTBT_Booking_Block
             'attributes' => [
                 'title' => [
                     'type' => 'string',
-                    'default' => __('Book Now', $this->translate)
+                    'default' => __('Reserva Ahora', $this->translate)
                 ],
                 'subtitle' => [
                     'type' => 'string',
-                    'default' => __('Appointment', $this->translate)
+                    'default' => __('Tu Aventura', $this->translate)
                 ],
                 'description' => [
                     'type' => 'string',
-                    'default' => __('Book your spa treatment and enjoy a moment of relaxation.', $this->translate)
+                    'default' => __('Reserva tu tour y vive una experiencia increíble.', $this->translate)
                 ],
                 'imageID' => [
                     'type' => 'number'
@@ -110,10 +110,10 @@ class WPTBT_Booking_Block
                 'services' => [
                     'type' => 'array',
                     'default' => [
-                        ['name' => __('Swedish Massage', $this->translate), 'duration' => __('60 min', $this->translate), 'price' => __('$90', $this->translate)],
-                        ['name' => __('Deep Tissue Massage', $this->translate), 'duration' => __('60 min', $this->translate), 'price' => __('$120', $this->translate)],
-                        ['name' => __('Hot Stone Massage', $this->translate), 'duration' => __('90 min', $this->translate), 'price' => __('$150', $this->translate)],
-                        ['name' => __('Aromatherapy Massage', $this->translate), 'duration' => __('60 min', $this->translate), 'price' => __('$110', $this->translate)]
+                        ['name' => __('Tour Montaña', $this->translate), 'duration' => __('3 días', $this->translate), 'price' => __('$299', $this->translate)],
+                        ['name' => __('Tour Playa', $this->translate), 'duration' => __('5 días', $this->translate), 'price' => __('$450', $this->translate)],
+                        ['name' => __('Tour Cultural', $this->translate), 'duration' => __('7 días', $this->translate), 'price' => __('$650', $this->translate)],
+                        ['name' => __('Tour Aventura', $this->translate), 'duration' => __('10 días', $this->translate), 'price' => __('$899', $this->translate)]
                     ]
                 ],
                 'buttonText' => [

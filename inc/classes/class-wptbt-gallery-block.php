@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Bloque de Galería para Spa con Solid.js
+ * Bloque de Galería para Agencia de Viajes con Solid.js
  * Versión mejorada con sistema modular Solid.js
  *
  * @package WPTBT
@@ -68,15 +68,15 @@ class WPTBT_Gallery_Block
             'attributes' => [
                 'title' => [
                     'type' => 'string',
-                    'default' => __('Our Gallery', $this->translate)
+                    'default' => __('Galería de Destinos', $this->translate)
                 ],
                 'subtitle' => [
                     'type' => 'string',
-                    'default' => __('Relaxation Spaces', $this->translate)
+                    'default' => __('Momentos Únicos', $this->translate)
                 ],
                 'description' => [
                     'type' => 'string',
-                    'default' => __('Explore our facilities and services through our image gallery.', $this->translate)
+                    'default' => __('Descubre los increíbles destinos y experiencias que ofrecemos a través de nuestra galería de imágenes.', $this->translate)
                 ],
                 'images' => [
                     'type' => 'array',

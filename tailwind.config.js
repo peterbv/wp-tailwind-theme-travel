@@ -19,12 +19,21 @@ module.exports = {
         danger: "#dc3545",
         light: "#f8f9fa",
         dark: "#212529",
+        travel: {
+          primary: "#DC2626", // Rojo principal elegante
+          secondary: "#F9FAFB", // Gris muy claro profesional
+          accent: "#EF4444", // Rojo vibrante para CTAs
+          dark: "#1F2937", // Gris oscuro para textos
+          light: "#F3F4F6", // Gris claro para fondos
+          gold: "#F59E0B", // Dorado para detalles especiales
+        },
+        // Mantener compatibilidad con clases existentes
         spa: {
-          primary: "#4F8A8B", // Azul-aguamarina
-          secondary: "#F7EDE2", // Beige suave
-          accent: "#D4B254", // Dorado suave
-          sage: "#8BAB8D", // Verde salvia
-          rose: "#D9ADB7", // Rosa polvo
+          primary: "#DC2626", // Mapear a travel primary (rojo)
+          secondary: "#F9FAFB", // Mapear a travel secondary
+          accent: "#EF4444", // Mapear a travel accent (rojo vibrante)
+          sage: "#1F2937", // Mapear a travel dark
+          rose: "#F59E0B", // Mapear a travel gold
         },
       },
       // Configuración de fuentes

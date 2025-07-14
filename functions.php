@@ -1,9 +1,10 @@
 <?php
 
 /**
- * Functions.php optimizado para el tema WP Tailwind Spa
+ * Functions.php optimizado para el tema WP Travel Agency
  * 
  * Incluye optimizaciones de rendimiento y mejor organización de código
+ * Diseñado específicamente para agencias de viajes y tour operadores
  */
 
 // Prevenir acceso directo al archivo
@@ -285,7 +286,7 @@ class WPTBT_Theme_Init
      */
     public function custom_button_color()
     {
-        $button_color = get_theme_mod('cta_button_color', '#D4B254');
+        $button_color = get_theme_mod('cta_button_color', '#EF4444');
         $button_color_dark = $this->adjust_brightness($button_color, -20);
 
 ?>

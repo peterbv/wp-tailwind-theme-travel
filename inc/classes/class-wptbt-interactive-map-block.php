@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Bloque de Mapa Interactivo
+ * Bloque de Mapa Interactivo para Destinos
  * Versión optimizada con Solid.js modular
  * Con soporte completo para internacionalización (i18n)
  * Soporta OpenStreetMap (Leaflet) y Google Maps
@@ -70,15 +70,15 @@ class WPTBT_Interactive_Map_Block
             'attributes' => [
                 'title' => [
                     'type' => 'string',
-                    'default' => __('FIND US', $this->translate)
+                    'default' => __('NUESTROS DESTINOS', $this->translate)
                 ],
                 'subtitle' => [
                     'type' => 'string',
-                    'default' => __('Our Location', $this->translate)
+                    'default' => __('Explora el Mundo', $this->translate)
                 ],
                 'description' => [
                     'type' => 'string',
-                    'default' => __('Visit us and discover our relaxing spa in the heart of the city', $this->translate)
+                    'default' => __('Descubre los increíbles destinos que puedes visitar con nuestros tours', $this->translate)
                 ],
                 'latitude' => [
                     'type' => 'number',
@@ -94,7 +94,7 @@ class WPTBT_Interactive_Map_Block
                 ],
                 'markerTitle' => [
                     'type' => 'string',
-                    'default' => __('Mystical Terra Spa', $this->translate)
+                    'default' => __('Mystical Terra Travel', $this->translate)
                 ],
                 'markerDescription' => [
                     'type' => 'string',

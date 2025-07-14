@@ -63,26 +63,26 @@ class WPTBT_Solid_FAQ_Block
             'attributes' => [
                 'title' => [
                     'type' => 'string',
-                    'default' => __('Frequently Asked Questions', $this->translate)
+                    'default' => __('Preguntas Frecuentes', $this->translate)
                 ],
                 'subtitle' => [
                     'type' => 'string',
-                    'default' => __('We answer your questions', $this->translate)
+                    'default' => __('Resolvemos tus dudas sobre viajes', $this->translate)
                 ],
                 'faqs' => [
                     'type' => 'array',
                     'default' => [
                         [
-                            'question' => __('What should I do before my first massage session?', $this->translate),
-                            'answer' => __('We recommend arriving 15 minutes before your appointment to complete a brief health questionnaire. Wear comfortable clothing and avoid heavy meals or alcohol before your session. If you have any medical conditions or concerns, please notify us in advance.', $this->translate)
+                            'question' => __('¿Qué incluyen nuestros tours?', $this->translate),
+                            'answer' => __('Nuestros tours incluyen alojamiento, transporte, guía experto, algunas comidas según el itinerario y todas las actividades programadas. Los vuelos internacionales no están incluidos a menos que se especifique.', $this->translate)
                         ],
                         [
-                            'question' => __('How long does a typical massage session last?', $this->translate),
-                            'answer' => __('Our standard massage sessions last 60 minutes, but we also offer 30, 90, and 120-minute options depending on your needs and preferences.', $this->translate)
+                            'question' => __('¿Cuál es la política de cancelación?', $this->translate),
+                            'answer' => __('Ofrecemos cancelación gratuita hasta 30 días antes del viaje. Entre 30 y 15 días se aplica un 50% de penalización, y menos de 15 días el 100% del costo del tour.', $this->translate)
                         ],
                         [
-                            'question' => __('Is it necessary to undress completely for a massage?', $this->translate),
-                            'answer' => __('It is not necessary. You can undress to your comfort level. During the massage, you will be covered with sheets, and only the part of the body being treated will be uncovered.', $this->translate)
+                            'question' => __('¿Necesito seguro de viaje?', $this->translate),
+                            'answer' => __('Recomendamos encarecidamente contratar un seguro de viaje que cubra gastos médicos, cancelaciones y pérdida de equipaje. Podemos ayudarte a encontrar las mejores opciones.', $this->translate)
                         ]
                     ]
                 ],
@@ -96,7 +96,7 @@ class WPTBT_Solid_FAQ_Block
                 ],
                 'accentColor' => [
                     'type' => 'string',
-                    'default' => '#D4B254'
+                    'default' => '#F59E0B'
                 ],
                 'layout' => [
                     'type' => 'string',
@@ -108,7 +108,7 @@ class WPTBT_Solid_FAQ_Block
                 ],
                 'contactText' => [
                     'type' => 'string',
-                    'default' => __('Do you have more questions?', $this->translate)
+                    'default' => __('¿Tienes más preguntas?', $this->translate)
                 ],
                 'contactUrl' => [
                     'type' => 'string',

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Bloque de Testimonios de Google Maps
+ * Bloque de Testimonios de Viajeros
  * Versión optimizada con Solid.js modular
  * Con soporte completo para internacionalización (i18n)
  *
@@ -73,15 +73,15 @@ class WPTBT_Google_Reviews_Block
             'attributes' => [
                 'title' => [
                     'type' => 'string',
-                    'default' => __('WHAT OUR CLIENTS SAY', $this->translate)
+                    'default' => __('LO QUE DICEN NUESTROS VIAJEROS', $this->translate)
                 ],
                 'subtitle' => [
                     'type' => 'string',
-                    'default' => __('Google Reviews', $this->translate)
+                    'default' => __('Testimonios de Viaje', $this->translate)
                 ],
                 'description' => [
                     'type' => 'string',
-                    'default' => __('See what our customers are saying about us', $this->translate)
+                    'default' => __('Descubre las experiencias de quienes ya vivieron nuestros tours', $this->translate)
                 ],
                 'placeId' => [
                     'type' => 'string',

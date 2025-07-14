@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Bloque de Servicios Optimizado para Spa
+ * Bloque de Tours y Destinos para Agencia de Viajes
  *
  * @package WPTBT
  */
@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Class WPTBT_Services_Block
+ * Class WPTBT_Services_Block - Tours and Destinations
  */
 class WPTBT_Services_Block
 {
@@ -24,11 +24,13 @@ class WPTBT_Services_Block
         add_action('init', [$this, 'register_block']);
 
         // Agregar shortcode como método alternativo
-        add_shortcode('wptbt_services', [$this, 'render_services_shortcode']);
+        add_shortcode('wptbt_tours', [$this, 'render_tours_shortcode']);
+        // Mantener compatibilidad con shortcode anterior
+        add_shortcode('wptbt_services', [$this, 'render_tours_shortcode']);
     }
 
     /**
-     * Registrar el bloque de servicios
+     * Registrar el bloque de tours/destinos
      */
     public function register_block()
     {
@@ -39,7 +41,7 @@ class WPTBT_Services_Block
 
         // Registrar script del bloque
         wp_register_script(
-            'wptbt-services-block-editor',
+            'wptbt-tours-block-editor',
             get_template_directory_uri() . '/assets/admin/js/services-block.js',
             array('wp-blocks', 'wp-element', 'wp-i18n'),
             time(), // Usar time() para evitar cachés
@@ -48,13 +50,13 @@ class WPTBT_Services_Block
 
         // Localización para el script
         wp_localize_script(
-            'wptbt-services-block-editor',
-            'wptbtServicesBlock',
+            'wptbt-tours-block-editor',
+            'wptbtToursBlock',
             array(
-                'title' => __('Best Price For Your Service', 'wptbt'),
-                'subtitle' => __('BEST PRICING', 'wptbt'),
-                'view_service' => __('View Details', 'wptbt'),
-                'no_services' => __('No services found.', 'wptbt'),
+                'title' => __('Descubre Nuestros Destinos', 'wptbt'),
+                'subtitle' => __('TOURS & DESTINOS', 'wptbt'),
+                'view_tour' => __('Ver Detalles', 'wptbt'),
+                'no_tours' => __('No hay tours disponibles.', 'wptbt'),
                 'ajax_url' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('wptbt_services_nonce')
             )
@@ -62,7 +64,7 @@ class WPTBT_Services_Block
 
         // Registrar estilos para el editor
         wp_register_style(
-            'wptbt-services-block-editor-style',
+            'wptbt-tours-block-editor-style',
             get_template_directory_uri() . '/assets/admin/css/services-block-style.css',
             array('wp-edit-blocks'),
             filemtime(get_template_directory() . '/assets/admin/css/services-block-style.css')
@@ -77,18 +79,18 @@ class WPTBT_Services_Block
         $css_version = file_exists($css_path) ? filemtime($css_path) : '1.0';
 
         // Simplifica la forma de registrar el bloque
-        register_block_type('wptbt/services-block', array(
-            'editor_script' => 'wptbt-services-block-editor',
-            'editor_style'  => 'wptbt-services-block-editor-style',
-            'render_callback' => array($this, 'render_services_block'),
+        register_block_type('wptbt/tours-block', array(
+            'editor_script' => 'wptbt-tours-block-editor',
+            'editor_style'  => 'wptbt-tours-block-editor-style',
+            'render_callback' => array($this, 'render_tours_block'),
             'attributes' => array(
                 'title' => array(
                     'type' => 'string',
-                    'default' => 'Best Price For Your Service'
+                    'default' => 'Descubre Nuestros Destinos'
                 ),
                 'subtitle' => array(
                     'type' => 'string',
-                    'default' => 'BEST PRICING'
+                    'default' => 'TOURS & DESTINOS'
                 ),
                 'layout' => array(
                     'type' => 'string',
@@ -112,7 +114,7 @@ class WPTBT_Services_Block
                 ),
                 'accentColor' => array(
                     'type' => 'string',
-                    'default' => '#D4B254'
+                    'default' => '#F59E0B'
                 ),
                 'categoryId' => array(
                     'type' => 'string',
@@ -127,9 +129,9 @@ class WPTBT_Services_Block
     }
 
     /**
-     * Obtener precios de un servicio (compatibilidad con formato antiguo y nuevo)
+     * Obtener precios de un tour (compatibilidad con formato antiguo y nuevo)
      */
-    private function get_service_prices($post_id)
+    private function get_tour_prices($post_id)
     {
         // Primero intentar obtener el formato nuevo (múltiples precios)
         $prices = get_post_meta($post_id, '_wptbt_service_prices', true);
@@ -166,33 +168,38 @@ class WPTBT_Services_Block
     }
 
     /**
-     * Renderizar el bloque de servicios
+     * Renderizar el bloque de tours
      *
      * @param array $attributes Atributos del bloque.
      * @return string HTML del bloque.
      */
-    public function render_services_block($attributes)
+    public function render_tours_block($attributes)
     {
         // Extraer atributos
-        $title = isset($attributes['title']) ? $attributes['title'] : 'Best Price For Your Service';
-        $subtitle = isset($attributes['subtitle']) ? $attributes['subtitle'] : 'BEST PRICING';
+        $title = isset($attributes['title']) ? $attributes['title'] : 'Descubre Nuestros Destinos';
+        $subtitle = isset($attributes['subtitle']) ? $attributes['subtitle'] : 'TOURS & DESTINOS';
         $layout = isset($attributes['layout']) ? $attributes['layout'] : 'grid';
         $columns = isset($attributes['columns']) ? intval($attributes['columns']) : 2;
         $showImage = isset($attributes['showImage']) ? $attributes['showImage'] : false;
         $backgroundColor = isset($attributes['backgroundColor']) ? $attributes['backgroundColor'] : '#FFFFFF';
         $textColor = isset($attributes['textColor']) ? $attributes['textColor'] : '#424242';
-        $accentColor = isset($attributes['accentColor']) ? $attributes['accentColor'] : '#D4B254';
+        $accentColor = isset($attributes['accentColor']) ? $attributes['accentColor'] : '#F59E0B';
         $secondaryColor = '#8BAB8D'; // Color secundario predeterminado
         $categoryId = isset($attributes['categoryId']) ? $attributes['categoryId'] : '';
         $postsPerPage = isset($attributes['postsPerPage']) ? intval($attributes['postsPerPage']) : -1;
 
-        // Configurar la consulta para obtener servicios
+        // Configurar la consulta para obtener tours
         $args = [
-            'post_type'      => 'servicio',
+            'post_type'      => 'tours',
             'posts_per_page' => $postsPerPage,
             'orderby'        => 'menu_order',
             'order'          => 'ASC',
         ];
+        
+        // Fallback para compatibilidad con 'servicio'
+        if (!post_type_exists('tours')) {
+            $args['post_type'] = 'servicio';
+        }
 
         // Filtrar por categoría si se especifica
         if (!empty($categoryId)) {
@@ -205,14 +212,14 @@ class WPTBT_Services_Block
             ];
         }
 
-        $servicios_query = new WP_Query($args);
+        $tours_query = new WP_Query($args);
 
         // Iniciar buffer de salida
         ob_start();
 ?>
 
-        <div class="wptbt-services-wrapper w-full reveal-item opacity-0 translate-y-8">
-            <div class="wptbt-services-container py-10 md:py-14"
+        <div class="wptbt-tours-wrapper w-full reveal-item opacity-0 translate-y-8">
+            <div class="wptbt-tours-container py-10 md:py-14"
                 style="background-color: <?php echo esc_attr($backgroundColor); ?>; 
                         color: <?php echo esc_attr($textColor); ?>;
                         background-image: radial-gradient(circle at 10% 20%, <?php echo esc_attr($this->hex2rgba($secondaryColor, 0.05)); ?> 0%, <?php echo esc_attr($this->hex2rgba($secondaryColor, 0)); ?> 20%),
@@ -246,27 +253,27 @@ class WPTBT_Services_Block
                         </div>
                     </div>
 
-                    <?php if ($servicios_query->have_posts()) : ?>
+                    <?php if ($tours_query->have_posts()) : ?>
                         <?php if ($layout === 'grid') : ?>
                             <!-- Diseño de cuadrícula compacto -->
                             <div class="grid grid-cols-1 md:grid-cols-<?php echo esc_attr($columns); ?> gap-4">
                                 <?php
                                 $counter = 0;
-                                while ($servicios_query->have_posts()) :
-                                    $servicios_query->the_post();
+                                while ($tours_query->have_posts()) :
+                                    $tours_query->the_post();
                                     $counter++;
 
                                     // Obtener precios usando la nueva función
-                                    $prices = $this->get_service_prices(get_the_ID());
+                                    $prices = $this->get_tour_prices(get_the_ID());
                                     $subtitle = get_post_meta(get_the_ID(), '_wptbt_service_subtitle', true);
                                     $delay = $counter * 0.1;
                                 ?>
-                                    <div class="service-item bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100 group hover:shadow-md transition-all duration-500 relative reveal-item opacity-0 translate-y-4"
+                                    <div class="tour-item bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100 group hover:shadow-md transition-all duration-500 relative reveal-item opacity-0 translate-y-4"
                                         style="transition-delay: <?php echo esc_attr($delay); ?>s">
 
                                         <?php if (has_post_thumbnail()) : ?>
                                             <!-- Imagen que aparece en hover (posicionada absolutamente) -->
-                                            <div class="service-thumbnail absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-all duration-500 z-0 overflow-hidden">
+                                            <div class="tour-thumbnail absolute inset-0 w-full h-full opacity-0 group-hover:opacity-100 transition-all duration-500 z-0 overflow-hidden">
                                                 <?php the_post_thumbnail('medium', ['class' => 'w-full h-full object-cover scale-110 group-hover:scale-100 transition-transform duration-700']); ?>
                                                 <div class="absolute inset-0 bg-black/50"></div>
                                             </div>
@@ -287,7 +294,7 @@ class WPTBT_Services_Block
                                                         <div class="flex justify-between items-center py-1 border-b border-gray-50 group-hover:border-white/30 last:border-b-0">
                                                             <?php if (!empty($price_item['duration'])) : ?>
                                                                 <span class="text-xs font-bold px-2 py-1 rounded-sm bg-[<?php echo esc_attr($secondaryColor); ?>]/20 text-[#31503B] inline-block transition-colors duration-300 group-hover:text-white group-hover:bg-white/20">
-                                                                    <?php echo esc_html($price_item['duration']); ?> <?php echo esc_html__('MIN', 'wptbt'); ?>
+                                                                    <?php echo esc_html($price_item['duration']); ?> <?php echo esc_html__('DÍAS', 'wptbt'); ?>
                                                                 </span>
                                                             <?php else : ?>
                                                                 <span></span>
@@ -315,12 +322,12 @@ class WPTBT_Services_Block
                             <div class="space-y-3">
                                 <?php
                                 $counter = 0;
-                                while ($servicios_query->have_posts()) :
-                                    $servicios_query->the_post();
+                                while ($tours_query->have_posts()) :
+                                    $tours_query->the_post();
                                     $counter++;
 
                                     // Obtener precios usando la nueva función
-                                    $prices = $this->get_service_prices(get_the_ID());
+                                    $prices = $this->get_tour_prices(get_the_ID());
                                     $has_thumbnail = has_post_thumbnail() && $showImage;
                                     $delay = $counter * 0.1;
                                 ?>
@@ -354,7 +361,7 @@ class WPTBT_Services_Block
                                                         <div class="flex items-center gap-2 <?php echo $index > 0 ? 'mt-1' : ''; ?>">
                                                             <?php if (!empty($price_item['duration'])) : ?>
                                                                 <span class="text-xs font-medium transition-colors duration-300 text-[<?php echo esc_attr($secondaryColor); ?>] group-hover:text-white whitespace-nowrap">
-                                                                    <?php echo esc_html($price_item['duration']); ?> <?php echo esc_html__('MIN', 'wptbt'); ?>
+                                                                    <?php echo esc_html($price_item['duration']); ?> <?php echo esc_html__('DÍAS', 'wptbt'); ?>
                                                                 </span>
                                                             <?php endif; ?>
                                                             <span class="font-semibold text-base group-hover:text-white transition-colors duration-300 whitespace-nowrap" style="color: <?php echo esc_attr($accentColor); ?>;">
@@ -396,7 +403,7 @@ class WPTBT_Services_Block
                         <?php wp_reset_postdata(); ?>
                     <?php else : ?>
                         <div class="text-center py-6 bg-white/80 backdrop-blur-sm rounded-lg p-6 shadow-sm border border-gray-100">
-                            <p class="text-gray-500"><?php echo esc_html__('No services found.', 'wptbt'); ?></p>
+                            <p class="text-gray-500"><?php echo esc_html__('No hay tours disponibles.', 'wptbt'); ?></p>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -431,23 +438,23 @@ class WPTBT_Services_Block
     }
 
     /**
-     * Renderizar shortcode de servicios
+     * Renderizar shortcode de tours
      *
      * @param array $atts Atributos del shortcode.
      * @return string HTML del shortcode.
      */
-    public function render_services_shortcode($atts)
+    public function render_tours_shortcode($atts)
     {
         $attributes = shortcode_atts(
             array(
-                'title' => 'Best Price For Your Service',
-                'subtitle' => 'BEST PRICING',
+                'title' => 'Descubre Nuestros Destinos',
+                'subtitle' => 'TOURS & DESTINOS',
                 'layout' => 'grid',
                 'columns' => 2,
                 'show_image' => false,
                 'background_color' => '#FFFFFF',
                 'text_color' => '#424242',
-                'accent_color' => '#D4B254',
+                'accent_color' => '#F59E0B',
                 'category_id' => '',
                 'posts_per_page' => -1
             ),
@@ -468,7 +475,7 @@ class WPTBT_Services_Block
             'postsPerPage' => intval($attributes['posts_per_page'])
         );
 
-        return $this->render_services_block($block_attributes);
+        return $this->render_tours_block($block_attributes);
     }
 
     /**

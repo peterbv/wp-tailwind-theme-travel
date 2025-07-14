@@ -14,17 +14,18 @@
   font-display: swap; // Mejora el rendimiento de carga de fuentes
 }
 
-/* Variables mejoradas */
+/* Variables profesionales para agencia de viajes */
 :root {
-  --color-spa-primary: #4f8a8b;
-  --color-spa-secondary: #f7ede2;
-  --color-spa-accent: #d4b254;
-  --color-spa-sage: #8bab8d;
-  --color-spa-rose: #d9adb7;
-  --color-black: #424242;
+  --color-spa-primary: #DC2626; /* Rojo principal elegante */
+  --color-spa-secondary: #F9FAFB; /* Gris muy claro profesional */
+  --color-spa-accent: #EF4444; /* Rojo vibrante para CTAs */
+  --color-spa-sage: #1F2937; /* Gris oscuro para textos */
+  --color-spa-rose: #F59E0B; /* Dorado para detalles especiales */
+  --color-black: #111827; /* Negro más profundo */
   --color-white: #ffffff;
-  --header-transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  --header-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --color-light-gray: #F3F4F6; /* Gris claro para fondos */
+  --header-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --header-shadow: 0 4px 20px rgba(220, 38, 38, 0.08);
   --font-delmon: 'Delmon Delicate', cursive;
 }
 
@@ -373,50 +374,50 @@
   }
 }
 
-/* Botón CTA mejorado */
+/* Botón CTA profesional para agencia de viajes */
 .bg-spa-accent,
 a.bg-spa-accent,
 .inline-block.bg-spa-accent {
   font-weight: 600;
   letter-spacing: 0.5px;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   background-color: var(--color-spa-accent);
   color: var(--color-white);
   position: relative;
   overflow: hidden;
   z-index: 1;
+  border: 2px solid transparent;
 
-  /* Efecto de onda en hover */
-  &::after {
+  /* Efecto profesional en hover */
+  &::before {
     content: "";
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition:
-      width 0.6s ease,
-      height 0.6s ease;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      transparent, 
+      rgba(255, 255, 255, 0.2), 
+      transparent);
+    transition: left 0.5s ease;
     z-index: -1;
   }
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(212, 178, 84, 0.2);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+    border-color: rgba(255, 255, 255, 0.3);
 
-    &::after {
-      width: 300%;
-      height: 300%;
+    &::before {
+      left: 100%;
     }
   }
 
   /* Estilo en click */
   &:active {
-    transform: translateY(0);
-    box-shadow: 0 3px 6px rgba(212, 178, 84, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
   }
 }
 
@@ -688,7 +689,7 @@ body.mobile-menu-open {
 }
 
 .cta-effect-glow:hover {
-  box-shadow: 0 0 15px rgba(212, 178, 84, 0.5) !important;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.4) !important;
 }
 
 /* Estilos para la topbar */
@@ -1261,16 +1262,18 @@ body.mobile-menu-open {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* CSS Variables para colores del tema */
+/* CSS Variables para colores del tema - Actualizado para agencia de viajes */
 :root {
-  --color-spa-primary: #4f8a8b;
-  --color-spa-primary-rgb: 79, 138, 139;
-  --color-spa-secondary: #f7ede2;
-  --color-spa-secondary-rgb: 247, 237, 226;
-  --color-spa-accent: #d4b254;
-  --color-spa-accent-rgb: 212, 178, 84;
-  --color-spa-sage: #8bab8d;
-  --color-spa-rose: #d9adb7;
+  --color-spa-primary: #DC2626;
+  --color-spa-primary-rgb: 220, 38, 38;
+  --color-spa-secondary: #F9FAFB;
+  --color-spa-secondary-rgb: 249, 250, 251;
+  --color-spa-accent: #EF4444;
+  --color-spa-accent-rgb: 239, 68, 68;
+  --color-spa-sage: #1F2937;
+  --color-spa-sage-rgb: 31, 41, 55;
+  --color-spa-rose: #F59E0B;
+  --color-spa-rose-rgb: 245, 158, 11;
 }
 
 /* Clases para los botones de filtro */
@@ -1426,4 +1429,220 @@ input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+/* ===== NUEVOS ESTILOS PARA AGENCIA DE VIAJES ===== */
+
+/* Patrones decorativos para viajes */
+.travel-pattern-mountains {
+  position: relative;
+  
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(135deg, var(--color-spa-primary) 0%, transparent 50%),
+                linear-gradient(-135deg, var(--color-spa-accent) 0%, transparent 50%);
+    opacity: 0.1;
+    z-index: -1;
+  }
+}
+
+.travel-pattern-waves {
+  position: relative;
+  overflow: hidden;
+  
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 200%;
+    height: 60px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M1200 120L0 16.48V0h1200v120z' fill='%23DC2626' fill-opacity='0.1'/%3E%3C/svg%3E") repeat-x;
+    background-size: 1200px 60px;
+    z-index: -1;
+  }
+}
+
+/* Elementos decorativos para secciones */
+.section-travel-decor {
+  position: relative;
+  
+  &::before {
+    content: "✈";
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 2rem;
+    color: var(--color-spa-rose);
+    opacity: 0.3;
+    transform: rotate(15deg);
+  }
+}
+
+/* Tarjetas de destino con hover profesional */
+.destination-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(220, 38, 38, 0.1);
+  
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 
+      0 20px 25px -5px rgba(220, 38, 38, 0.1),
+      0 10px 10px -5px rgba(220, 38, 38, 0.04);
+    border-color: rgba(220, 38, 38, 0.2);
+  }
+}
+
+/* Iconografía para viajes */
+.travel-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  background: linear-gradient(135deg, var(--color-spa-primary), var(--color-spa-accent));
+  border-radius: 0.75rem;
+  color: white;
+  font-size: 1.25rem;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+  
+  &:hover {
+    transform: scale(1.05) rotate(5deg);
+    box-shadow: 0 6px 16px rgba(220, 38, 38, 0.3);
+  }
+}
+
+/* Banners de hero para viajes */
+.hero-travel-banner {
+  background: linear-gradient(135deg, 
+    var(--color-spa-primary) 0%, 
+    var(--color-spa-accent) 100%);
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-opacity='0.05'%3E%3Cpolygon fill='%23ffffff' points='50 0 60 40 100 50 60 60 50 100 40 60 0 50 40 40'/%3E%3C/svg%3E") repeat;
+    z-index: 1;
+  }
+  
+  .hero-content {
+    position: relative;
+    z-index: 2;
+  }
+}
+
+/* Tipografía mejorada */
+.travel-heading {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-spa-sage);
+  
+  &.primary {
+    color: var(--color-spa-primary);
+  }
+}
+
+.travel-subheading {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  color: var(--color-spa-sage);
+  letter-spacing: 0.02em;
+}
+
+/* Breadcrumbs profesionales */
+.travel-breadcrumbs {
+  a {
+    color: var(--color-spa-sage);
+    transition: color 0.2s ease;
+    
+    &:hover {
+      color: var(--color-spa-primary);
+    }
+  }
+  
+  .current {
+    color: var(--color-spa-primary);
+    font-weight: 500;
+  }
+}
+
+/* Animaciones suaves para elementos */
+@keyframes slideInFromRight {
+  0% {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInFromRight 0.6s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInFromLeft 0.6s ease-out forwards;
+}
+
+/* Estilos para testimonios de viajeros */
+.traveler-testimonial {
+  background: linear-gradient(135deg, 
+    rgba(249, 250, 251, 0.8) 0%, 
+    rgba(243, 244, 246, 0.9) 100%);
+  border-left: 4px solid var(--color-spa-primary);
+  
+  &:hover {
+    border-left-color: var(--color-spa-accent);
+    transform: translateX(4px);
+  }
+}
+
+/* Badges para tipos de viaje */
+.travel-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--color-spa-primary);
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  
+  &.adventure {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--color-spa-rose);
+    border-color: rgba(245, 158, 11, 0.2);
+  }
+  
+  &.cultural {
+    background: rgba(31, 41, 55, 0.1);
+    color: var(--color-spa-sage);
+    border-color: rgba(31, 41, 55, 0.2);
+  }
 }

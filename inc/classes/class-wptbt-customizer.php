@@ -31,6 +31,7 @@ class WPTBT_Customizer
         $this->register_floating_buttons_options($wp_customize);
         $this->register_layout_options($wp_customize);
         $this->register_contact_options($wp_customize);
+        $this->register_footer_options($wp_customize);
         $this->register_social_options($wp_customize);
         $this->register_color_options($wp_customize);
         $this->register_multisite_options($wp_customize);
@@ -157,7 +158,7 @@ class WPTBT_Customizer
 
         // Horario de negocio
         $wp_customize->add_setting('business_hours', array(
-            'default'           => 'Everyday: From 10 AM to 10 PM',
+            'default'           => 'Lun-Vie: 8AM-6PM | Sáb: 9AM-5PM',
             'sanitize_callback' => 'sanitize_text_field',
             'transport'         => 'refresh',
         ));
@@ -300,7 +301,7 @@ class WPTBT_Customizer
 
         // Texto del botón CTA
         $wp_customize->add_setting('cta_button_text', array(
-            'default'           => 'BOOK NOW',
+            'default'           => 'RESERVAR VIAJE',
             'sanitize_callback' => 'sanitize_text_field',
             'transport'         => 'refresh',
         ));
@@ -328,7 +329,7 @@ class WPTBT_Customizer
 
         // Color del botón CTA
         $wp_customize->add_setting('cta_button_color', array(
-            'default'           => '#D4B254',
+            'default'           => '#EF4444',
             'sanitize_callback' => 'sanitize_hex_color',
             'transport'         => 'refresh',
         ));
@@ -749,6 +750,324 @@ class WPTBT_Customizer
             'section'  => 'wptbt_contact_options',
             'type'     => 'textarea',
             'priority' => 30,
+        ));
+    }
+
+    /**
+     * Registrar opciones del footer
+     *
+     * @param WP_Customize_Manager $wp_customize Objeto del personalizador.
+     */
+    private function register_footer_options($wp_customize)
+    {
+        // Sección para opciones del footer
+        $wp_customize->add_section('wptbt_footer_options', array(
+            'title'       => esc_html__('Opciones del Footer', 'wp-tailwind-blocks'),
+            'description' => esc_html__('Configura el contenido y apariencia del pie de página.', 'wp-tailwind-blocks'),
+            'priority'    => 75,
+        ));
+
+        // ===== SECCIÓN PRINCIPAL =====
+        
+        // Título de la agencia
+        $wp_customize->add_setting('footer_agency_title', array(
+            'default'           => '',
+            'sanitize_callback' => 'sanitize_text_field',
+            'transport'         => 'refresh',
+        ));
+
+        $wp_customize->add_control('footer_agency_title', array(
+            'label'       => esc_html__('Título de la agencia', 'wp-tailwind-blocks'),
+            'description' => esc_html__('Si se deja vacío, se usará el nombre del sitio', 'wp-tailwind-blocks'),
+            'section'     => 'wptbt_footer_options',
+            'type'        => 'text',
+            'priority'    => 10,
+        ));
+
+        // Descripción de la agencia
+        $wp_customize->add_setting('footer_agency_description', array(
+            'default'           => 'Tu agencia de confianza para descubrir el mundo. Ofrecemos experiencias únicas y memorables en los destinos más increíbles del planeta.',
+            'sanitize_callback' => 'sanitize_textarea_field',
+            'transport'         => 'refresh',
+        ));
+
+        $wp_customize->add_control('footer_agency_description', array(
+            'label'    => esc_html__('Descripción de la agencia', 'wp-tailwind-blocks'),
+            'section'  => 'wptbt_footer_options',
+            'type'     => 'textarea',
+            'priority' => 20,
+        ));
+
+        // ===== SECCIÓN DE DESTINOS POPULARES =====
+        
+        // Separador
+        $wp_customize->add_setting('footer_separator_1', array(
+            'default'           => '',
+            'sanitize_callback' => 'sanitize_text_field',
+        ));
+
+        $wp_customize->add_control(new WPTBT_Separator_Control($wp_customize, 'footer_separator_1', array(
+            'label'    => esc_html__('DESTINOS POPULARES', 'wp-tailwind-blocks'),
+            'section'  => 'wptbt_footer_options',
+            'priority' => 30,
+        )));
+
+        // Título de destinos populares
+        $wp_customize->add_setting('footer_destinations_title', array(
+            'default'           => 'Destinos Populares',
+            'sanitize_callback' => 'sanitize_text_field',
+            'transport'         => 'refresh',
+        ));
+
+        $wp_customize->add_control('footer_destinations_title', array(
+            'label'    => esc_html__('Título de destinos populares', 'wp-tailwind-blocks'),
+            'section'  => 'wptbt_footer_options',
+            'type'     => 'text',
+            'priority' => 40,
+        ));
+
+        // Seleccionar menú para destinos
+        $wp_customize->add_setting('footer_destinations_menu', array(
+            'default'           => '',
+            'sanitize_callback' => 'absint',
+            'transport'         => 'refresh',
+        ));
+
+        $menus = wp_get_nav_menus();
+        $menu_choices = array('' => esc_html__('Seleccionar menú...', 'wp-tailwind-blocks'));
+        foreach ($menus as $menu) {
+            $menu_choices[$menu->term_id] = $menu->name;
+        }
+
+        $wp_customize->add_control('footer_destinations_menu', array(
+            'label'       => esc_html__('Menú de destinos', 'wp-tailwind-blocks'),
+            'description' => esc_html__('Selecciona un menú personalizado para mostrar los destinos populares', 'wp-tailwind-blocks'),
+            'section'     => 'wptbt_footer_options',
+            'type'        => 'select',
+            'choices'     => $menu_choices,
+            'priority'    => 50,
+        ));
+
+        // ===== SECCIÓN DE CONTACTO =====
+        
+        // Separador
+        $wp_customize->add_setting('footer_separator_2', array(
+            'default'           => '',
+            'sanitize_callback' => 'sanitize_text_field',
+        ));
+
+        $wp_customize->add_control(new WPTBT_Separator_Control($wp_customize, 'footer_separator_2', array(
+            'label'    => esc_html__('CONTACTO', 'wp-tailwind-blocks'),
+            'section'  => 'wptbt_footer_options',
+            'priority' => 60,
+        )));
+
+        // Título de contacto
+        $wp_customize->add_setting('footer_contact_title', array(
+            'default'           => 'Contacto',
+            'sanitize_callback' => 'sanitize_text_field',
+            'transport'         => 'refresh',
+        ));
+
+        $wp_customize->add_control('footer_contact_title', array(
+            'label'    => esc_html__('Título de la sección de contacto', 'wp-tailwind-blocks'),
+            'section'  => 'wptbt_footer_options',
+            'type'     => 'text',
+            'priority' => 70,
+        ));
+
+        // Email de reservas
+        $wp_customize->add_setting('footer_contact_booking_email', array(
+            'default'           => '',
+            'sanitize_callback' => 'sanitize_email',
+            'transport'         => 'refresh',
+        ));
+
+        $wp_customize->add_control('footer_contact_booking_email', array(
+            'label'       => esc_html__('Email de reservas', 'wp-tailwind-blocks'),
+            'description' => esc_html__('Email específico para consultas de reservas', 'wp-tailwind-blocks'),
+            'section'     => 'wptbt_footer_options',
+            'type'        => 'email',
+            'priority'    => 80,
+        ));
+
+        // Teléfono de emergencias
+        $wp_customize->add_setting('footer_contact_emergency_phone', array(
+            'default'           => '',
+            'sanitize_callback' => 'sanitize_text_field',
+            'transport'         => 'refresh',
+        ));
+
+        $wp_customize->add_control('footer_contact_emergency_phone', array(
+            'label'       => esc_html__('Teléfono de emergencias', 'wp-tailwind-blocks'),
+            'description' => esc_html__('Número 24/7 para emergencias de viajeros', 'wp-tailwind-blocks'),
+            'section'     => 'wptbt_footer_options',
+            'type'        => 'text',
+            'priority'    => 90,
+        ));
+
+        // Licencias y certificaciones
+        $wp_customize->add_setting('footer_contact_licenses', array(
+            'default'           => '',
+            'sanitize_callback' => 'sanitize_text_field',
+            'transport'         => 'refresh',
+        ));
+
+        $wp_customize->add_control('footer_contact_licenses', array(
+            'label'       => esc_html__('Licencias y certificaciones', 'wp-tailwind-blocks'),
+            'description' => esc_html__('Ej: "IATA Certified | Lic. Tourism #12345"', 'wp-tailwind-blocks'),
+            'section'     => 'wptbt_footer_options',
+            'type'        => 'text',
+            'priority'    => 100,
+        ));
+
+        // ===== SECCIÓN DE ATENCIÓN AL CLIENTE =====
+        
+        // Separador
+        $wp_customize->add_setting('footer_separator_3', array(
+            'default'           => '',
+            'sanitize_callback' => 'sanitize_text_field',
+        ));
+
+        $wp_customize->add_control(new WPTBT_Separator_Control($wp_customize, 'footer_separator_3', array(
+            'label'    => esc_html__('ATENCIÓN AL CLIENTE', 'wp-tailwind-blocks'),
+            'section'  => 'wptbt_footer_options',
+            'priority' => 110,
+        )));
+
+        // Título de atención al cliente
+        $wp_customize->add_setting('footer_support_title', array(
+            'default'           => 'Atención al Cliente',
+            'sanitize_callback' => 'sanitize_text_field',
+            'transport'         => 'refresh',
+        ));
+
+        $wp_customize->add_control('footer_support_title', array(
+            'label'    => esc_html__('Título de atención al cliente', 'wp-tailwind-blocks'),
+            'section'  => 'wptbt_footer_options',
+            'type'     => 'text',
+            'priority' => 120,
+        ));
+
+        // Chat en vivo
+        $wp_customize->add_setting('footer_support_chat', array(
+            'default'           => 'Chat en vivo: Lun - Vie 9:00 AM - 6:00 PM',
+            'sanitize_callback' => 'sanitize_text_field',
+            'transport'         => 'refresh',
+        ));
+
+        $wp_customize->add_control('footer_support_chat', array(
+            'label'    => esc_html__('Horario de chat en vivo', 'wp-tailwind-blocks'),
+            'section'  => 'wptbt_footer_options',
+            'type'     => 'text',
+            'priority' => 130,
+        ));
+
+        // Soporte telefónico
+        $wp_customize->add_setting('footer_support_phone', array(
+            'default'           => 'Soporte telefónico: Lun - Sáb 8:00 AM - 8:00 PM',
+            'sanitize_callback' => 'sanitize_text_field',
+            'transport'         => 'refresh',
+        ));
+
+        $wp_customize->add_control('footer_support_phone', array(
+            'label'    => esc_html__('Horario de soporte telefónico', 'wp-tailwind-blocks'),
+            'section'  => 'wptbt_footer_options',
+            'type'     => 'text',
+            'priority' => 140,
+        ));
+
+        // Respuesta de emails
+        $wp_customize->add_setting('footer_support_email', array(
+            'default'           => 'Emails: Respuesta en 24 horas',
+            'sanitize_callback' => 'sanitize_text_field',
+            'transport'         => 'refresh',
+        ));
+
+        $wp_customize->add_control('footer_support_email', array(
+            'label'    => esc_html__('Tiempo de respuesta de emails', 'wp-tailwind-blocks'),
+            'section'  => 'wptbt_footer_options',
+            'type'     => 'text',
+            'priority' => 150,
+        ));
+
+        // Emergencias 24/7
+        $wp_customize->add_setting('footer_support_emergency', array(
+            'default'           => 'Emergencias: 24/7 para viajeros',
+            'sanitize_callback' => 'sanitize_text_field',
+            'transport'         => 'refresh',
+        ));
+
+        $wp_customize->add_control('footer_support_emergency', array(
+            'label'    => esc_html__('Servicio de emergencias', 'wp-tailwind-blocks'),
+            'section'  => 'wptbt_footer_options',
+            'type'     => 'text',
+            'priority' => 160,
+        ));
+
+        // ===== SECCIÓN DE COPYRIGHT =====
+        
+        // Separador
+        $wp_customize->add_setting('footer_separator_4', array(
+            'default'           => '',
+            'sanitize_callback' => 'sanitize_text_field',
+        ));
+
+        $wp_customize->add_control(new WPTBT_Separator_Control($wp_customize, 'footer_separator_4', array(
+            'label'    => esc_html__('COPYRIGHT', 'wp-tailwind-blocks'),
+            'section'  => 'wptbt_footer_options',
+            'priority' => 170,
+        )));
+
+        // Texto de copyright personalizado
+        $wp_customize->add_setting('footer_copyright_text', array(
+            'default'           => 'Todos los derechos reservados.',
+            'sanitize_callback' => 'sanitize_text_field',
+            'transport'         => 'refresh',
+        ));
+
+        $wp_customize->add_control('footer_copyright_text', array(
+            'label'       => esc_html__('Texto de copyright', 'wp-tailwind-blocks'),
+            'description' => esc_html__('Se añadirá después del año y nombre del sitio', 'wp-tailwind-blocks'),
+            'section'     => 'wptbt_footer_options',
+            'type'        => 'text',
+            'priority'    => 180,
+        ));
+
+        // Texto de sitios multisite
+        $wp_customize->add_setting('footer_multisite_text', array(
+            'default'           => 'Nuestros sitios:',
+            'sanitize_callback' => 'sanitize_text_field',
+            'transport'         => 'refresh',
+        ));
+
+        $wp_customize->add_control('footer_multisite_text', array(
+            'label'       => esc_html__('Texto de sitios multisite', 'wp-tailwind-blocks'),
+            'description' => esc_html__('Texto que aparece antes de la lista de sitios (solo en multisite)', 'wp-tailwind-blocks'),
+            'section'     => 'wptbt_footer_options',
+            'type'        => 'text',
+            'priority'    => 190,
+            'active_callback' => function() {
+                return is_multisite();
+            },
+        ));
+
+        // Texto del enlace de sitio principal
+        $wp_customize->add_setting('footer_main_site_text', array(
+            'default'           => 'Volver al sitio principal',
+            'sanitize_callback' => 'sanitize_text_field',
+            'transport'         => 'refresh',
+        ));
+
+        $wp_customize->add_control('footer_main_site_text', array(
+            'label'       => esc_html__('Texto del enlace al sitio principal', 'wp-tailwind-blocks'),
+            'description' => esc_html__('Texto del enlace para volver al sitio principal (solo en subsitios)', 'wp-tailwind-blocks'),
+            'section'     => 'wptbt_footer_options',
+            'type'        => 'text',
+            'priority'    => 200,
+            'active_callback' => function() {
+                return is_multisite() && !is_main_site();
+            },
         ));
     }
 
