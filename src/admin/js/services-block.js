@@ -1,5 +1,5 @@
 /**
- * Script para el bloque de servicios con controles en el sidebar
+ * Script para el bloque de tours con controles en el sidebar
  */
 (function () {
   var registerBlockType = wp.blocks.registerBlockType;
@@ -17,21 +17,21 @@
   var ToggleControl = wp.components.ToggleControl;
   var ColorPalette = wp.components.ColorPalette;
 
-  // Colores predefinidos para la paleta
+  // Colores predefinidos para la paleta de viajes
   var colors = [
-    { name: "Aguamarina", color: "#4F8A8B" },
-    { name: "Verde Salvia", color: "#8BAB8D" },
-    { name: "Dorado Suave", color: "#D4B254" },
-    { name: "Rosa Polvo", color: "#D9ADB7" },
+    { name: "Rojo Viaje", color: "#DC2626" },
+    { name: "Rojo Claro", color: "#EF4444" },
+    { name: "Naranja Aventura", color: "#F59E0B" },
+    { name: "Azul Océano", color: "#2563EB" },
+    { name: "Verde Naturaleza", color: "#059669" },
     { name: "Blanco", color: "#FFFFFF" },
-    { name: "Crema", color: "#F7EDE2" },
-    { name: "Gris Claro", color: "#F3F3F3" },
-    { name: "Gris Oscuro", color: "#424242" },
-    { name: "Negro", color: "#000000" },
+    { name: "Gris Claro", color: "#F3F4F6" },
+    { name: "Gris Oscuro", color: "#374151" },
+    { name: "Negro", color: "#111827" },
   ];
 
-  registerBlockType("wptbt/services-block", {
-    title: __("Servicios de Spa"),
+  registerBlockType("wptbt/tours-block", {
+    title: __("Tours y Destinos"),
     icon: "clipboard",
     category: "widgets",
 
@@ -39,11 +39,11 @@
     attributes: {
       title: {
         type: "string",
-        default: "Best Price For Your Service",
+        default: "Descubre Nuestros Destinos",
       },
       subtitle: {
         type: "string",
-        default: "BEST PRICING",
+        default: "TOURS & DESTINOS",
       },
       layout: {
         type: "string",
@@ -67,7 +67,7 @@
       },
       accentColor: {
         type: "string",
-        default: "#D4B254",
+        default: "#DC2626",
       },
       categoryId: {
         type: "string",
@@ -159,7 +159,7 @@
             createElement(TextControl, {
               label: __("ID de Categoría"),
               help: __(
-                "(Opcional) Introduce el ID de categoría para filtrar servicios"
+                "(Opcional) Introduce el ID de categoría para filtrar tours"
               ),
               value: attributes.categoryId,
               onChange: function (value) {
@@ -167,7 +167,7 @@
               },
             }),
             createElement(RangeControl, {
-              label: __("Número de Servicios"),
+              label: __("Número de Tours"),
               help: __("-1 para mostrar todos"),
               value: attributes.postsPerPage,
               min: -1,
@@ -340,12 +340,12 @@
                         fontSize: "12px",
                       },
                     },
-                    "Imagen del servicio"
+                    "Imagen del tour"
                   ),
                 createElement(
                   "h4",
                   { style: { margin: "0 0 10px 0" } },
-                  "Facial Clásico"
+                  "Tour a Machu Picchu"
                 ),
                 createElement(
                   "div",
@@ -358,22 +358,22 @@
                   },
                   createElement(
                     "span",
-                    { style: { color: "#8BAB8D", fontSize: "13px" } },
-                    "60 MIN"
+                    { style: { color: "#DC2626", fontSize: "13px" } },
+                    "3 DÍAS"
                   ),
                   createElement(
                     "span",
                     {
                       style: {
-                        color: attributes.accentColor || "#D4B254",
+                        color: attributes.accentColor || "#DC2626",
                         fontWeight: "bold",
                       },
                     },
-                    "$69"
+                    "$299"
                   )
                 )
               ),
-              // Servicio 2 (solo si estamos en grid)
+              // Tour 2 (solo si estamos en grid)
               attributes.layout === "grid" &&
                 createElement(
                   "div",
@@ -400,12 +400,12 @@
                           fontSize: "12px",
                         },
                       },
-                      "Imagen del servicio"
+                      "Imagen del tour"
                     ),
                   createElement(
                     "h4",
                     { style: { margin: "0 0 10px 0" } },
-                    "Masaje Sueco"
+                    "Amazonas Explorer"
                   ),
                   createElement(
                     "div",
@@ -418,18 +418,18 @@
                     },
                     createElement(
                       "span",
-                      { style: { color: "#8BAB8D", fontSize: "13px" } },
-                      "60 MIN"
+                      { style: { color: "#DC2626", fontSize: "13px" } },
+                      "5 DÍAS"
                     ),
                     createElement(
                       "span",
                       {
                         style: {
-                          color: attributes.accentColor || "#D4B254",
+                          color: attributes.accentColor || "#DC2626",
                           fontWeight: "bold",
                         },
                       },
-                      "$79"
+                      "$449"
                     )
                   )
                 ),
@@ -472,7 +472,7 @@
                     createElement(
                       "h4",
                       { style: { margin: "0 0 5px 0" } },
-                      "Deep Tissue Massage"
+                      "Cusco Cultural"
                     )
                   ),
                   createElement(
@@ -486,18 +486,18 @@
                     },
                     createElement(
                       "span",
-                      { style: { color: "#8BAB8D", fontSize: "12px" } },
-                      "90 MIN"
+                      { style: { color: "#DC2626", fontSize: "12px" } },
+                      "7 DÍAS"
                     ),
                     createElement(
                       "span",
                       {
                         style: {
-                          color: attributes.accentColor || "#D4B254",
+                          color: attributes.accentColor || "#DC2626",
                           fontWeight: "bold",
                         },
                       },
-                      "$99"
+                      "$599"
                     )
                   )
                 )
@@ -514,7 +514,7 @@
                 marginBottom: "0",
               },
             },
-            "Este bloque muestra automáticamente los servicios con sus precios."
+            "Este bloque muestra automáticamente los tours con sus precios."
           )
         ),
       ];

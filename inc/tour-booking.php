@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Funciones para renderizar el formulario de reserva en la página de servicio individual
+ * Funciones para renderizar el formulario de reserva en la página de tour individual
  * ACTUALIZADO: Sistema modular Solid.js con múltiples precios y CustomSelect
  * Con soporte completo para internacionalización (i18n)
  * 
@@ -13,15 +13,15 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Renderiza el formulario de reserva para un servicio específico
+ * Renderiza el formulario de reserva para un tour específico
  * ACTUALIZADO: Ahora usa el sistema de múltiples precios automáticamente
  * 
- * @param int|WP_Post $tour_id_or_post ID del servicio o objeto WP_Post
+ * @param int|WP_Post $tour_id_or_post ID del tour o objeto WP_Post
  * @return string HTML del formulario de reserva
  */
 function wptbt_render_tour_booking_form($tour_id_or_post)
 {
-    // Obtener el objeto post del servicio
+    // Obtener el objeto post del tour
     if (is_numeric($tour_id_or_post)) {
         $tour_post = get_post($tour_id_or_post);
     } elseif ($tour_id_or_post instanceof WP_Post) {
@@ -39,57 +39,11 @@ function wptbt_render_tour_booking_form($tour_id_or_post)
     $tour_title = $tour_post->post_title;
     $form_id = 'booking-form-' . uniqid();
 
-    // CORREGIDO: Obtener múltiples precios con formato consistente
-    $prices = get_post_meta($tour_id, '_wptbt_tour_prices', true);
-    $durations = [];
-
-    if (!empty($prices) && is_array($prices)) {
-        // Usar el nuevo formato de múltiples precios
-        foreach ($prices as $price_data) {
-            if (!empty($price_data['duration']) && !empty($price_data['price'])) {
-                $minutes = intval($price_data['duration']);
-                $durations[] = [
-                    'duration' => $price_data['duration'],
-                    'price' => $price_data['price'],
-                    'minutes' => $minutes,
-                    'text' => $price_data['duration'] . ' min - ' . $price_data['price'],
-                    'value' => $minutes . 'min-' . $price_data['price'] // AGREGADO: Campo faltante
-                ];
-            }
-        }
-    } else {
-        // Fallback: usar formato anterior
-        $duration1 = get_post_meta($tour_id, '_wptbt_tour_duration1', true) ?: '';
-        $price1 = get_post_meta($tour_id, '_wptbt_tour_price1', true) ?: '';
-        $duration2 = get_post_meta($tour_id, '_wptbt_tour_duration2', true) ?: '';
-        $price2 = get_post_meta($tour_id, '_wptbt_tour_price2', true) ?: '';
-
-        if (!empty($duration1) && !empty($price1)) {
-            $minutes1 = intval($duration1);
-            $durations[] = [
-                'duration' => $duration1,
-                'price' => $price1,
-                'minutes' => $minutes1,
-                'text' => $duration1 . ' - ' . $price1,
-                'value' => $minutes1 . 'min-' . $price1
-            ];
-        }
-
-        if (!empty($duration2) && !empty($price2)) {
-            $minutes2 = intval($duration2);
-            $durations[] = [
-                'duration' => $duration2,
-                'price' => $price2,
-                'minutes' => $minutes2,
-                'text' => $duration2 . ' - ' . $price2,
-                'value' => $minutes2 . 'min-' . $price2
-            ];
-        }
-    }
-
-    // Obtener horarios disponibles
-    $tour_hours = get_post_meta($tour_id, '_wptbt_tour_hours', true) ?: [];
-    $tour_subtitle = get_post_meta($tour_id, '_wptbt_tour_subtitle', true) ?: '';
+    // Usar el nuevo método optimizado de la clase WPTBT_Tours
+    $tour_booking_data = WPTBT_Tours::get_tour_booking_form_data($tour_id);
+    $durations = $tour_booking_data['durations'];
+    $tour_hours = $tour_booking_data['hours'];
+    $tour_subtitle = $tour_booking_data['subtitle'];
 
     // VERIFICACIÓN: Log de debug
     if (defined('WP_DEBUG') && WP_DEBUG) {
@@ -98,21 +52,8 @@ function wptbt_render_tour_booking_form($tour_id_or_post)
         error_log("Durations: " . print_r($durations, true));
     }
 
-    // Preparar la información de servicio para JSON (FORMATO CORREGIDO)
-    $tour_data = [
-        [
-            'id' => (string)$tour_id, // IMPORTANTE: Convertir a string
-            'title' => $tour_title,
-            'subtitle' => $tour_subtitle,
-            'hours' => array_values($tour_hours), // CORREGIDO: Asegurar array indexado
-            'durations' => array_values($durations), // CORREGIDO: Asegurar array indexado
-            // Mantener compatibilidad
-            'duration1' => !empty($durations[0]) ? $durations[0]['duration'] : '',
-            'price1' => !empty($durations[0]) ? $durations[0]['price'] : '',
-            'duration2' => !empty($durations[1]) ? $durations[1]['duration'] : '',
-            'price2' => !empty($durations[1]) ? $durations[1]['price'] : ''
-        ]
-    ];
+    // Preparar la información de tour para JSON usando el nuevo método
+    $tour_data = [$tour_booking_data];
 
     $json_data = wp_json_encode($tour_data);
     $form_email = get_theme_mod('tours_booking_form_email', get_option('admin_email'));
@@ -124,17 +65,17 @@ function wptbt_render_tour_booking_form($tour_id_or_post)
     <div class="tour-booking-form max-w-4xl mx-auto reveal-item opacity-0 translate-y-8 relative">
         <!-- El resto del HTML permanece igual -->
         <div class="absolute top-0 left-0 right-0 -translate-y-1/2 flex justify-center">
-            <div class="w-32 h-0.5 bg-spa-accent/30"></div>
+            <div class="w-32 h-0.5 bg-travel-accent/30"></div>
         </div>
 
         <div class="rounded-lg shadow-xl mb-30">
-            <div class="bg-spa-secondary/20 p-8 text-center">
-                <span class="block text-lg italic font-medium mb-2 text-spa-accent">
-                    <?php echo esc_html__('Book your appointment', 'wptbt-tours'); ?>
+            <div class="bg-travel-secondary/20 p-8 text-center">
+                <span class="block text-lg italic font-medium mb-2 text-travel-accent">
+                    <?php echo esc_html__('Reserve your tour', 'wptbt-tours'); ?>
                 </span>
                 <h3 class="text-3xl fancy-text font-medium mb-6 text-gray-800 relative inline-block">
                     <?php echo esc_html($tour_title); ?>
-                    <span class="absolute bottom-0 left-0 w-full h-1 mt-2 bg-spa-accent transform" style="transform: scaleX(0.3); transform-origin: center;"></span>
+                    <span class="absolute bottom-0 left-0 w-full h-1 mt-2 bg-travel-accent transform" style="transform: scaleX(0.3); transform-origin: center;"></span>
                 </h3>
                 
                 <?php if (!empty($tour_subtitle)) : ?>
@@ -144,13 +85,13 @@ function wptbt_render_tour_booking_form($tour_id_or_post)
                 <?php endif; ?>
 
                 <p class="text-gray-600 max-w-md mx-auto mt-6">
-                    <?php echo esc_html(sprintf(__('Complete the form to book your %s session', 'wptbt-tours'), $tour_title)); ?>
+                    <?php echo esc_html(sprintf(__('Complete the form to reserve your %s tour', 'wptbt-tours'), $tour_title)); ?>
                 </p>
 
                 <?php if (!empty($durations)) : ?>
                     <!--<div class="mt-6 flex flex-wrap justify-center gap-3">
                         <?php foreach ($durations as $duration) : ?>
-                            <div class="bg-white/70 backdrop-blur-sm px-4 py-2 rounded-full border border-spa-accent/20">
+                            <div class="bg-white/70 backdrop-blur-sm px-4 py-2 rounded-full border border-travel-accent/20">
                                 <span class="text-sm font-medium text-gray-700">
                                     <?php echo esc_html($duration['text']); ?>
                                 </span>
@@ -172,7 +113,7 @@ function wptbt_render_tour_booking_form($tour_id_or_post)
                                 <?php echo esc_html__('tour Configuration Needed', 'wptbt-tours'); ?>
                             </h4>
                             <p class="text-amber-700 mb-4">
-                                <?php echo esc_html__('This tour needs available times and prices before bookings can be made.', 'wptbt-tours'); ?>
+                                <?php echo esc_html__('This tour needs available departure times and prices before reservations can be made.', 'wptbt-tours'); ?>
                             </p>
                             <?php if (current_user_can('edit_posts')) : ?>
                                 <a href="<?php echo esc_url(get_edit_post_link($tour_id)); ?>" 
@@ -191,7 +132,7 @@ function wptbt_render_tour_booking_form($tour_id_or_post)
                         [
                             'tours' => $tour_data,
                             'darkMode' => false,
-                            'accentColor' => get_theme_mod('tours_booking_form_accent_color', '#D4B254'),
+                            'accentColor' => get_theme_mod('tours_booking_form_accent_color', '#DC2626'),
                             'useSingletour' => true,
                             'emailRecipient' => $form_email 
                         ],
@@ -206,7 +147,7 @@ function wptbt_render_tour_booking_form($tour_id_or_post)
         </div>
 
         <div class="absolute bottom-0 left-0 right-0 translate-y-1/2 flex justify-center">
-            <div class="w-32 h-0.5 bg-spa-accent/30"></div>
+            <div class="w-32 h-0.5 bg-travel-accent/30"></div>
         </div>
     </div>
 
@@ -238,11 +179,38 @@ function wptbt_render_current_tour_booking_form()
 {
     global $post;
     
-    if (!$post || $post->post_type !== 'servicio') {
+    if (!$post || $post->post_type !== 'tours') {
         return '<div class="p-4 bg-red-100 text-red-800 rounded-md">Error: Not a tour page</div>';
     }
 
     return wptbt_render_tour_booking_form($post);
+}
+
+/**
+ * FUNCIÓN DE TEMPLATE: Muestra el formulario de reserva para tours
+ * Esta función es llamada directamente desde single-tours.php
+ */
+function wptbt_display_tour_booking_form()
+{
+    global $post;
+    
+    if (!$post || $post->post_type !== 'tours') {
+        echo '<div class="p-4 bg-red-100 text-red-800 rounded-md">Error: Not a tour page</div>';
+        return;
+    }
+
+    // Verificar si el tour es reservable antes de mostrar el formulario
+    if (!WPTBT_Tours::is_tour_bookable($post->ID)) {
+        echo '<div class="p-4 bg-amber-100 text-amber-800 rounded-md">';
+        echo '<strong>Configuración requerida:</strong> Este tour necesita horarios de salida y precios configurados antes de poder aceptar reservas.';
+        if (current_user_can('edit_posts')) {
+            echo ' <a href="' . esc_url(get_edit_post_link($post->ID)) . '" class="underline">Configurar tour</a>';
+        }
+        echo '</div>';
+        return;
+    }
+
+    echo wptbt_render_tour_booking_form($post);
 }
 
 /**
@@ -253,16 +221,16 @@ function wptbt_render_current_tour_booking_form()
  */
 function wptbt_render_tour_booking_form_legacy($tour_title, $tour_duration1 = '', $tour_price1 = '', $tour_duration2 = '', $tour_price2 = '', $tour_hours = [])
 {
-    // Crear datos de servicio temporal para compatibilidad
+    // Crear datos de tour temporal para compatibilidad
     $durations = [];
     
     if (!empty($tour_duration1) && !empty($tour_price1)) {
         $durations[] = [
             'duration' => $tour_duration1,
             'price' => $tour_price1,
-            'minutes' => intval($tour_duration1),
-            'text' => $tour_duration1 . ' - ' . $tour_price1,
-            'value' => intval($tour_duration1) . 'min-' . $tour_price1
+            'minutes' => intval($tour_duration1) * 24 * 60, // Convertir días a minutos
+            'text' => $tour_duration1 . ' días - ' . $tour_price1,
+            'value' => intval($tour_duration1) . 'days-' . $tour_price1
         ];
     }
     
@@ -270,9 +238,9 @@ function wptbt_render_tour_booking_form_legacy($tour_title, $tour_duration1 = ''
         $durations[] = [
             'duration' => $tour_duration2,
             'price' => $tour_price2,
-            'minutes' => intval($tour_duration2),
-            'text' => $tour_duration2 . ' - ' . $tour_price2,
-            'value' => intval($tour_duration2) . 'min-' . $tour_price2
+            'minutes' => intval($tour_duration2) * 24 * 60, // Convertir días a minutos
+            'text' => $tour_duration2 . ' días - ' . $tour_price2,
+            'value' => intval($tour_duration2) . 'days-' . $tour_price2
         ];
     }
 
@@ -304,7 +272,7 @@ function wptbt_render_tour_booking_form_legacy($tour_title, $tour_duration1 = ''
                     <?php echo esc_html($tour_title); ?>
                 </h3>
                 <p class="text-gray-600">
-                    Complete the form to book your session
+                    Complete the form to reserve your tour
                 </p>
             </div>
 
@@ -313,7 +281,7 @@ function wptbt_render_tour_booking_form_legacy($tour_title, $tour_duration1 = ''
                 [
                     'tours' => $tour_data,
                     'darkMode' => false,
-                    'accentColor' => '#D4B254',
+                    'accentColor' => '#DC2626',
                     'useSingletour' => true,
                     'emailRecipient' => $form_email 
                 ],
@@ -328,3 +296,121 @@ function wptbt_render_tour_booking_form_legacy($tour_title, $tour_duration1 = ''
 <?php
     return ob_get_clean();
 }
+
+/**
+ * NUEVA FUNCIÓN: Mostrar badge de precio mínimo para listados de tours
+ */
+function wptbt_tour_price_badge($tour_id, $classes = 'bg-travel-accent text-white px-3 py-1 rounded-full text-sm font-medium')
+{
+    $price_label = WPTBT_Tours::get_tour_price_label($tour_id);
+    
+    if ($price_label) {
+        echo '<span class="' . esc_attr($classes) . '">' . esc_html($price_label) . '</span>';
+    }
+}
+
+/**
+ * NUEVA FUNCIÓN: Mostrar estado de reservabilidad de un tour
+ */
+function wptbt_tour_booking_status($tour_id)
+{
+    if (WPTBT_Tours::is_tour_bookable($tour_id)) {
+        echo '<span class="inline-flex items-center text-green-600 text-sm">';
+        echo '<svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">';
+        echo '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>';
+        echo '</svg>';
+        echo __('Available for booking', 'wptbt-tours');
+        echo '</span>';
+    } else {
+        echo '<span class="inline-flex items-center text-amber-600 text-sm">';
+        echo '<svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">';
+        echo '<path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>';
+        echo '</svg>';
+        echo __('Contact for booking', 'wptbt-tours');
+        echo '</span>';
+    }
+}
+
+/**
+ * NUEVA FUNCIÓN: Obtener configuración JSON para el formulario de reservas
+ * Útil para pasar datos a JavaScript
+ */
+function wptbt_get_booking_form_json_config($tour_id)
+{
+    $config = WPTBT_Tours::get_booking_form_config($tour_id);
+    return wp_json_encode($config);
+}
+
+/**
+ * FUNCIÓN DE DEBUGGING: Crear datos de ejemplo para testing
+ */
+function wptbt_create_sample_tour_data($tour_id)
+{
+    // Datos de ejemplo para horarios
+    $sample_hours = ['09:00', '14:00', '16:00'];
+    update_post_meta($tour_id, '_wptbt_tour_hours', $sample_hours);
+    
+    // Datos de ejemplo para precios
+    $sample_prices = [
+        ['duration' => '3', 'price' => '$299'],
+        ['duration' => '5', 'price' => '$449'],
+        ['duration' => '7', 'price' => '$599']
+    ];
+    update_post_meta($tour_id, '_wptbt_tour_prices', $sample_prices);
+    
+    return "Datos de ejemplo creados para tour ID: $tour_id";
+}
+
+/**
+ * FUNCIÓN DE DEBUGGING: Verificar configuración de tour
+ */
+function wptbt_debug_tour_config($tour_id)
+{
+    $hours = get_post_meta($tour_id, '_wptbt_tour_hours', true);
+    $prices = get_post_meta($tour_id, '_wptbt_tour_prices', true);
+    
+    echo "<div style='background: #f0f0f0; padding: 20px; margin: 20px 0; border-left: 4px solid #0073aa;'>";
+    echo "<h3>🔍 Debug Info para Tour ID: $tour_id</h3>";
+    echo "<p><strong>Horarios guardados:</strong> " . (empty($hours) ? "❌ Ninguno" : "✅ " . count($hours) . " horarios") . "</p>";
+    if (!empty($hours)) {
+        echo "<ul>";
+        foreach ($hours as $hour) {
+            echo "<li>$hour</li>";
+        }
+        echo "</ul>";
+    }
+    
+    echo "<p><strong>Precios guardados:</strong> " . (empty($prices) ? "❌ Ninguno" : "✅ " . count($prices) . " opciones de precio") . "</p>";
+    if (!empty($prices)) {
+        echo "<ul>";
+        foreach ($prices as $price) {
+            echo "<li>{$price['duration']} días - {$price['price']}</li>";
+        }
+        echo "</ul>";
+    }
+    
+    echo "<p><strong>Estado:</strong> " . (WPTBT_Tours::is_tour_bookable($tour_id) ? "✅ Listo para reservas" : "❌ Necesita configuración") . "</p>";
+    echo "</div>";
+}
+
+/**
+ * AJAX Handler: Crear datos de ejemplo para un tour
+ */
+function wptbt_ajax_create_sample_tour_data()
+{
+    // Verificar nonce y permisos
+    if (!wp_verify_nonce($_POST['nonce'], 'sample_tour_data') || !current_user_can('edit_posts')) {
+        wp_die('Unauthorized');
+    }
+    
+    $tour_id = intval($_POST['tour_id']);
+    if ($tour_id > 0) {
+        $result = wptbt_create_sample_tour_data($tour_id);
+        wp_send_json_success($result);
+    } else {
+        wp_send_json_error('Invalid tour ID');
+    }
+}
+
+// Registrar el handler AJAX
+add_action('wp_ajax_create_sample_tour_data', 'wptbt_ajax_create_sample_tour_data');

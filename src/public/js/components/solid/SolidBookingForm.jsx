@@ -50,7 +50,6 @@ const SolidBookingForm = (props) => {
   const [getSelectedService, setSelectedService] = createSignal(null);
   const [getCurrentNonce, setCurrentNonce] = createSignal("");
 
-  // Flag to hide service selector in single-service mode
   const [getShowServiceSelector, setShowServiceSelector] = createSignal(!useSingleService);
 
   // Create a derived signal to detect if selected date is today
@@ -60,7 +59,7 @@ const SolidBookingForm = (props) => {
   const totalSteps = 3;
 
   const getStepConfig = () => {
-    if (useSingleService) {
+    if (useSingleService || !shouldShowServiceSelector()) {
       return [
         { step: 1, title: "Date & Time", icon: "calendar", description: "Choose your preferred appointment time" },
         { step: 2, title: "Personal Details", icon: "user", description: "Provide your contact information" },
@@ -169,7 +168,7 @@ const SolidBookingForm = (props) => {
         if (isToday(getDate())) {
           return false;
         }
-        if (useSingleService) {
+        if (useSingleService || !shouldShowServiceSelector()) {
           return getDate() && getTime();
         } else {
           return getService() && getDate() && getTime();
@@ -244,6 +243,17 @@ const SolidBookingForm = (props) => {
     }
   });
 
+  // Auto-select service when only one is available
+  createEffect(() => {
+    const availableServices = getServiceOptions();
+    if (availableServices.length === 1 && !getService()) {
+      const singleServiceId = availableServices[0].value;
+      console.log("[DEBUG] Auto-selecting single available service:", singleServiceId);
+      setService(String(singleServiceId));
+      updateServiceDetails(String(singleServiceId));
+    }
+  });
+
   const updateServiceDetails = (serviceId) => {
     if (!serviceId) return;
 
@@ -273,23 +283,23 @@ const SolidBookingForm = (props) => {
       } else {
         const durations = [];
         if (serviceObj.duration1 && serviceObj.price1) {
-          const minutes = parseInt(serviceObj.duration1.replace(/[^0-9]/g, '')) || 0;
+          const days = parseInt(serviceObj.duration1.replace(/[^0-9]/g, '')) || 0;
           durations.push({
-            minutes: minutes,
+            minutes: days * 24 * 60, // Convert days to minutes for compatibility
             price: serviceObj.price1,
-            text: `${serviceObj.duration1} - ${serviceObj.price1}`,
+            text: `${serviceObj.duration1} días - $${serviceObj.price1.replace('$', '')}`,
             duration: serviceObj.duration1,
-            value: `${minutes}min-${serviceObj.price1}`
+            value: `${days}days-${serviceObj.price1}`
           });
         }
         if (serviceObj.duration2 && serviceObj.price2) {
-          const minutes = parseInt(serviceObj.duration2.replace(/[^0-9]/g, '')) || 0;
+          const days = parseInt(serviceObj.duration2.replace(/[^0-9]/g, '')) || 0;
           durations.push({
-            minutes: minutes,
+            minutes: days * 24 * 60, // Convert days to minutes for compatibility
             price: serviceObj.price2,
-            text: `${serviceObj.duration2} - ${serviceObj.price2}`,
+            text: `${serviceObj.duration2} días - $${serviceObj.price2.replace('$', '')}`,
             duration: serviceObj.duration2,
-            value: `${minutes}min-${serviceObj.price2}`
+            value: `${days}days-${serviceObj.price2}`
           });
         }
         console.log("[DEBUG] Setting fallback durations:", durations);
@@ -381,6 +391,13 @@ const SolidBookingForm = (props) => {
     }));
   });
 
+  // Flag to hide service selector in single-service mode or when only one service is available
+  const shouldShowServiceSelector = createMemo(() => {
+    if (useSingleService) return false;
+    const availableServices = getServiceOptions();
+    return availableServices.length > 1;
+  });
+
   const getDurationOptions = createMemo(() => {
     const durations = getAvailableDurations();
     console.log("[DEBUG] Creating duration options from:", durations);
@@ -391,9 +408,9 @@ const SolidBookingForm = (props) => {
     }
 
     return durations.map(duration => ({
-      value: duration.value || `${duration.minutes}min-${duration.price}`,
-      label: `${duration.duration || duration.minutes} min`,
-      subtitle: duration.price,
+      value: duration.value || `${duration.minutes}days-${duration.price}`,
+      label: `${duration.duration || duration.minutes} días`,
+      subtitle: `$${duration.price.replace('$', '')}`,
       disabled: false
     }));
   });
@@ -631,15 +648,15 @@ const SolidBookingForm = (props) => {
             <article class="space-y-6" role="tabpanel" aria-labelledby="step1-heading">
               <header class="text-center mb-8">
                 <h1 id="step1-heading" class={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                  {useSingleService ? "Date & Time Selection" : "Service & Schedule Selection"}
+                  {useSingleService || !shouldShowServiceSelector() ? "Date & Time Selection" : "Service & Schedule Selection"}
                 </h1>
                 <p class={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  {useSingleService ? "Select when you'd like your appointment" : "Choose your preferred service and schedule"}
+                  {useSingleService || !shouldShowServiceSelector() ? "Select when you'd like your appointment" : "Choose your preferred service and schedule"}
                 </p>
               </header>
 
               {/* Service selector */}
-              <Show when={!useSingleService}>
+              <Show when={shouldShowServiceSelector()}>
                 <div class="mb-8">
                   <CustomSelect
                     id={`${formId}-service`}
@@ -656,6 +673,30 @@ const SolidBookingForm = (props) => {
                   />
                   <div id="service-help" class="sr-only">
                     Choose the service you want to book from the available options
+                  </div>
+                </div>
+              </Show>
+
+              {/* Show selected tour info when only one is available */}
+              <Show when={!shouldShowServiceSelector() && getSelectedService()}>
+                <div class="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div class="flex items-center space-x-3">
+                    <div class="flex-shrink-0">
+                      <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 class="text-lg font-medium text-blue-900">
+                        {getSelectedService()?.title}
+                      </h3>
+                      <Show when={getSelectedService()?.subtitle}>
+                        <p class="text-sm text-blue-700">
+                          {getSelectedService()?.subtitle}
+                        </p>
+                      </Show>
+                    </div>
                   </div>
                 </div>
               </Show>
@@ -931,7 +972,7 @@ const SolidBookingForm = (props) => {
                     </p>
                     <Show when={getDuration()}>
                       <p class={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                        {getDuration().replace('min-', ' minutes - ')}
+                        {getDuration().replace('days-', ' días - $').replace('min-', ' días - $')}
                       </p>
                     </Show>
                   </div>

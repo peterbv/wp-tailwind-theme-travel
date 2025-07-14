@@ -56,39 +56,48 @@ class WPTBT_Solid_JS_Loader
         $translate_name = 'wptbt-' . $component_name . '-block';
         $translations = [];
 
-        // Traducciones específicas para el componente de reservas
+        // Traducciones específicas para el componente de reservas de tours
         if ($component_name === 'booking-form') {
             $translations = [
-                'Book Now' => __('Book Now', $translate_name),
-                'BOOK NOW' => __('BOOK NOW', $translate_name),
+                'Book Now' => __('Reserve Tour', $translate_name),
+                'BOOK NOW' => __('RESERVE TOUR', $translate_name),
                 'Name' => __('Name', $translate_name),
                 'Email' => __('Email', $translate_name),
-                'Select Service' => __('Select Service', $translate_name),
-                'Select a service' => __('Select a service', $translate_name),
-                'Select Date' => __('Select Date', $translate_name),
-                'Select date' => __('Select date', $translate_name),
+                'Select Service' => __('Select Tour', $translate_name),
+                'Select a service' => __('Select a tour', $translate_name),
+                'Select Date' => __('Select Departure Date', $translate_name),
+                'Select date' => __('Select departure date', $translate_name),
                 'Select Duration' => __('Select Duration', $translate_name),
-                'Select Time' => __('Select Time', $translate_name),
-                'Select available time' => __('Select available time', $translate_name),
-                'No available times' => __('No available times', $translate_name),
-                'Additional Information (Optional)' => __('Additional Information (Optional)', $translate_name),
+                'Select Time' => __('Select Departure Time', $translate_name),
+                'Select available time' => __('Select available departure time', $translate_name),
+                'No available times' => __('No available departure times', $translate_name),
+                'Additional Information (Optional)' => __('Special Requests or Dietary Requirements (Optional)', $translate_name),
                 'Processing...' => __('Processing...', $translate_name),
-                'CONFIRM BOOKING' => __('CONFIRM BOOKING', $translate_name),
+                'CONFIRM BOOKING' => __('CONFIRM RESERVATION', $translate_name),
                 'Please enter your name' => __('Please enter your name', $translate_name),
                 'Please enter your email' => __('Please enter your email', $translate_name),
-                'Please select a service' => __('Please select a service', $translate_name),
-                'Please select a date for your booking' => __('Please select a date for your booking', $translate_name),
-                'Please select a time' => __('Please select a time', $translate_name),
-                'Processing your booking...' => __('Processing your booking...', $translate_name),
-                'Booking successfully made' => __('Booking successfully made', $translate_name),
+                'Please select a service' => __('Please select a tour', $translate_name),
+                'Please select a date for your booking' => __('Please select a departure date for your tour', $translate_name),
+                'Please select a time' => __('Please select a departure time', $translate_name),
+                'Processing your booking...' => __('Processing your reservation...', $translate_name),
+                'Booking successfully made' => __('Tour reservation successfully made', $translate_name),
                 'An error occurred. Please try again.' => __('An error occurred. Please try again.', $translate_name),
                 'Connection error. Please try again later.' => __('Connection error. Please try again later.', $translate_name),
                 'Full name' => __('Full name', $translate_name),
-                'Number of Visitors' => __('Number of Visitors', $translate_name),
-                'Number of people' => __('Number of people', $translate_name),
-                'Select between 1 and 20 people' => __('Select between 1 and 20 people', $translate_name),
-                'Decrease Visitors' => __('Decrease Visitors', $translate_name),
-                'Increase Visitors' => __('Increase Visitors', $translate_name),
+                'Number of Visitors' => __('Number of Travelers', $translate_name),
+                'Number of people' => __('Number of travelers', $translate_name),
+                'Select between 1 and 20 people' => __('Select between 1 and 20 travelers', $translate_name),
+                'Decrease Visitors' => __('Decrease Travelers', $translate_name),
+                'Increase Visitors' => __('Increase Travelers', $translate_name),
+                'Personal Details' => __('Traveler Information', $translate_name),
+                'Information to confirm your booking' => __('Information to confirm your tour reservation', $translate_name),
+                'Confirm Booking' => __('Confirm Reservation', $translate_name),
+                'Review all details before confirming' => __('Review all tour details before confirming', $translate_name),
+                'Service Details' => __('Tour Details', $translate_name),
+                'Appointment Date & Time' => __('Tour Departure Date & Time', $translate_name),
+                'Contact Information' => __('Traveler Information', $translate_name),
+                'Visitors' => __('Travelers', $translate_name),
+                'Any special requests or additional information...' => __('Any special requests, dietary requirements, or additional information...', $translate_name),
             ];
         }
 
@@ -420,7 +429,7 @@ function wptbt_load_solid_component($component_name)
 }
 
 /**
- * Función auxiliar para generar HTML del componente de formulario de reserva
+ * Función auxiliar para generar HTML del componente de formulario de reserva de tours
  * 
  * @param array $props Propiedades para el componente
  * @param array $container_attrs Atributos adicionales para el contenedor
@@ -434,20 +443,26 @@ function wptbt_booking_form_component($props = [], $container_attrs = [])
     // ID único para el contenedor
     $container_id = isset($container_attrs['id']) ? $container_attrs['id'] : 'booking-form-' . uniqid();
 
-    // Formato de servicios (si hay) para el data-attribute
-    $services_json = isset($props['services']) ? json_encode($props['services']) : '';
+    // Formato de tours (si hay) para el data-attribute
+    $tours_json = isset($props['tours']) ? json_encode($props['tours']) : '';
+    // Mantener compatibilidad con services para no romper código existente
+    $services_json = isset($props['services']) ? json_encode($props['services']) : $tours_json;
 
     // Configurar atributos del contenedor
     $default_container_attrs = [
         'id' => $container_id,
         'class' => 'solid-booking-container',
-        'data-services' => $services_json,
+        'data-services' => $services_json, // Mantener para compatibilidad
+        'data-tours' => $tours_json, // Nuevo atributo específico para tours
         'data-dark-mode' => isset($props['darkMode']) && $props['darkMode'] ? 'true' : 'false',
-        'data-accent-color' => isset($props['accentColor']) ? $props['accentColor'] : '#D4B254',
+        'data-accent-color' => isset($props['accentColor']) ? $props['accentColor'] : '#DC2626', // Color rojo para viajes
         'data-ajax-url' => admin_url('admin-ajax.php'),
         //'data-nonce' => wp_create_nonce('wptbt_booking_nonce'),
         'data-use-single-service' => isset($props['useSingleService']) && $props['useSingleService'] ? 'true' : 'false',
+        'data-use-single-tour' => isset($props['useSingleTour']) && $props['useSingleTour'] ? 'true' : 'false',
         'data-email-recipient' => isset($props['emailRecipient']) ? $props['emailRecipient'] : '',
+        'data-tour-id' => isset($props['tourId']) ? $props['tourId'] : '',
+        'data-form-type' => 'tour-booking', // Identificador del tipo de formulario
     ];
 
     // Combinar atributos personalizados
@@ -466,7 +481,7 @@ function wptbt_booking_form_component($props = [], $container_attrs = [])
     $html .= '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>';
     $html .= '<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>';
     $html .= '</svg>';
-    $html .= '<span class="ml-3 text-gray-600">Cargando formulario de reserva...</span>';
+    $html .= '<span class="ml-3 text-gray-600">Cargando formulario de reserva de tours...</span>';
     $html .= '</div>';
 
     $html .= '</div>';

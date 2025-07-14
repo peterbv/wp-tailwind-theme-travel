@@ -41,8 +41,8 @@ $categories = get_the_terms($tour_id, 'tour-categories');
 <main id="primary" class="site-main">
     <?php while (have_posts()) : the_post(); ?>
 
-        <!-- Hero Section con galería o imagen destacada -->
-        <section class="tour-hero relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+        <!-- Hero Section moderno -->
+        <section class="tour-hero relative h-screen min-h-[700px] flex items-end overflow-hidden">
             
             <!-- Galería de fondo o imagen destacada -->
             <div class="absolute inset-0 z-0">
@@ -79,58 +79,67 @@ $categories = get_the_terms($tour_id, 'tour-categories');
                 <?php elseif (has_post_thumbnail()) : ?>
                     <?php the_post_thumbnail('full', ['class' => 'w-full h-full object-cover']); ?>
                 <?php else : ?>
-                    <!-- Fondo degradado por defecto -->
-                    <div class="w-full h-full bg-gradient-to-br from-blue-600 via-teal-500 to-green-500"></div>
+                    <!-- Fondo profesional por defecto -->
+                    <div class="w-full h-full bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900"></div>
                 <?php endif; ?>
                 
-                <!-- Overlay -->
-                <div class="absolute inset-0 bg-black/40"></div>
+                <!-- Overlay moderno con gradiente -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent"></div>
             </div>
 
-            <!-- Contenido del hero -->
-            <div class="container mx-auto px-4 relative z-10 text-center text-white">
-                <!-- Breadcrumb -->
-                <nav class="mb-6">
-                    <a href="<?php echo esc_url(get_post_type_archive_link('tours')); ?>" 
-                       class="inline-flex items-center text-white/80 hover:text-white transition-colors duration-300">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                        </svg>
-                        <?php _e('Back to Tours', 'wptbt-tours'); ?>
-                    </a>
-                </nav>
+            <!-- Contenido del hero moderno -->
+            <div class="container mx-auto px-4 relative z-10 pb-16">
+                <div class="max-w-4xl">
+                    <!-- Breadcrumb minimalista -->
+                    <nav class="mb-8">
+                        <a href="<?php echo esc_url(get_post_type_archive_link('tours')); ?>" 
+                           class="inline-flex items-center text-white/70 hover:text-white transition-all duration-300 text-sm backdrop-blur-sm bg-white/10 px-4 py-2 rounded-full border border-white/20">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                            <?php _e('Explore Tours', 'wptbt-tours'); ?>
+                        </a>
+                    </nav>
 
-                <!-- Badges del tour -->
-                <?php if ($is_featured || $is_popular || $is_new) : ?>
-                    <div class="flex justify-center space-x-3 mb-6">
-                        <?php if ($is_featured) : ?>
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-500 text-white">
-                                ⭐ <?php _e('Featured', 'wptbt-tours'); ?>
+                    <!-- Badges modernos -->
+                    <?php if ($is_featured || $is_popular || $is_new) : ?>
+                        <div class="flex flex-wrap gap-3 mb-8">
+                            <?php if ($is_featured) : ?>
+                                <span class="inline-flex items-center px-4 py-2 text-sm font-medium bg-gradient-to-r from-amber-400/20 to-orange-400/20 text-amber-100 border border-amber-400/30 rounded-full backdrop-blur-md">
+                                    <span class="w-2 h-2 bg-amber-400 rounded-full mr-2 animate-pulse"></span>
+                                    <?php _e('Featured', 'wptbt-tours'); ?>
+                                </span>
+                            <?php endif; ?>
+                            <?php if ($is_popular) : ?>
+                                <span class="inline-flex items-center px-4 py-2 text-sm font-medium bg-gradient-to-r from-red-400/20 to-pink-400/20 text-red-100 border border-red-400/30 rounded-full backdrop-blur-md">
+                                    <span class="w-2 h-2 bg-red-400 rounded-full mr-2 animate-pulse"></span>
+                                    <?php _e('Popular', 'wptbt-tours'); ?>
+                                </span>
+                            <?php endif; ?>
+                            <?php if ($is_new) : ?>
+                                <span class="inline-flex items-center px-4 py-2 text-sm font-medium bg-gradient-to-r from-emerald-400/20 to-teal-400/20 text-emerald-100 border border-emerald-400/30 rounded-full backdrop-blur-md">
+                                    <span class="w-2 h-2 bg-emerald-400 rounded-full mr-2 animate-pulse"></span>
+                                    <?php _e('New', 'wptbt-tours'); ?>
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Título y subtítulo modernos -->
+                    <div class="space-y-6">
+                        <h1 class="text-4xl md:text-7xl lg:text-8xl font-bold mb-6 leading-[0.9] tracking-tight">
+                            <span class="block text-white drop-shadow-lg">
+                                <?php the_title(); ?>
                             </span>
-                        <?php endif; ?>
-                        <?php if ($is_popular) : ?>
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-500 text-white">
-                                🔥 <?php _e('Popular', 'wptbt-tours'); ?>
-                            </span>
-                        <?php endif; ?>
-                        <?php if ($is_new) : ?>
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-500 text-white">
-                                🆕 <?php _e('New', 'wptbt-tours'); ?>
-                            </span>
+                        </h1>
+                        
+                        <?php if ($subtitle) : ?>
+                            <p class="text-lg md:text-xl text-white/80 max-w-2xl leading-relaxed">
+                                <?php echo esc_html($subtitle); ?>
+                            </p>
                         <?php endif; ?>
                     </div>
-                <?php endif; ?>
-
-                <!-- Título y subtítulo -->
-                <h1 class="text-4xl md:text-6xl font-bold mb-4 leading-tight">
-                    <?php the_title(); ?>
-                </h1>
-                
-                <?php if ($subtitle) : ?>
-                    <p class="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto">
-                        <?php echo esc_html($subtitle); ?>
-                    </p>
-                <?php endif; ?>
 
                 <!-- Precio destacado -->
                 <?php if ($pricing_data['best_price']) : ?>
@@ -161,7 +170,7 @@ $categories = get_the_terms($tour_id, 'tour-categories');
 
                 <!-- CTA Principal -->
                 <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
-                    <a href="#book-tour" class="inline-flex items-center px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    <a href="#book-tour" class="inline-flex items-center px-8 py-3 bg-white text-gray-900 font-semibold rounded-lg transition-all duration-300 hover:bg-gray-100 shadow-lg">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
@@ -170,7 +179,7 @@ $categories = get_the_terms($tour_id, 'tour-categories');
                     
                     <?php if ($google_maps_url) : ?>
                         <a href="<?php echo esc_url($google_maps_url); ?>" target="_blank" 
-                           class="inline-flex items-center px-6 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border border-white/30 rounded-full transition-all duration-300">
+                           class="inline-flex items-center px-6 py-3 bg-transparent hover:bg-white/10 text-white border border-white/40 rounded-lg transition-all duration-300">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -198,20 +207,28 @@ $categories = get_the_terms($tour_id, 'tour-categories');
                     <div class="lg:col-span-2 space-y-12">
                         
                         <!-- Descripción -->
-                        <div class="prose prose-lg max-w-none">
-                            <h2 class="text-3xl font-bold text-gray-900 mb-6"><?php _e('Tour Overview', 'wptbt-tours'); ?></h2>
-                            <?php the_content(); ?>
+                        <div class="">
+                            <div class="mb-8">
+                                <span class="text-sm font-medium text-red-600 uppercase tracking-wide mb-2 block">Experience</span>
+                                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6"><?php _e('Tour Overview', 'wptbt-tours'); ?></h2>
+                            </div>
+                            <div class="prose prose-lg max-w-none text-gray-700">
+                                <?php the_content(); ?>
+                            </div>
                         </div>
 
                         <!-- Itinerario -->
                         <?php if (!empty($itinerary)) : ?>
                             <div>
-                                <h2 class="text-3xl font-bold text-gray-900 mb-8"><?php _e('Detailed Itinerary', 'wptbt-tours'); ?></h2>
+                                <div class="mb-8">
+                                    <span class="text-sm font-medium text-red-600 uppercase tracking-wide mb-2 block">Day by Day</span>
+                                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6"><?php _e('Detailed Itinerary', 'wptbt-tours'); ?></h2>
+                                </div>
                                 <div class="space-y-6">
                                     <?php foreach ($itinerary as $index => $day) : ?>
-                                        <div class="bg-gray-50 rounded-xl p-6 border-l-4 border-blue-500">
+                                        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-300">
                                             <div class="flex items-center mb-4">
-                                                <div class="flex-shrink-0 w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-lg">
+                                                <div class="flex-shrink-0 w-12 h-12 bg-red-600 text-white rounded-lg flex items-center justify-center font-bold">
                                                     <?php echo $index + 1; ?>
                                                 </div>
                                                 <div class="ml-4">
@@ -222,14 +239,36 @@ $categories = get_the_terms($tour_id, 'tour-categories');
                                             </div>
                                             
                                             <div class="ml-16">
-                                                <p class="text-gray-700 mb-4">
+                                                <p class="text-gray-700 mb-6">
                                                     <?php echo esc_html($day['description']); ?>
                                                 </p>
+                                                
+                                                <!-- Horarios del día -->
+                                                <?php if (isset($day['schedule']) && !empty($day['schedule'])) : ?>
+                                                    <div class="mb-6">
+                                                        <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                                                            <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                            </svg>
+                                                            <?php _e('Daily Schedule', 'wptbt-tours'); ?>
+                                                        </h4>
+                                                        <div class="space-y-2">
+                                                            <?php foreach ($day['schedule'] as $time_slot) : ?>
+                                                                <?php if (!empty($time_slot['time']) || !empty($time_slot['activity'])) : ?>
+                                                                    <div class="flex items-start text-sm">
+                                                                        <span class="font-medium text-red-600 w-16 flex-shrink-0"><?php echo esc_html($time_slot['time']); ?></span>
+                                                                        <span class="text-gray-700"><?php echo esc_html($time_slot['activity']); ?></span>
+                                                                    </div>
+                                                                <?php endif; ?>
+                                                            <?php endforeach; ?>
+                                                        </div>
+                                                    </div>
+                                                <?php endif; ?>
                                                 
                                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                                     <?php if ($day['meals']) : ?>
                                                         <div class="flex items-center text-gray-600">
-                                                            <svg class="w-4 h-4 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                                             </svg>
                                                             <strong><?php _e('Meals:', 'wptbt-tours'); ?></strong>
@@ -239,7 +278,7 @@ $categories = get_the_terms($tour_id, 'tour-categories');
                                                     
                                                     <?php if ($day['accommodation']) : ?>
                                                         <div class="flex items-center text-gray-600">
-                                                            <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                                                             </svg>
                                                             <strong><?php _e('Stay:', 'wptbt-tours'); ?></strong>
@@ -257,34 +296,63 @@ $categories = get_the_terms($tour_id, 'tour-categories');
                         <!-- Incluido y No Incluido -->
                         <?php if ($includes || $excludes) : ?>
                             <div>
-                                <h2 class="text-3xl font-bold text-gray-900 mb-8"><?php _e("What's Included", 'wptbt-tours'); ?></h2>
+                                <div class="mb-8">
+                                    <span class="text-sm font-medium text-red-600 uppercase tracking-wide mb-2 block">Package Details</span>
+                                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6"><?php _e("What's Included", 'wptbt-tours'); ?></h2>
+                                </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     
                                     <?php if ($includes) : ?>
                                         <div class="bg-green-50 rounded-xl p-6 border border-green-200">
-                                            <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
-                                                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
+                                            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                                                <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-3">
+                                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                    </svg>
+                                                </div>
                                                 <?php _e('Included', 'wptbt-tours'); ?>
                                             </h3>
-                                            <div class="prose prose-green text-green-700">
-                                                <?php echo wpautop(esc_html($includes)); ?>
-                                            </div>
+                                            <ul class="space-y-2 text-gray-700">
+                                                <?php if (is_array($includes)) : ?>
+                                                    <?php foreach ($includes as $item) : ?>
+                                                        <li class="flex items-start">
+                                                            <svg class="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                            </svg>
+                                                            <?php echo esc_html($item); ?>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                <?php else : ?>
+                                                    <li><?php echo wpautop(esc_html($includes)); ?></li>
+                                                <?php endif; ?>
+                                            </ul>
                                         </div>
                                     <?php endif; ?>
 
                                     <?php if ($excludes) : ?>
                                         <div class="bg-red-50 rounded-xl p-6 border border-red-200">
-                                            <h3 class="text-xl font-bold text-red-800 mb-4 flex items-center">
-                                                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                </svg>
+                                            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                                                <div class="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center mr-3">
+                                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                    </svg>
+                                                </div>
                                                 <?php _e('Not Included', 'wptbt-tours'); ?>
                                             </h3>
-                                            <div class="prose prose-red text-red-700">
-                                                <?php echo wpautop(esc_html($excludes)); ?>
-                                            </div>
+                                            <ul class="space-y-2 text-gray-700">
+                                                <?php if (is_array($excludes)) : ?>
+                                                    <?php foreach ($excludes as $item) : ?>
+                                                        <li class="flex items-start">
+                                                            <svg class="w-4 h-4 text-red-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                            </svg>
+                                                            <?php echo esc_html($item); ?>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                <?php else : ?>
+                                                    <li><?php echo wpautop(esc_html($excludes)); ?></li>
+                                                <?php endif; ?>
+                                            </ul>
                                         </div>
                                     <?php endif; ?>
 
@@ -299,41 +367,41 @@ $categories = get_the_terms($tour_id, 'tour-categories');
                             
                             <!-- Pricing Card -->
                             <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-                                <div class="bg-gradient-to-r from-blue-500 to-teal-500 p-6 text-white">
+                                <div class="bg-red-600 p-6 text-white">
                                     <h3 class="text-xl font-bold mb-2"><?php _e('Tour Pricing', 'wptbt-tours'); ?></h3>
                                     <?php if ($pricing_data['duration']) : ?>
-                                        <p class="text-blue-100"><?php echo esc_html($pricing_data['duration']); ?></p>
+                                        <p class="text-red-100"><?php echo esc_html($pricing_data['duration']); ?></p>
                                     <?php endif; ?>
                                 </div>
                                 
                                 <div class="p-6 space-y-4">
                                     <?php if ($pricing_data['promotion'] && $pricing_data['original']) : ?>
                                         <div class="text-center">
-                                            <div class="text-sm text-red-600 font-medium mb-1">🎯 <?php _e('Special Offer', 'wptbt-tours'); ?></div>
+                                            <div class="text-sm text-gray-600 font-medium mb-1"><?php _e('Special Offer', 'wptbt-tours'); ?></div>
                                             <div class="text-lg text-gray-500 line-through">
                                                 <?php echo $pricing_data['symbol'] . $pricing_data['original']; ?>
                                             </div>
-                                            <div class="text-3xl font-bold text-red-600">
+                                            <div class="text-2xl font-bold text-gray-900">
                                                 <?php echo $pricing_data['symbol'] . $pricing_data['promotion']; ?>
                                             </div>
                                         </div>
                                     <?php endif; ?>
 
                                     <?php if ($pricing_data['international']) : ?>
-                                        <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                                            <span class="text-sm font-medium text-blue-800">🌍 <?php _e('International', 'wptbt-tours'); ?></span>
-                                            <span class="font-bold text-blue-900"><?php echo $pricing_data['symbol'] . $pricing_data['international']; ?></span>
+                                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                            <span class="text-sm font-medium text-gray-700"><?php _e('International', 'wptbt-tours'); ?></span>
+                                            <span class="font-semibold text-gray-900"><?php echo $pricing_data['symbol'] . $pricing_data['international']; ?></span>
                                         </div>
                                     <?php endif; ?>
 
                                     <?php if ($pricing_data['national']) : ?>
-                                        <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                                            <span class="text-sm font-medium text-green-800">🏠 <?php _e('National', 'wptbt-tours'); ?></span>
-                                            <span class="font-bold text-green-900"><?php echo $pricing_data['symbol'] . $pricing_data['national']; ?></span>
+                                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                            <span class="text-sm font-medium text-gray-700"><?php _e('National', 'wptbt-tours'); ?></span>
+                                            <span class="font-semibold text-gray-900"><?php echo $pricing_data['symbol'] . $pricing_data['national']; ?></span>
                                         </div>
                                     <?php endif; ?>
 
-                                    <a href="#book-tour" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 text-center block">
+                                    <a href="#book-tour" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-lg transition-colors duration-300 text-center block">
                                         <?php _e('Book Now', 'wptbt-tours'); ?>
                                     </a>
                                 </div>
@@ -341,7 +409,7 @@ $categories = get_the_terms($tour_id, 'tour-categories');
 
                             <!-- Tour Details Card -->
                             <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-                                <div class="bg-gray-900 p-6 text-white">
+                                <div class="bg-gray-800 p-6 text-white">
                                     <h3 class="text-xl font-bold"><?php _e('Tour Details', 'wptbt-tours'); ?></h3>
                                 </div>
                                 
@@ -352,10 +420,10 @@ $categories = get_the_terms($tour_id, 'tour-categories');
                                             <span class="font-medium">
                                                 <?php
                                                 $difficulty_labels = [
-                                                    'easy' => '🟢 ' . __('Easy', 'wptbt-tours'),
-                                                    'moderate' => '🟡 ' . __('Moderate', 'wptbt-tours'),
-                                                    'challenging' => '🟠 ' . __('Challenging', 'wptbt-tours'),
-                                                    'extreme' => '🔴 ' . __('Extreme', 'wptbt-tours')
+                                                    'easy' => __('Easy', 'wptbt-tours'),
+                                                    'moderate' => __('Moderate', 'wptbt-tours'),
+                                                    'challenging' => __('Challenging', 'wptbt-tours'),
+                                                    'extreme' => __('Extreme', 'wptbt-tours')
                                                 ];
                                                 echo isset($difficulty_labels[$difficulty]) ? $difficulty_labels[$difficulty] : $difficulty;
                                                 ?>
@@ -396,15 +464,15 @@ $categories = get_the_terms($tour_id, 'tour-categories');
                             <!-- Departure Dates -->
                             <?php if (!empty($departure_dates) && is_array($departure_dates)) : ?>
                                 <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-                                    <div class="bg-teal-500 p-6 text-white">
+                                    <div class="bg-teal-600 p-6 text-white">
                                         <h3 class="text-xl font-bold"><?php _e('Available Dates', 'wptbt-tours'); ?></h3>
                                     </div>
                                     
                                     <div class="p-6">
                                         <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
                                             <?php foreach (array_slice($departure_dates, 0, 8) as $date) : ?>
-                                                <div class="text-center p-2 bg-teal-50 rounded-lg border border-teal-200">
-                                                    <div class="text-sm font-medium text-teal-800">
+                                                <div class="text-center p-3 bg-teal-50 rounded-lg border border-teal-200 hover:border-teal-300 transition-colors duration-200">
+                                                    <div class="text-sm font-bold text-teal-800">
                                                         <?php echo date_i18n('M j', strtotime($date)); ?>
                                                     </div>
                                                     <div class="text-xs text-teal-600">
@@ -426,14 +494,14 @@ $categories = get_the_terms($tour_id, 'tour-categories');
                             <!-- Contact Info -->
                             <?php if ($booking_info['whatsapp'] || $booking_info['phone'] || $booking_info['email']) : ?>
                                 <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-                                    <div class="bg-green-500 p-6 text-white">
+                                    <div class="bg-gray-800 p-6 text-white">
                                         <h3 class="text-xl font-bold"><?php _e('Contact Us', 'wptbt-tours'); ?></h3>
                                     </div>
                                     
                                     <div class="p-6 space-y-3">
                                         <?php if ($booking_info['whatsapp']) : ?>
                                             <a href="https://wa.me/<?php echo esc_attr(preg_replace('/[^0-9]/', '', $booking_info['whatsapp'])); ?>" 
-                                               class="flex items-center text-green-600 hover:text-green-700 transition-colors">
+                                               class="flex items-center text-gray-700 hover:text-gray-900 transition-colors">
                                                 <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
                                                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
                                                 </svg>
@@ -484,9 +552,77 @@ $categories = get_the_terms($tour_id, 'tour-categories');
                     </div>
 
                     <?php
-                    // Mostrar formulario personalizado o shortcode
+                    // Mostrar formulario personalizado SolidJS optimizado para tours
                     if (function_exists('wptbt_display_tour_booking_form')) {
-                        wptbt_display_tour_booking_form();
+                        // DEBUG: Mostrar información de configuración (solo para administradores)
+                        if (current_user_can('manage_options') && function_exists('wptbt_debug_tour_config')) {
+                            wptbt_debug_tour_config($tour_id);
+                        }
+                        
+                        // Verificar si hay datos de reserva disponibles
+                        $tour_booking_data = WPTBT_Tours::get_tour_booking_form_data($tour_id);
+                        if (!empty($tour_booking_data['hours']) || !empty($tour_booking_data['durations'])) {
+                            wptbt_display_tour_booking_form();
+                        } else {
+                            // Mostrar mensaje para configurar el tour
+                            ?>
+                            <div class="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center">
+                                <svg class="w-12 h-12 mx-auto text-amber-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                </svg>
+                                <h4 class="text-lg font-medium text-amber-800 mb-2">
+                                    <?php _e('Tour Configuration Needed', 'wptbt-tours'); ?>
+                                </h4>
+                                <p class="text-amber-700 mb-4">
+                                    <?php _e('This tour needs available departure times and pricing before reservations can be made.', 'wptbt-tours'); ?>
+                                </p>
+                                
+                                <div class="bg-white p-4 rounded-lg mb-4 text-left">
+                                    <h5 class="font-semibold text-amber-800 mb-2">📋 Pasos para configurar:</h5>
+                                    <ol class="list-decimal list-inside text-sm text-amber-700 space-y-1">
+                                        <li>Haz clic en "Configurar Tour" abajo</li>
+                                        <li>Busca los meta boxes: "🕒 Tour Schedule & Availability" y "💰 Booking Prices & Options"</li>
+                                        <li>Agrega horarios de salida (ej: 09:00, 14:00)</li>
+                                        <li>Agrega precios por duración (ej: 3 días - $299)</li>
+                                        <li>Guarda el tour</li>
+                                    </ol>
+                                </div>
+                                
+                                <?php if (current_user_can('edit_posts')) : ?>
+                                    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                                        <a href="<?php echo esc_url(get_edit_post_link($tour_id)); ?>" 
+                                           class="inline-flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors">
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                            </svg>
+                                            <?php _e('Configure Tour', 'wptbt-tours'); ?>
+                                        </a>
+                                        
+                                        <?php if (function_exists('wptbt_create_sample_tour_data')) : ?>
+                                            <button onclick="createSampleData()" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                                </svg>
+                                                Crear Datos de Ejemplo
+                                            </button>
+                                            
+                                            <script>
+                                            function createSampleData() {
+                                                if (confirm('¿Crear datos de ejemplo para este tour?')) {
+                                                    fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+                                                        method: 'POST',
+                                                        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                                                        body: 'action=create_sample_tour_data&tour_id=<?php echo $tour_id; ?>&nonce=<?php echo wp_create_nonce('sample_tour_data'); ?>'
+                                                    }).then(() => location.reload());
+                                                }
+                                            }
+                                            </script>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <?php
+                        }
                     } else {
                         // Formulario básico de ejemplo
                         ?>

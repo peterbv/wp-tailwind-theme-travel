@@ -47,31 +47,31 @@ function initBookingForms() {
                 return {
                   minutes: minutes,
                   price: price,
-                  text: duration.text || `${durationText} min - ${price}`,
+                  text: duration.text || `${durationText} días - $${price.replace('$', '')}`,
                   duration: durationText,
-                  value: duration.value || `${minutes}min-${price}` // Asegurar que value existe
+                  value: duration.value || `${durationText}days-${price}` // Asegurar que value existe
                 };
               });
             } else {
               // Fallback: formato anterior con validación
               if (service.duration1 && service.price1) {
-                const minutes = parseInt(service.duration1.replace(/[^0-9]/g, '')) || 0;
+                const days = parseInt(service.duration1.replace(/[^0-9]/g, '')) || 0;
                 durations.push({
-                  minutes: minutes,
+                  minutes: days * 24 * 60, // Convert days to minutes for compatibility
                   price: service.price1,
-                  text: `${service.duration1} - ${service.price1}`,
+                  text: `${service.duration1} días - $${service.price1.replace('$', '')}`,
                   duration: service.duration1,
-                  value: `${minutes}min-${service.price1}`
+                  value: `${days}days-${service.price1}`
                 });
               }
               if (service.duration2 && service.price2) {
-                const minutes = parseInt(service.duration2.replace(/[^0-9]/g, '')) || 0;
+                const days = parseInt(service.duration2.replace(/[^0-9]/g, '')) || 0;
                 durations.push({
-                  minutes: minutes,
+                  minutes: days * 24 * 60, // Convert days to minutes for compatibility
                   price: service.price2,
-                  text: `${service.duration2} - ${service.price2}`,
+                  text: `${service.duration2} días - $${service.price2.replace('$', '')}`,
                   duration: service.duration2,
-                  value: `${minutes}min-${service.price2}`
+                  value: `${days}days-${service.price2}`
                 });
               }
             }

@@ -237,6 +237,26 @@ class WPTBT_Tours
             'side',
             'default'
         );
+
+        // Meta box para horarios y disponibilidad del formulario de reservas
+        add_meta_box(
+            'wptbt_tour_schedule',
+            __('🕒 Tour Schedule & Availability', $this->translate),
+            [$this, 'render_schedule_meta_box'],
+            'tours',
+            'normal',
+            'high'
+        );
+
+        // Meta box para precios del formulario de reservas
+        add_meta_box(
+            'wptbt_tour_booking_prices',
+            __('💰 Booking Prices & Options', $this->translate),
+            [$this, 'render_booking_prices_meta_box'],
+            'tours',
+            'normal',
+            'high'
+        );
     }
 
     /**
@@ -525,6 +545,25 @@ class WPTBT_Tours
                     $(this).closest('.itinerary-day').remove();
                     updateDayNumbers();
                 });
+                
+                // Manejar horarios
+                $(document).on('click', '.add-schedule-item', function() {
+                    var dayIndex = $(this).data('day');
+                    var container = $('.schedule-items-' + dayIndex);
+                    var itemCount = container.find('.schedule-item').length;
+                    
+                    var newItem = '<div class="schedule-item" style="display: flex; gap: 10px; margin-bottom: 8px; align-items: center;">' +
+                        '<input type="text" name="tour_itinerary[' + dayIndex + '][schedule][' + itemCount + '][time]" placeholder="<?php esc_attr_e('e.g., 08:00', $this->translate); ?>" style="width: 80px;" />' +
+                        '<input type="text" name="tour_itinerary[' + dayIndex + '][schedule][' + itemCount + '][activity]" placeholder="<?php esc_attr_e('Activity description...', $this->translate); ?>" style="flex: 1;" />' +
+                        '<button type="button" class="button button-small remove-schedule-item"><?php _e('Remove', $this->translate); ?></button>' +
+                        '</div>';
+                    
+                    container.append(newItem);
+                });
+                
+                $(document).on('click', '.remove-schedule-item', function() {
+                    $(this).closest('.schedule-item').remove();
+                });
 
                 function updateDayNumbers() {
                     $('.itinerary-day').each(function(index) {
@@ -536,6 +575,15 @@ class WPTBT_Tours
                                 $(this).attr('name', newName);
                             }
                         });
+                        
+                        // Actualizar contenedores de horarios
+                        $(this).find('[class*="schedule-container-"]').each(function() {
+                            this.className = this.className.replace(/schedule-container-\d+/, 'schedule-container-' + index);
+                        });
+                        $(this).find('[class*="schedule-items-"]').each(function() {
+                            this.className = this.className.replace(/schedule-items-\d+/, 'schedule-items-' + index);
+                        });
+                        $(this).find('.add-schedule-item').attr('data-day', index);
                     });
                 }
             });
@@ -549,6 +597,7 @@ class WPTBT_Tours
         $description = isset($day['description']) ? $day['description'] : '';
         $meals = isset($day['meals']) ? $day['meals'] : '';
         $accommodation = isset($day['accommodation']) ? $day['accommodation'] : '';
+        $schedule = isset($day['schedule']) && is_array($day['schedule']) ? $day['schedule'] : [];
         ?>
         <div class="itinerary-day" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -576,6 +625,33 @@ class WPTBT_Tours
                 <tr>
                     <th><label><?php _e('Accommodation:', $this->translate); ?></label></th>
                     <td><input type="text" name="tour_itinerary[<?php echo $index; ?>][accommodation]" value="<?php echo esc_attr($accommodation); ?>" style="width: 100%;" placeholder="<?php esc_attr_e('Hotel name or type', $this->translate); ?>" /></td>
+                </tr>
+                <tr>
+                    <th style="vertical-align: top; padding-top: 15px;"><label><?php _e('Schedule:', $this->translate); ?></label></th>
+                    <td>
+                        <div class="schedule-container-<?php echo $index; ?>" style="border: 1px solid #ddd; border-radius: 4px; padding: 10px; background: white;">
+                            <div style="margin-bottom: 10px;">
+                                <button type="button" class="button button-small add-schedule-item" data-day="<?php echo $index; ?>">
+                                    <?php _e('Add Time Slot', $this->translate); ?>
+                                </button>
+                            </div>
+                            <div class="schedule-items-<?php echo $index; ?>">
+                                <?php foreach ($schedule as $s_index => $time_slot): ?>
+                                    <div class="schedule-item" style="display: flex; gap: 10px; margin-bottom: 8px; align-items: center;">
+                                        <input type="text" name="tour_itinerary[<?php echo $index; ?>][schedule][<?php echo $s_index; ?>][time]" 
+                                               value="<?php echo esc_attr($time_slot['time']); ?>" 
+                                               placeholder="<?php esc_attr_e('e.g., 08:00', $this->translate); ?>" 
+                                               style="width: 80px;" />
+                                        <input type="text" name="tour_itinerary[<?php echo $index; ?>][schedule][<?php echo $s_index; ?>][activity]" 
+                                               value="<?php echo esc_attr($time_slot['activity']); ?>" 
+                                               placeholder="<?php esc_attr_e('Activity description...', $this->translate); ?>" 
+                                               style="flex: 1;" />
+                                        <button type="button" class="button button-small remove-schedule-item"><?php _e('Remove', $this->translate); ?></button>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </td>
                 </tr>
             </table>
         </div>
@@ -892,6 +968,10 @@ class WPTBT_Tours
         $max_people = get_post_meta($post->ID, '_tour_max_people', true);
         $includes = get_post_meta($post->ID, '_tour_includes', true);
         $excludes = get_post_meta($post->ID, '_tour_excludes', true);
+        
+        // Asegurar que includes y excludes sean arrays
+        if (!is_array($includes)) $includes = [];
+        if (!is_array($excludes)) $excludes = [];
         ?>
         <table class="form-table">
             <tr>
@@ -915,14 +995,90 @@ class WPTBT_Tours
                 <td><input type="number" id="tour_max_people" name="tour_max_people" value="<?php echo esc_attr($max_people); ?>" min="1" /></td>
             </tr>
             <tr>
-                <th><label for="tour_includes"><?php _e('Includes:', $this->translate); ?></label></th>
-                <td><textarea id="tour_includes" name="tour_includes" rows="4" cols="50"><?php echo esc_textarea($includes); ?></textarea></td>
+                <th style="vertical-align: top; padding-top: 15px;"><label><?php _e('Includes:', $this->translate); ?></label></th>
+                <td>
+                    <div class="includes-container" style="border: 1px solid #ddd; border-radius: 4px; padding: 10px; background: white;">
+                        <div style="margin-bottom: 10px;">
+                            <button type="button" class="button button-small add-include-item">
+                                <?php _e('Add Item', $this->translate); ?>
+                            </button>
+                        </div>
+                        <div class="includes-list">
+                            <?php foreach ($includes as $index => $item): ?>
+                                <div class="include-item" style="display: flex; gap: 10px; margin-bottom: 8px; align-items: center;">
+                                    <input type="text" name="tour_includes[<?php echo $index; ?>]" 
+                                           value="<?php echo esc_attr($item); ?>" 
+                                           placeholder="<?php esc_attr_e('e.g., Professional guide', $this->translate); ?>" 
+                                           style="flex: 1;" />
+                                    <button type="button" class="button button-small remove-include-item"><?php _e('Remove', $this->translate); ?></button>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </td>
             </tr>
             <tr>
-                <th><label for="tour_excludes"><?php _e('Does not include:', $this->translate); ?></label></th>
-                <td><textarea id="tour_excludes" name="tour_excludes" rows="4" cols="50"><?php echo esc_textarea($excludes); ?></textarea></td>
+                <th style="vertical-align: top; padding-top: 15px;"><label><?php _e('Does not include:', $this->translate); ?></label></th>
+                <td>
+                    <div class="excludes-container" style="border: 1px solid #ddd; border-radius: 4px; padding: 10px; background: white;">
+                        <div style="margin-bottom: 10px;">
+                            <button type="button" class="button button-small add-exclude-item">
+                                <?php _e('Add Item', $this->translate); ?>
+                            </button>
+                        </div>
+                        <div class="excludes-list">
+                            <?php foreach ($excludes as $index => $item): ?>
+                                <div class="exclude-item" style="display: flex; gap: 10px; margin-bottom: 8px; align-items: center;">
+                                    <input type="text" name="tour_excludes[<?php echo $index; ?>]" 
+                                           value="<?php echo esc_attr($item); ?>" 
+                                           placeholder="<?php esc_attr_e('e.g., Personal expenses', $this->translate); ?>" 
+                                           style="flex: 1;" />
+                                    <button type="button" class="button button-small remove-exclude-item"><?php _e('Remove', $this->translate); ?></button>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </td>
             </tr>
         </table>
+        
+        <script type="text/javascript">
+            jQuery(document).ready(function($) {
+                // Manejar includes
+                $('.add-include-item').on('click', function() {
+                    var container = $('.includes-list');
+                    var itemCount = container.find('.include-item').length;
+                    
+                    var newItem = '<div class="include-item" style="display: flex; gap: 10px; margin-bottom: 8px; align-items: center;">' +
+                        '<input type="text" name="tour_includes[' + itemCount + ']" placeholder="<?php esc_attr_e('e.g., Professional guide', $this->translate); ?>" style="flex: 1;" />' +
+                        '<button type="button" class="button button-small remove-include-item"><?php _e('Remove', $this->translate); ?></button>' +
+                        '</div>';
+                    
+                    container.append(newItem);
+                });
+                
+                $(document).on('click', '.remove-include-item', function() {
+                    $(this).closest('.include-item').remove();
+                });
+                
+                // Manejar excludes
+                $('.add-exclude-item').on('click', function() {
+                    var container = $('.excludes-list');
+                    var itemCount = container.find('.exclude-item').length;
+                    
+                    var newItem = '<div class="exclude-item" style="display: flex; gap: 10px; margin-bottom: 8px; align-items: center;">' +
+                        '<input type="text" name="tour_excludes[' + itemCount + ']" placeholder="<?php esc_attr_e('e.g., Personal expenses', $this->translate); ?>" style="flex: 1;" />' +
+                        '<button type="button" class="button button-small remove-exclude-item"><?php _e('Remove', $this->translate); ?></button>' +
+                        '</div>';
+                    
+                    container.append(newItem);
+                });
+                
+                $(document).on('click', '.remove-exclude-item', function() {
+                    $(this).closest('.exclude-item').remove();
+                });
+            });
+        </script>
         <?php
     }
 
@@ -1013,6 +1169,174 @@ class WPTBT_Tours
     }
 
     /**
+     * Meta box para horarios y disponibilidad del tour
+     */
+    public function render_schedule_meta_box($post)
+    {
+        wp_nonce_field('wptbt_save_tour_schedule', 'wptbt_tour_schedule_nonce');
+        
+        $tour_hours = get_post_meta($post->ID, '_wptbt_tour_hours', true) ?: [];
+        
+        ?>
+        <div class="tour-schedule-meta-box">
+            <table class="form-table">
+                <tr>
+                    <th scope="row">
+                        <label><?php _e('Available Departure Times', $this->translate); ?></label>
+                    </th>
+                    <td>
+                        <div id="tour-hours-container">
+                            <?php if (empty($tour_hours)) : ?>
+                                <div class="tour-hour-row">
+                                    <input type="time" name="wptbt_tour_hours[]" value="" />
+                                    <button type="button" class="remove-hour button"><?php _e('Remove', $this->translate); ?></button>
+                                </div>
+                            <?php else : ?>
+                                <?php foreach ($tour_hours as $hour) : ?>
+                                    <div class="tour-hour-row">
+                                        <input type="time" name="wptbt_tour_hours[]" value="<?php echo esc_attr($hour); ?>" />
+                                        <button type="button" class="remove-hour button"><?php _e('Remove', $this->translate); ?></button>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                        <button type="button" id="add-tour-hour" class="button button-secondary">
+                            <?php _e('Add Departure Time', $this->translate); ?>
+                        </button>
+                        <p class="description">
+                            <?php _e('Set the available departure times for this tour.', $this->translate); ?>
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <script>
+        jQuery(document).ready(function($) {
+            $('#add-tour-hour').click(function() {
+                var newRow = '<div class="tour-hour-row">' +
+                    '<input type="time" name="wptbt_tour_hours[]" value="" />' +
+                    '<button type="button" class="remove-hour button"><?php echo esc_js(__('Remove', $this->translate)); ?></button>' +
+                    '</div>';
+                $('#tour-hours-container').append(newRow);
+            });
+
+            $(document).on('click', '.remove-hour', function() {
+                $(this).closest('.tour-hour-row').remove();
+            });
+        });
+        </script>
+
+        <style>
+        .tour-hour-row {
+            margin-bottom: 10px;
+        }
+        .tour-hour-row input {
+            margin-right: 10px;
+        }
+        </style>
+        <?php
+    }
+
+    /**
+     * Meta box para precios del formulario de reservas
+     */
+    public function render_booking_prices_meta_box($post)
+    {
+        wp_nonce_field('wptbt_save_tour_booking_prices', 'wptbt_tour_booking_prices_nonce');
+        
+        $booking_prices = get_post_meta($post->ID, '_wptbt_tour_prices', true) ?: [];
+        
+        ?>
+        <div class="booking-prices-meta-box">
+            <table class="form-table">
+                <tr>
+                    <th scope="row">
+                        <label><?php _e('Tour Pricing Options', $this->translate); ?></label>
+                    </th>
+                    <td>
+                        <div id="booking-prices-container">
+                            <?php if (empty($booking_prices)) : ?>
+                                <div class="price-option-row">
+                                    <label><?php _e('Duration (days)', $this->translate); ?></label>
+                                    <input type="number" name="wptbt_tour_prices[0][duration]" value="" min="1" step="1" />
+                                    
+                                    <label><?php _e('Price', $this->translate); ?></label>
+                                    <input type="text" name="wptbt_tour_prices[0][price]" value="" placeholder="$299" />
+                                    
+                                    <button type="button" class="remove-price-option button"><?php _e('Remove', $this->translate); ?></button>
+                                </div>
+                            <?php else : ?>
+                                <?php foreach ($booking_prices as $index => $price_option) : ?>
+                                    <div class="price-option-row">
+                                        <label><?php _e('Duration (days)', $this->translate); ?></label>
+                                        <input type="number" name="wptbt_tour_prices[<?php echo $index; ?>][duration]" 
+                                               value="<?php echo esc_attr($price_option['duration'] ?? ''); ?>" min="1" step="1" />
+                                        
+                                        <label><?php _e('Price', $this->translate); ?></label>
+                                        <input type="text" name="wptbt_tour_prices[<?php echo $index; ?>][price]" 
+                                               value="<?php echo esc_attr($price_option['price'] ?? ''); ?>" placeholder="$299" />
+                                        
+                                        <button type="button" class="remove-price-option button"><?php _e('Remove', $this->translate); ?></button>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                        <button type="button" id="add-price-option" class="button button-secondary">
+                            <?php _e('Add Price Option', $this->translate); ?>
+                        </button>
+                        <p class="description">
+                            <?php _e('Configure different pricing options for tour durations. These will appear in the booking form.', $this->translate); ?>
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <script>
+        jQuery(document).ready(function($) {
+            var priceIndex = <?php echo count($booking_prices); ?>;
+            
+            $('#add-price-option').click(function() {
+                var newRow = '<div class="price-option-row">' +
+                    '<label><?php echo esc_js(__('Duration (days)', $this->translate)); ?></label>' +
+                    '<input type="number" name="wptbt_tour_prices[' + priceIndex + '][duration]" value="" min="1" step="1" />' +
+                    '<label><?php echo esc_js(__('Price', $this->translate)); ?></label>' +
+                    '<input type="text" name="wptbt_tour_prices[' + priceIndex + '][price]" value="" placeholder="$299" />' +
+                    '<button type="button" class="remove-price-option button"><?php echo esc_js(__('Remove', $this->translate)); ?></button>' +
+                    '</div>';
+                $('#booking-prices-container').append(newRow);
+                priceIndex++;
+            });
+
+            $(document).on('click', '.remove-price-option', function() {
+                $(this).closest('.price-option-row').remove();
+            });
+        });
+        </script>
+
+        <style>
+        .price-option-row {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+        }
+        .price-option-row label {
+            display: inline-block;
+            width: 120px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .price-option-row input {
+            margin-right: 15px;
+            width: 150px;
+        }
+        </style>
+        <?php
+    }
+
+    /**
      * Guardar todos los meta box data (AMPLIADO)
      */
     public function save_meta_box_data($post_id)
@@ -1054,11 +1378,25 @@ class WPTBT_Tours
                 $itinerary = [];
                 foreach ($_POST['tour_itinerary'] as $day) {
                     if (!empty($day['title']) || !empty($day['description'])) {
+                        // Procesar horarios si existen
+                        $schedule = [];
+                        if (isset($day['schedule']) && is_array($day['schedule'])) {
+                            foreach ($day['schedule'] as $time_slot) {
+                                if (!empty($time_slot['time']) || !empty($time_slot['activity'])) {
+                                    $schedule[] = [
+                                        'time' => sanitize_text_field($time_slot['time']),
+                                        'activity' => sanitize_text_field($time_slot['activity'])
+                                    ];
+                                }
+                            }
+                        }
+                        
                         $itinerary[] = [
                             'title' => sanitize_text_field($day['title']),
                             'description' => sanitize_textarea_field($day['description']),
                             'meals' => sanitize_text_field($day['meals']),
-                            'accommodation' => sanitize_text_field($day['accommodation'])
+                            'accommodation' => sanitize_text_field($day['accommodation']),
+                            'schedule' => $schedule
                         ];
                     }
                 }
@@ -1110,17 +1448,29 @@ class WPTBT_Tours
             }
         }
 
-        // Guardar detalles del tour (original)
+        // Guardar detalles del tour (mejorado para listas)
         if (isset($_POST['wptbt_tour_details_nonce']) && wp_verify_nonce($_POST['wptbt_tour_details_nonce'], 'wptbt_save_tour_details')) {
-            $detail_fields = ['tour_difficulty', 'tour_min_age', 'tour_max_people', 'tour_includes', 'tour_excludes'];
-            foreach ($detail_fields as $field) {
+            $simple_fields = ['tour_difficulty', 'tour_min_age', 'tour_max_people'];
+            foreach ($simple_fields as $field) {
                 if (isset($_POST[$field])) {
-                    if (in_array($field, ['tour_includes', 'tour_excludes'])) {
-                        update_post_meta($post_id, '_' . $field, sanitize_textarea_field($_POST[$field]));
-                    } else {
-                        update_post_meta($post_id, '_' . $field, sanitize_text_field($_POST[$field]));
-                    }
+                    update_post_meta($post_id, '_' . $field, sanitize_text_field($_POST[$field]));
                 }
+            }
+            
+            // Guardar includes como array
+            if (isset($_POST['tour_includes']) && is_array($_POST['tour_includes'])) {
+                $includes = array_filter(array_map('sanitize_text_field', $_POST['tour_includes']));
+                update_post_meta($post_id, '_tour_includes', $includes);
+            } else {
+                delete_post_meta($post_id, '_tour_includes');
+            }
+            
+            // Guardar excludes como array
+            if (isset($_POST['tour_excludes']) && is_array($_POST['tour_excludes'])) {
+                $excludes = array_filter(array_map('sanitize_text_field', $_POST['tour_excludes']));
+                update_post_meta($post_id, '_tour_excludes', $excludes);
+            } else {
+                delete_post_meta($post_id, '_tour_excludes');
             }
         }
 
@@ -1134,6 +1484,34 @@ class WPTBT_Tours
                 update_post_meta($post_id, '_tour_departure_dates', $dates);
             } else {
                 delete_post_meta($post_id, '_tour_departure_dates');
+            }
+        }
+
+        // Guardar horarios de tours para formulario de reservas
+        if (isset($_POST['wptbt_tour_schedule_nonce']) && wp_verify_nonce($_POST['wptbt_tour_schedule_nonce'], 'wptbt_save_tour_schedule')) {
+            if (isset($_POST['wptbt_tour_hours']) && is_array($_POST['wptbt_tour_hours'])) {
+                $tour_hours = array_filter(array_map('sanitize_text_field', $_POST['wptbt_tour_hours']));
+                update_post_meta($post_id, '_wptbt_tour_hours', $tour_hours);
+            } else {
+                delete_post_meta($post_id, '_wptbt_tour_hours');
+            }
+        }
+
+        // Guardar precios de tours para formulario de reservas
+        if (isset($_POST['wptbt_tour_booking_prices_nonce']) && wp_verify_nonce($_POST['wptbt_tour_booking_prices_nonce'], 'wptbt_save_tour_booking_prices')) {
+            if (isset($_POST['wptbt_tour_prices']) && is_array($_POST['wptbt_tour_prices'])) {
+                $booking_prices = [];
+                foreach ($_POST['wptbt_tour_prices'] as $price_data) {
+                    if (!empty($price_data['duration']) && !empty($price_data['price'])) {
+                        $booking_prices[] = [
+                            'duration' => sanitize_text_field($price_data['duration']),
+                            'price' => sanitize_text_field($price_data['price'])
+                        ];
+                    }
+                }
+                update_post_meta($post_id, '_wptbt_tour_prices', $booking_prices);
+            } else {
+                delete_post_meta($post_id, '_wptbt_tour_prices');
             }
         }
 
@@ -1280,6 +1658,112 @@ class WPTBT_Tours
             'booking_url' => get_post_meta($tour_id, '_tour_booking_url', true),
             'advance_payment' => get_post_meta($tour_id, '_tour_advance_payment', true),
             'cancellation_policy' => get_post_meta($tour_id, '_tour_cancellation_policy', true)
+        ];
+    }
+
+    /**
+     * NUEVA: Obtener datos específicos para el formulario de reservas SolidJS
+     */
+    public static function get_tour_booking_form_data($tour_id)
+    {
+        $tour_hours = get_post_meta($tour_id, '_wptbt_tour_hours', true) ?: [];
+        $booking_prices = get_post_meta($tour_id, '_wptbt_tour_prices', true) ?: [];
+        $tour_title = get_the_title($tour_id);
+        $tour_subtitle = get_post_meta($tour_id, '_wptbt_tour_subtitle', true) ?: '';
+
+        // Formatear precios para compatibilidad con el formulario existente
+        $durations = [];
+        foreach ($booking_prices as $price_data) {
+            if (!empty($price_data['duration']) && !empty($price_data['price'])) {
+                $days = intval($price_data['duration']);
+                $durations[] = [
+                    'duration' => $price_data['duration'],
+                    'price' => $price_data['price'],
+                    'minutes' => $days * 24 * 60, // Convertir días a minutos para compatibilidad
+                    'text' => $price_data['duration'] . ' días - ' . $price_data['price'],
+                    'value' => $days . 'days-' . $price_data['price']
+                ];
+            }
+        }
+
+        return [
+            'id' => (string)$tour_id,
+            'title' => $tour_title,
+            'subtitle' => $tour_subtitle,
+            'hours' => array_values($tour_hours),
+            'durations' => array_values($durations),
+            // Mantener compatibilidad con código existente
+            'duration1' => !empty($durations[0]) ? $durations[0]['duration'] : '',
+            'price1' => !empty($durations[0]) ? $durations[0]['price'] : '',
+            'duration2' => !empty($durations[1]) ? $durations[1]['duration'] : '',
+            'price2' => !empty($durations[1]) ? $durations[1]['price'] : ''
+        ];
+    }
+
+    /**
+     * NUEVA: Verificar si un tour tiene configuración completa para reservas
+     */
+    public static function is_tour_bookable($tour_id)
+    {
+        $tour_hours = get_post_meta($tour_id, '_wptbt_tour_hours', true) ?: [];
+        $booking_prices = get_post_meta($tour_id, '_wptbt_tour_prices', true) ?: [];
+        
+        return !empty($tour_hours) && !empty($booking_prices);
+    }
+
+    /**
+     * NUEVA: Obtener el precio mínimo de un tour para mostrar
+     */
+    public static function get_tour_min_price($tour_id)
+    {
+        $booking_prices = get_post_meta($tour_id, '_wptbt_tour_prices', true) ?: [];
+        $prices = [];
+        
+        foreach ($booking_prices as $price_data) {
+            if (!empty($price_data['price'])) {
+                // Extraer solo números del precio
+                $numeric_price = preg_replace('/[^\d.]/', '', $price_data['price']);
+                if (is_numeric($numeric_price)) {
+                    $prices[] = floatval($numeric_price);
+                }
+            }
+        }
+        
+        return !empty($prices) ? min($prices) : null;
+    }
+
+    /**
+     * NUEVA: Obtener etiqueta de precio formateada para mostrar
+     */
+    public static function get_tour_price_label($tour_id)
+    {
+        $min_price = self::get_tour_min_price($tour_id);
+        if ($min_price === null) {
+            return __('Contact for pricing', 'wptbt-tours');
+        }
+        
+        $currency = get_post_meta($tour_id, '_tour_currency', true) ?: 'USD';
+        $symbol = $currency === 'USD' ? '$' : ($currency === 'PEN' ? 'S/' : ($currency === 'EUR' ? '€' : 'Bs'));
+        
+        return sprintf(__('From %s%s', 'wptbt-tours'), $symbol, number_format($min_price, 0));
+    }
+
+    /**
+     * NUEVA: Obtener configuración del formulario de reservas para JavaScript
+     */
+    public static function get_booking_form_config($tour_id)
+    {
+        $booking_data = self::get_tour_booking_form_data($tour_id);
+        $booking_info = self::get_tour_booking_info($tour_id);
+        
+        return [
+            'tourId' => $tour_id,
+            'tourData' => [$booking_data],
+            'isBookable' => self::is_tour_bookable($tour_id),
+            'contactInfo' => $booking_info,
+            'emailRecipient' => get_theme_mod('tours_booking_form_email', get_option('admin_email')),
+            'accentColor' => get_theme_mod('tours_booking_form_accent_color', '#DC2626'),
+            'currency' => get_post_meta($tour_id, '_tour_currency', true) ?: 'USD'
         ];
     }
 }

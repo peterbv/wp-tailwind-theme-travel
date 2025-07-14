@@ -162,100 +162,120 @@ class WPTBT_Booking_Block
     }
 
     /**
-     * Función para obtener los servicios con sus datos de duración y precio
-     * Agrega esta función en class-wptbt-booking-block.php
+     * Función para obtener los tours con sus datos de duración y precio
+     * Actualizada para usar tours en lugar de servicios
      */
-    private function get_services_with_durations()
+    private function get_tours_with_durations()
     {
-        // Obtener todos los servicios
+        // Obtener todos los tours
         $args = [
-            'post_type'      => 'servicio',
+            'post_type'      => 'tours',
             'posts_per_page' => -1,
             'orderby'        => 'title',
             'order'          => 'DESC',
         ];
 
-        $servicios = get_posts($args);
+        // Fallback para compatibilidad
+        if (!post_type_exists('tours')) {
+            $args['post_type'] = 'servicio';
+        }
 
-        // Verificar si hay servicios disponibles
-        if (empty($servicios)) {
+        $tours = get_posts($args);
+
+        // Verificar si hay tours disponibles
+        if (empty($tours)) {
             return '<div class="p-8 bg-white rounded-lg shadow-md text-center">
             <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
             </svg>
-            <h3 class="text-xl font-medium text-gray-800 mb-2">' . esc_html__('No hay servicios disponibles', $this->translate) . '</h3>
-            <p class="text-gray-600">' . esc_html__('Por favor, añade servicios desde el panel de administración para habilitar las reservas.', $this->translate) . '</p>
+            <h3 class="text-xl font-medium text-gray-800 mb-2">' . esc_html__('No hay tours disponibles', $this->translate) . '</h3>
+            <p class="text-gray-600">' . esc_html__('Por favor, añade tours desde el panel de administración para habilitar las reservas.', $this->translate) . '</p>
         </div>';
         }
 
         $services_data = [];
 
-        // Procesar cada servicio
-        foreach ($servicios as $servicio) {
-            // Obtener horarios disponibles
-            $hours = get_post_meta($servicio->ID, '_wptbt_service_hours', true) ?: [];
+        // Procesar cada tour
+        foreach ($tours as $tour) {
+            // Obtener horarios disponibles usando los nuevos meta fields
+            $hours = get_post_meta($tour->ID, '_wptbt_tour_hours', true) ?: [];
+            
+            // Fallback para compatibilidad con servicios antiguos
+            if (empty($hours)) {
+                $hours = get_post_meta($tour->ID, '_wptbt_service_hours', true) ?: [];
+            }
 
-            // CORREGIDO: Obtener múltiples precios del nuevo formato
-            $prices = get_post_meta($servicio->ID, '_wptbt_service_prices', true);
+            // CORREGIDO: Obtener múltiples precios del nuevo formato para tours
+            $prices = get_post_meta($tour->ID, '_wptbt_tour_prices', true);
+            
+            // Fallback para compatibilidad con servicios antiguos
+            if (empty($prices)) {
+                $prices = get_post_meta($tour->ID, '_wptbt_service_prices', true);
+            }
             $durations = [];
 
             if (!empty($prices) && is_array($prices)) {
                 // Usar el nuevo formato de múltiples precios
                 foreach ($prices as $price_data) {
                     if (!empty($price_data['duration']) && !empty($price_data['price'])) {
-                        $minutes = intval($price_data['duration']);
+                        $days = intval($price_data['duration']);
                         $durations[] = [
                             'duration' => $price_data['duration'],
                             'price' => $price_data['price'],
-                            'minutes' => $minutes,
-                            'text' => $price_data['duration'] . ' min - ' . $price_data['price'],
-                            'value' => $minutes . 'min-' . $price_data['price'] // AGREGADO: Campo faltante
+                            'minutes' => $days * 24 * 60, // Convert days to minutes for compatibility
+                            'text' => $price_data['duration'] . ' días - $' . str_replace('$', '', $price_data['price']),
+                            'value' => $days . 'days-' . $price_data['price']
                         ];
                     }
                 }
             } else {
                 // Fallback: usar formato anterior si el nuevo no existe
-                $duration1 = get_post_meta($servicio->ID, '_wptbt_service_duration1', true) ?: '';
-                $price1 = get_post_meta($servicio->ID, '_wptbt_service_price1', true) ?: '';
-                $duration2 = get_post_meta($servicio->ID, '_wptbt_service_duration2', true) ?: '';
-                $price2 = get_post_meta($servicio->ID, '_wptbt_service_price2', true) ?: '';
+                $duration1 = get_post_meta($tour->ID, '_wptbt_service_duration1', true) ?: '';
+                $price1 = get_post_meta($tour->ID, '_wptbt_service_price1', true) ?: '';
+                $duration2 = get_post_meta($tour->ID, '_wptbt_service_duration2', true) ?: '';
+                $price2 = get_post_meta($tour->ID, '_wptbt_service_price2', true) ?: '';
 
                 if (!empty($duration1) && !empty($price1)) {
-                    $minutes1 = intval($duration1);
+                    $days1 = intval($duration1);
                     $durations[] = [
                         'duration' => $duration1,
                         'price' => $price1,
-                        'minutes' => $minutes1,
-                        'text' => $duration1 . ' - ' . $price1,
-                        'value' => $minutes1 . 'min-' . $price1
+                        'minutes' => $days1 * 24 * 60, // Convert days to minutes for compatibility
+                        'text' => $duration1 . ' días - $' . str_replace('$', '', $price1),
+                        'value' => $days1 . 'days-' . $price1
                     ];
                 }
 
                 if (!empty($duration2) && !empty($price2)) {
-                    $minutes2 = intval($duration2);
+                    $days2 = intval($duration2);
                     $durations[] = [
                         'duration' => $duration2,
                         'price' => $price2,
-                        'minutes' => $minutes2,
-                        'text' => $duration2 . ' - ' . $price2,
-                        'value' => $minutes2 . 'min-' . $price2
+                        'minutes' => $days2 * 24 * 60, // Convert days to minutes for compatibility
+                        'text' => $duration2 . ' días - $' . str_replace('$', '', $price2),
+                        'value' => $days2 . 'days-' . $price2
                     ];
                 }
             }
 
-            // Obtener subtítulo del servicio si existe
-            $subtitle = get_post_meta($servicio->ID, '_wptbt_service_subtitle', true) ?: '';
+            // Obtener subtítulo del tour si existe
+            $subtitle = get_post_meta($tour->ID, '_wptbt_tour_subtitle', true) ?: '';
+            
+            // Fallback para compatibilidad con servicios antiguos
+            if (empty($subtitle)) {
+                $subtitle = get_post_meta($tour->ID, '_wptbt_service_subtitle', true) ?: '';
+            }
 
             // VERIFICACIÓN: Log de debug para identificar problemas
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log("Service {$servicio->ID} ({$servicio->post_title}): " .
+                error_log("Tour {$tour->ID} ({$tour->post_title}): " .
                     count($hours) . " hours, " . count($durations) . " durations");
             }
 
-            // Añadir servicio a la lista
+            // Añadir tour a la lista
             $services_data[] = [
-                'id' => (string)$servicio->ID, // IMPORTANTE: Convertir a string para consistencia
-                'title' => $servicio->post_title,
+                'id' => (string)$tour->ID, // IMPORTANTE: Convertir a string para consistencia
+                'title' => $tour->post_title,
                 'subtitle' => $subtitle,
                 'hours' => array_values($hours), // CORREGIDO: Asegurar array indexado
                 'durations' => array_values($durations), // CORREGIDO: Asegurar array indexado
@@ -316,32 +336,37 @@ class WPTBT_Booking_Block
             $imageURL = get_template_directory_uri() . '/assets/images/default-spa.jpg';
         }
 
-        $servicios_data = $this->get_services_with_durations();
+        $tours_data = $this->get_tours_with_durations();
 
-        // Si hay servicios pero no se usa Solid.js, preparamos las opciones de servicio para el formulario tradicional
+        // Si hay tours pero no se usa Solid.js, preparamos las opciones de tour para el formulario tradicional
         $service_options = '';
         $first_service = null;
         $first_service_hours = [];
 
         if (!$useSolidJs) {
             // Preparar opciones para el formulario tradicional
-            foreach ($servicios as $index => $servicio) {
+            foreach ($tours_data as $index => $tour) {
                 $selected = ($index === 0) ? 'selected' : '';
-                $hours = get_post_meta($servicio->ID, '_wptbt_service_hours', true);
+                $hours = get_post_meta($tour['id'], '_wptbt_tour_hours', true);
+                
+                // Fallback para compatibilidad
+                if (empty($hours)) {
+                    $hours = get_post_meta($tour['id'], '_wptbt_service_hours', true);
+                }
                 if (!$hours) $hours = [];
 
-                // Guardar información del primer servicio para usarla más tarde
+                // Guardar información del primer tour para usarla más tarde
                 if ($index === 0) {
-                    $first_service = $servicio;
+                    $first_service = $tour;
                     $first_service_hours = $hours;
                 }
 
-                // Duraciones y precios para mostrar en la opción
-                $duration1 = get_post_meta($servicio->ID, '_wptbt_service_duration1', true) ?: '';
-                $price1 = get_post_meta($servicio->ID, '_wptbt_service_price1', true) ?: '';
+                // Usar los datos ya procesados del tour
+                $duration1 = !empty($tour['duration1']) ? $tour['duration1'] : '';
+                $price1 = !empty($tour['price1']) ? $tour['price1'] : '';
 
-                $service_options .= '<option value="' . esc_attr($servicio->post_title) . '" ' . $selected . '>' .
-                    esc_html($servicio->post_title);
+                $service_options .= '<option value="' . esc_attr($tour['title']) . '" ' . $selected . '>' .
+                    esc_html($tour['title']);
 
                 // Añadir información de precio/duración si está disponible
                 if (!empty($duration1) && !empty($price1)) {
@@ -353,7 +378,7 @@ class WPTBT_Booking_Block
         }
 
         // Configurar datos JSON para Solid.js
-        $json_data = wp_json_encode($servicios_data);
+        $json_data = wp_json_encode($tours_data);
         $is_dark_mode = true; // El formulario siempre está sobre fondo oscuro
 
         // Iniciar buffer de salida con un wrapper para ancho completo
@@ -449,7 +474,7 @@ class WPTBT_Booking_Block
                                     // Usar la función auxiliar para cargar el componente de formulario
                                     echo wptbt_booking_form_component(
                                         [
-                                            'services' => $servicios_data,
+                                            'services' => $tours_data,
                                             'darkMode' => true,
                                             'accentColor' => $accentColor,
                                             'useSingleService' => false,
@@ -534,24 +559,24 @@ class WPTBT_Booking_Block
         $email = sanitize_email($_POST['email']);
         $visitors = absint($_POST['visitors']);
 
-        // Obtener el servicio - podría ser un ID o un título
+        // Obtener el tour - podría ser un ID o un título
         $service = sanitize_text_field($_POST['service']);
         $service_title = '';
 
-        // Si el servicio es numérico, probablemente sea un ID
+        // Si el tour es numérico, probablemente sea un ID
         if (is_numeric($service)) {
-            // Intentar obtener el título del servicio usando el ID
+            // Intentar obtener el título del tour usando el ID
             $service_post = get_post(intval($service));
-            if ($service_post && $service_post->post_type == 'servicio') {
+            if ($service_post && ($service_post->post_type == 'tours' || $service_post->post_type == 'servicio')) {
                 $service_title = $service_post->post_title;
             }
         }
 
         // Si se encontró un título, usarlo; de lo contrario, usar el valor original
-        // Esto también funciona si el valor ya era el título del servicio
+        // Esto también funciona si el valor ya era el título del tour
         $service = !empty($service_title) ? $service_title : $service;
 
-        // Alternativamente, si se envió service_title directamente (como en el formulario de single-servicio.php)
+        // Alternativamente, si se envió service_title directamente (compatibilidad)
         if (isset($_POST['service_title']) && !empty($_POST['service_title'])) {
             $service = sanitize_text_field($_POST['service_title']);
         }
@@ -571,7 +596,7 @@ class WPTBT_Booking_Block
         // 3. Email del administrador del sitio
         $recipient = isset($_POST['recipient_email']) && !empty($_POST['recipient_email'])
             ? sanitize_email($_POST['recipient_email'])
-            : get_theme_mod('services_booking_form_email', get_option('admin_email'));
+            : get_theme_mod('tours_booking_form_email', get_theme_mod('services_booking_form_email', get_option('admin_email')));
 
         // Asunto del email
         $subject = sprintf(__('New Booking from %s', $this->translate), $name);

@@ -33,7 +33,7 @@ if (function_exists('wptbt_display_banner')) {
                     $block['blockName'] === 'wptbt/benefits-block' ||
                     $block['blockName'] === 'wptbt/gallery-block' ||
                     $block['blockName'] === 'wptbt/google-reviews-block' ||
-                    $block['blockName'] === 'wptbt/services-block' ||
+                    $block['blockName'] === 'wptbt/tours-block' ||
                     $block['blockName'] === 'wptbt/interactive-map-block' ||
                     $block['blockName'] === 'core/group' && isset($block['attrs']['align']) && $block['attrs']['align'] === 'full'
                 ) {
