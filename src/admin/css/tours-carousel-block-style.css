@@ -1,0 +1,90 @@
+/* Estilos para el bloque Tours Carousel en el editor de Gutenberg */
+
+.wp-block-wptbt-tours-carousel-block {
+  margin: 1rem 0;
+}
+
+.tours-carousel-block-editor {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #f8fafc;
+}
+
+.block-header {
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+}
+
+.tours-carousel-preview {
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.tours-carousel-loading,
+.tours-carousel-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.tour-card-preview {
+  transition: transform 0.2s ease;
+}
+
+.tour-card-preview:hover {
+  transform: translateY(-2px);
+}
+
+.carousel-controls-preview {
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 6px;
+  padding: 0.5rem;
+}
+
+/* Estilos responsivos para el editor */
+@media (max-width: 768px) {
+  .tours-carousel-items {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .tours-carousel-items {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* Estilos específicos para los controles del inspector */
+.components-panel__body .tours-carousel-control {
+  margin-bottom: 1rem;
+}
+
+.tours-carousel-color-control {
+  margin-bottom: 1.5rem;
+}
+
+.tours-carousel-color-control .components-base-control__label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* Estilos para la vista previa de colores */
+.tours-carousel-preview .tours-carousel-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 1rem;
+}
+
+/* Animaciones sutiles */
+.tour-card-preview,
+.carousel-controls-preview > div {
+  transition: all 0.2s ease;
+}
+
+.carousel-controls-preview > div:hover {
+  transform: scale(1.05);
+}

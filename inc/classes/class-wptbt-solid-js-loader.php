@@ -212,6 +212,17 @@ class WPTBT_Solid_JS_Loader
             ];
         }
 
+        // Traducciones específicas para el componente tours carousel
+        if ($component_name === 'tours-carousel') {
+            $translations = [
+                'Previous tours' => __('Tours anteriores', $translate_name),
+                'Next tours' => __('Siguientes tours', $translate_name),
+                'Go to slide' => __('Ir al slide', $translate_name),
+                'View Tour' => __('Ver Tour', $translate_name),
+                'Price on request' => __('Precio a consultar', $translate_name),
+            ];
+        }
+
         // Traducciones comunes para todos los componentes
         $common_translations = [
             'Loading...' => __('Loading...', $translate_name),
@@ -262,6 +273,8 @@ class WPTBT_Solid_JS_Loader
         $this->register_component('faq', 'components/faq-module.js');
 
         $this->register_component('interactive-map', 'components/interactive-map-module.js');
+
+        $this->register_component('tours-carousel', 'components/tours-carousel-module.js');
     }
 
 
@@ -784,6 +797,72 @@ function wptbt_interactive_map_component($props = [], $container_attrs = [])
     $html .= '<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>';
     $html .= '</svg>';
     $html .= '<span class="ml-3 text-gray-600">Cargando mapa...</span>';
+    $html .= '</div>';
+
+    $html .= '</div>';
+
+    return $html;
+}
+
+/**
+ * Función auxiliar para generar HTML del componente Tours Carousel
+ * 
+ * @param array $props Propiedades para el componente
+ * @param array $container_attrs Atributos adicionales para el contenedor
+ * @return string HTML del componente
+ */
+function wptbt_tours_carousel_component($props = [], $container_attrs = [])
+{
+    // Cargar el componente
+    wptbt_load_solid_component('tours-carousel');
+
+    // ID único para el contenedor
+    $container_id = isset($container_attrs['id']) ? $container_attrs['id'] : 'tours-carousel-' . uniqid();
+
+    // Formatear tours para el data-attribute
+    $tours_json = isset($props['tours']) ? json_encode($props['tours']) : '';
+
+    // Configurar atributos del contenedor
+    $default_container_attrs = [
+        'id' => $container_id,
+        'class' => 'solid-tours-carousel-container',
+        'data-tours' => $tours_json,
+        'data-title' => isset($props['title']) ? $props['title'] : '',
+        'data-subtitle' => isset($props['subtitle']) ? $props['subtitle'] : '',
+        'data-description' => isset($props['description']) ? $props['description'] : '',
+        'data-autoplay-speed' => isset($props['autoplaySpeed']) ? $props['autoplaySpeed'] : '3000',
+        'data-slides-to-show' => isset($props['slidesToShow']) ? $props['slidesToShow'] : '3',
+        'data-show-dots' => isset($props['showDots']) && $props['showDots'] ? 'true' : 'false',
+        'data-show-arrows' => isset($props['showArrows']) && $props['showArrows'] ? 'true' : 'false',
+        'data-pause-on-hover' => isset($props['pauseOnHover']) && $props['pauseOnHover'] ? 'true' : 'false',
+        'data-infinite' => isset($props['infinite']) && $props['infinite'] ? 'true' : 'false',
+        'data-animation-direction' => isset($props['animationDirection']) ? $props['animationDirection'] : 'left',
+        'data-background-color' => isset($props['backgroundColor']) ? $props['backgroundColor'] : '#F8FAFC',
+        'data-text-color' => isset($props['textColor']) ? $props['textColor'] : '#1F2937',
+        'data-accent-color' => isset($props['accentColor']) ? $props['accentColor'] : '#DC2626',
+        'data-secondary-color' => isset($props['secondaryColor']) ? $props['secondaryColor'] : '#059669',
+        'data-full-width' => isset($props['fullWidth']) && $props['fullWidth'] ? 'true' : 'false',
+        'data-intersect-once' => 'true',
+        'data-intersect-threshold' => '0.25',
+    ];
+
+    // Combinar atributos personalizados
+    $container_attrs = array_merge($default_container_attrs, $container_attrs);
+
+    // Construir HTML del contenedor
+    $html = '<div';
+    foreach ($container_attrs as $attr => $value) {
+        $html .= ' ' . $attr . '="' . esc_attr($value) . '"';
+    }
+    $html .= '>';
+
+    // Estado de carga inicial
+    $html .= '<div class="flex justify-center items-center p-8">';
+    $html .= '<svg class="animate-spin h-10 w-10 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">';
+    $html .= '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>';
+    $html .= '<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>';
+    $html .= '</svg>';
+    $html .= '<span class="ml-3 text-gray-600">Cargando carousel de tours...</span>';
     $html .= '</div>';
 
     $html .= '</div>';

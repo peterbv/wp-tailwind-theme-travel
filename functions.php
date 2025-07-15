@@ -67,6 +67,7 @@ class WPTBT_Theme_Init
             'inc/classes/class-wptbt-faq-block.php',
             'inc/classes/class-wptbt-google-reviews-block.php',
             'inc/classes/class-wptbt-gallery-block.php',
+            'inc/classes/class-wptbt-tours-carousel-block.php',
             'inc/classes/class-wptbt-interactive-map-block.php',
             'inc/classes/class-wptbt-walker-nav-menu.php',
             'inc/classes/class-wptbt-banner-metabox.php',
