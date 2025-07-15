@@ -24,24 +24,22 @@ const SolidGallery = (props) => {
     return __(text, domain);
   };
 
-  // Propiedades con valores por defecto optimizadas
+  // Propiedades con valores por defecto optimizadas para agencia de viajes
   const {
-    title = getTranslation("Our Gallery"),
-    subtitle = getTranslation("Relaxation Spaces"),
-    description = getTranslation(
-      "Explore our facilities and services through our image gallery."
-    ),
+    title = "",
+    subtitle = "",
+    description = "",
     images = [],
-    columns = 4,
-    maxVisibleImages = 8,
+    columns = 3,
+    maxVisibleImages = 12,
     displayMode = "grid", // 'grid', 'masonry', 'slider'
     hoverEffect = "zoom", // 'zoom', 'fade', 'slide', 'none'
-    textColor = "#5D534F",
-    accentColor = "#D4B254",
-    secondaryColor = "#8BAB8D",
+    textColor = "#1F2937",
+    accentColor = "#DC2626",
+    secondaryColor = "#059669",
     fullWidth = false,
     enableLightbox = true,
-    spacing = 12,
+    spacing = 16,
     imageSize = "medium_large",
     // Nuevas props para SEO
     galleryId = "gallery",
@@ -407,13 +405,14 @@ const SolidGallery = (props) => {
     };
   };
 
-  // Columnas responsivas
+  // Columnas responsivas optimizadas para agencia de viajes
   const getResponsiveColumns = () => {
-    const baseColumns = Math.min(columns + 1, 6);
+    // Para galerías de tours, queremos mostrar bien las imágenes sin saturar
+    const baseColumns = Math.min(columns, 4); // Máximo 4 columnas para mejor visualización
     return {
-      small: Math.min(baseColumns, 2),
-      medium: Math.min(baseColumns, 4),
-      large: baseColumns,
+      small: Math.min(baseColumns, 1), // 1 columna en móvil para mejor visibilidad
+      medium: Math.min(baseColumns, 2), // 2 columnas en tablet
+      large: baseColumns, // Columnas completas en desktop
     };
   };
 
@@ -464,57 +463,50 @@ const SolidGallery = (props) => {
         ></div>
 
         <div class="container mx-auto px-4 relative">
-          {/* Encabezado semántico */}
-          <header class="text-center mb-8 relative">
-            <div class="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 opacity-10 pointer-events-none" aria-hidden="true">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="80"
-                height="80"
-                viewBox="0 0 24 24"
-                fill={secondaryColor}
-                class="transform rotate-12"
-              >
-                <path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v6h16V6H4zm0 8v4h16v-4h-7v2H7v-2H4z" />
-              </svg>
-            </div>
+          {/* Encabezado semántico - solo mostrar si hay contenido */}
+          <Show when={title || subtitle || description}>
+            <header class="text-center mb-8 relative">
+              <Show when={subtitle}>
+                <p
+                  class="block text-base italic font-medium mb-1"
+                  style={{ color: accentColor }}
+                >
+                  {subtitle}
+                </p>
+              </Show>
 
-            <p
-              class="block text-base italic font-medium mb-1"
-              style={{ color: accentColor }}
-            >
-              {subtitle}
-            </p>
+              <Show when={title}>
+                <div class="relative inline-block">
+                  <h1 class="text-2xl md:text-3xl fancy-text font-medium mb-2">
+                    {title}
+                  </h1>
+                  <div
+                    class="absolute -bottom-1 left-1/2 w-16 h-0.5 transform -translate-x-1/2"
+                    style={{ "background-color": accentColor }}
+                    aria-hidden="true"
+                  >
+                    <div
+                      class="absolute left-1/2 top-1/2 w-2 h-2 rounded-full -translate-x-1/2 -translate-y-1/2"
+                      style={{ "background-color": accentColor }}
+                    ></div>
+                  </div>
+                </div>
+              </Show>
 
-            <div class="relative inline-block">
-              <h1 class="text-2xl md:text-3xl fancy-text font-medium mb-2">
-                {title}
-              </h1>
-              <div
-                class="absolute -bottom-1 left-1/2 w-16 h-0.5 transform -translate-x-1/2"
-                style={{ "background-color": accentColor }}
-                aria-hidden="true"
-              >
-                <div
-                  class="absolute left-1/2 top-1/2 w-2 h-2 rounded-full -translate-x-1/2 -translate-y-1/2"
-                  style={{ "background-color": accentColor }}
-                ></div>
-              </div>
-            </div>
+              <Show when={description}>
+                <p class="text-gray-600 mt-3 max-w-2xl mx-auto">
+                  {description}
+                </p>
+              </Show>
 
-            <Show when={description}>
-              <p class="text-gray-600 mt-3 max-w-2xl mx-auto">
-                {description}
-              </p>
-            </Show>
-
-            {/* Mostrar total de imágenes si hay más de las visibles */}
-            <Show when={hasMoreImages()}>
-              <p class="text-sm text-gray-600 mt-2 font-light">
-                {getTranslation("Showing")} {visibleImages().length} {getTranslation("of")} {images.length} {getTranslation("images")}
-              </p>
-            </Show>
-          </header>
+              {/* Mostrar total de imágenes si hay más de las visibles */}
+              <Show when={hasMoreImages()}>
+                <p class="text-sm text-gray-600 mt-2 font-light">
+                  {getTranslation("Showing")} {visibleImages().length} {getTranslation("of")} {images.length} {getTranslation("images")}
+                </p>
+              </Show>
+            </header>
+          </Show>
 
           {/* Contenido de la galería con límite de imágenes */}
           <div class="gallery-container relative">
@@ -742,26 +734,13 @@ const SolidGallery = (props) => {
             {/* Modo Masonry */}
             <Show when={displayMode === "masonry"}>
               <div
-                class="gallery-masonry-container"
+                class="gallery-masonry-container columns-1 sm:columns-2 lg:columns-3"
                 style={{
-                  "column-count": `${responsive.small}`,
                   "column-gap": `${spacing}px`,
                   opacity: isLoaded() ? "1" : "0.3",
                   transition: "opacity 0.5s ease",
                 }}
               >
-                <style jsx>{`
-                  @media (min-width: 640px) {
-                    .gallery-masonry-container {
-                      column-count: ${responsive.medium};
-                    }
-                  }
-                  @media (min-width: 1024px) {
-                    .gallery-masonry-container {
-                      column-count: ${responsive.large};
-                    }
-                  }
-                `}</style>
 
                 <For each={visibleImages()}>
                   {(image, index) => {
@@ -799,7 +778,7 @@ const SolidGallery = (props) => {
                               style={{
                                 transform:
                                   hoverEffect === "zoom" && hoveredItem() === index()
-                                    ? "scale(1.05)"
+                                    ? "scale(1.02)"
                                     : "scale(1)",
                               }}
                               loading="lazy"
@@ -839,7 +818,7 @@ const SolidGallery = (props) => {
                               style={{
                                 transform:
                                   hoverEffect === "zoom" && hoveredItem() === index()
-                                    ? "scale(1.05)"
+                                    ? "scale(1.02)"
                                     : "scale(1)",
                               }}
                               loading="lazy"
@@ -888,17 +867,13 @@ const SolidGallery = (props) => {
                     
                     return (
                       <article
-                        class={`gallery-item effect-${hoverEffect} overflow-hidden relative rounded-lg shadow-lg transition-all duration-500`}
+                        class={`gallery-item effect-${hoverEffect} overflow-hidden relative rounded-lg shadow-sm transition-all duration-300 bg-white`}
                         style={{
-                          "aspect-ratio": "1/1",
-                          transform:
-                            hoveredItem() === index()
-                              ? "translateY(-3px)"
-                              : "translateY(0)",
-                          "box-shadow":
-                            hoveredItem() === index()
-                              ? "0 10px 20px rgba(0,0,0,0.15)"
-                              : "0 3px 10px rgba(0,0,0,0.1)",
+                          "aspect-ratio": "4/3",
+                          transform: hoveredItem() === index() ? "translateY(-2px)" : "translateY(0)",
+                          "box-shadow": hoveredItem() === index() 
+                            ? "0 8px 25px rgba(0,0,0,0.15)" 
+                            : "0 2px 8px rgba(0,0,0,0.06)",
                         }}
                         onMouseEnter={() => setHoveredItem(index())}
                         onMouseLeave={() => setHoveredItem(null)}
@@ -918,7 +893,7 @@ const SolidGallery = (props) => {
                               style={{
                                 transform:
                                   hoverEffect === "zoom" && hoveredItem() === index()
-                                    ? "scale(1.05)"
+                                    ? "scale(1.02)"
                                     : "scale(1)",
                               }}
                               loading="lazy"
@@ -958,7 +933,7 @@ const SolidGallery = (props) => {
                               style={{
                                 transform:
                                   hoverEffect === "zoom" && hoveredItem() === index()
-                                    ? "scale(1.05)"
+                                    ? "scale(1.02)"
                                     : "scale(1)",
                               }}
                               loading="lazy"

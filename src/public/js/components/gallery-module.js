@@ -36,8 +36,8 @@ function initGalleries() {
 
       // Configurar props para el componente
       const props = {
-        title: container.dataset.title || "Nuestra Galería",
-        subtitle: container.dataset.subtitle || "Espacios de relajación",
+        title: container.dataset.title || "",
+        subtitle: container.dataset.subtitle || "",
         description: container.dataset.description || "",
         images: images,
         columns: parseInt(container.dataset.columns || 3, 10),

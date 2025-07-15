@@ -42,45 +42,37 @@ $categories = get_the_terms($tour_id, 'tour-categories');
     <?php while (have_posts()) : the_post(); ?>
 
         <!-- Hero Section moderno -->
-        <section class="tour-hero relative h-screen min-h-[700px] flex items-end overflow-hidden">
+        <section class="tour-hero relative h-[calc(100vh-var(--header-height,80px))] min-h-[700px] flex items-end overflow-hidden">
             
-            <!-- Galería de fondo o imagen destacada -->
+            <!-- Imagen de fondo simplificada -->
             <div class="absolute inset-0 z-0">
                 <?php if (isset($gallery_data['use_as_featured']) && !empty($gallery_data['images'])) : ?>
-                    <!-- Slider de galería -->
-                    <div class="gallery-slider relative w-full h-full">
-                        <?php foreach ($gallery_data['images'] as $index => $image_id) : ?>
-                            <div class="gallery-slide absolute inset-0 transition-opacity duration-1000 <?php echo $index === 0 ? 'opacity-100' : 'opacity-0'; ?>" data-slide="<?php echo $index; ?>">
-                                <?php echo wp_get_attachment_image($image_id, 'full', false, ['class' => 'w-full h-full object-cover']); ?>
-                            </div>
-                        <?php endforeach; ?>
-                        
-                        <!-- Navegación de galería -->
-                        <?php if (count($gallery_data['images']) > 1) : ?>
-                            <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
-                                <?php foreach ($gallery_data['images'] as $index => $image_id) : ?>
-                                    <button class="gallery-dot w-3 h-3 rounded-full border-2 border-white transition-all duration-300 <?php echo $index === 0 ? 'bg-white' : 'bg-white/30 hover:bg-white/60'; ?>" data-slide="<?php echo $index; ?>"></button>
-                                <?php endforeach; ?>
-                            </div>
-                            
-                            <!-- Flechas de navegación -->
-                            <button class="gallery-prev absolute left-6 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all duration-300 z-20">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                                </svg>
-                            </button>
-                            <button class="gallery-next absolute right-6 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all duration-300 z-20">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </button>
-                        <?php endif; ?>
-                    </div>
+                    <!-- Primera imagen de la galería como imagen destacada -->
+                    <?php 
+                    $featured_image_id = $gallery_data['images'][0];
+                    $featured_image = wp_get_attachment_image_src($featured_image_id, 'full');
+                    ?>
+                    <img src="<?php echo esc_url($featured_image[0]); ?>" 
+                         alt="<?php echo esc_attr(get_the_title()); ?>" 
+                         class="w-full h-full object-cover" />
                 <?php elseif (has_post_thumbnail()) : ?>
                     <?php the_post_thumbnail('full', ['class' => 'w-full h-full object-cover']); ?>
                 <?php else : ?>
                     <!-- Fondo profesional por defecto -->
                     <div class="w-full h-full bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900"></div>
+                <?php endif; ?>
+                
+                <!-- Botón de galería si existe galería - lado izquierdo -->
+                <?php if (isset($gallery_data['use_as_featured']) && !empty($gallery_data['images']) && count($gallery_data['images']) > 1) : ?>
+                    <div class="absolute top-6 left-6 z-30">
+                        <button class="hero-gallery-open bg-black/30 hover:bg-black/50 backdrop-blur-md text-white rounded-lg px-4 py-2 flex items-center space-x-2 transition-all duration-300 hover:scale-105 group"
+                                onclick="document.getElementById('tab-gallery') && document.querySelector('[data-tab=gallery]').click(); document.getElementById('tab-gallery').scrollIntoView({ behavior: 'smooth' });">
+                            <svg class="w-4 h-4 transform group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <span class="text-sm font-medium"><?php printf(__('Gallery (%d)', 'wptbt-tours'), count($gallery_data['images'])); ?></span>
+                        </button>
+                    </div>
                 <?php endif; ?>
                 
                 <!-- Overlay moderno con gradiente -->
@@ -169,7 +161,7 @@ $categories = get_the_terms($tour_id, 'tour-categories');
                 <?php endif; ?>
 
                 <!-- CTA Principal -->
-                <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
                     <a href="#book-tour" class="inline-flex items-center px-8 py-3 bg-white text-gray-900 font-semibold rounded-lg transition-all duration-300 hover:bg-gray-100 shadow-lg">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -203,162 +195,320 @@ $categories = get_the_terms($tour_id, 'tour-categories');
             <div class="container mx-auto px-4">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
                     
-                    <!-- Contenido principal -->
-                    <div class="lg:col-span-2 space-y-12">
+                    <!-- Contenido principal con tabs -->
+                    <div class="lg:col-span-2">
                         
-                        <!-- Descripción -->
-                        <div class="">
-                            <div class="mb-8">
-                                <span class="text-sm font-medium text-red-600 uppercase tracking-wide mb-2 block">Experience</span>
-                                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6"><?php _e('Tour Overview', 'wptbt-tours'); ?></h2>
-                            </div>
-                            <div class="prose prose-lg max-w-none text-gray-700">
-                                <?php the_content(); ?>
-                            </div>
-                        </div>
-
-                        <!-- Itinerario -->
-                        <?php if (!empty($itinerary)) : ?>
-                            <div>
-                                <div class="mb-8">
-                                    <span class="text-sm font-medium text-red-600 uppercase tracking-wide mb-2 block">Day by Day</span>
-                                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6"><?php _e('Detailed Itinerary', 'wptbt-tours'); ?></h2>
+                        <!-- Sistema de pestañas -->
+                        <div class="tour-content-tabs">
+                            <!-- Navegación de pestañas -->
+                            <div class="tab-navigation sticky top-4 z-10 bg-white rounded-xl shadow-lg border border-gray-200 mb-8">
+                                <div class="flex overflow-x-auto scrollbar-hidden">
+                                    <button class="tab-btn active flex-shrink-0" data-tab="overview">
+                                        <span class="tab-icon">📖</span>
+                                        <span class="tab-text"><?php _e('Overview', 'wptbt-tours'); ?></span>
+                                    </button>
+                                    <?php if (!empty($itinerary)) : ?>
+                                        <button class="tab-btn flex-shrink-0" data-tab="itinerary">
+                                            <span class="tab-icon">🗓️</span>
+                                            <span class="tab-text"><?php _e('Itinerary', 'wptbt-tours'); ?></span>
+                                        </button>
+                                    <?php endif; ?>
+                                    <?php if ($includes || $excludes) : ?>
+                                        <button class="tab-btn flex-shrink-0" data-tab="includes">
+                                            <span class="tab-icon">📋</span>
+                                            <span class="tab-text"><?php _e('What\'s Included', 'wptbt-tours'); ?></span>
+                                        </button>
+                                    <?php endif; ?>
+                                    <?php if ($google_maps_url || $departure_point) : ?>
+                                        <button class="tab-btn flex-shrink-0" data-tab="location">
+                                            <span class="tab-icon">📍</span>
+                                            <span class="tab-text"><?php _e('Location', 'wptbt-tours'); ?></span>
+                                        </button>
+                                    <?php endif; ?>
+                                    <?php if (isset($gallery_data['images']) && !empty($gallery_data['images'])) : ?>
+                                        <button class="tab-btn flex-shrink-0" data-tab="gallery">
+                                            <span class="tab-icon">🖼️</span>
+                                            <span class="tab-text"><?php _e('Gallery', 'wptbt-tours'); ?></span>
+                                        </button>
+                                    <?php endif; ?>
                                 </div>
-                                <div class="space-y-6">
-                                    <?php foreach ($itinerary as $index => $day) : ?>
-                                        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-300">
-                                            <div class="flex items-center mb-4">
-                                                <div class="flex-shrink-0 w-12 h-12 bg-red-600 text-white rounded-lg flex items-center justify-center font-bold">
-                                                    <?php echo $index + 1; ?>
-                                                </div>
-                                                <div class="ml-4">
-                                                    <h3 class="text-xl font-bold text-gray-900">
-                                                        <?php echo esc_html($day['title']); ?>
-                                                    </h3>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="ml-16">
-                                                <p class="text-gray-700 mb-6">
-                                                    <?php echo esc_html($day['description']); ?>
-                                                </p>
-                                                
-                                                <!-- Horarios del día -->
-                                                <?php if (isset($day['schedule']) && !empty($day['schedule'])) : ?>
-                                                    <div class="mb-6">
-                                                        <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
-                                                            <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                            </svg>
-                                                            <?php _e('Daily Schedule', 'wptbt-tours'); ?>
-                                                        </h4>
-                                                        <div class="space-y-2">
-                                                            <?php foreach ($day['schedule'] as $time_slot) : ?>
-                                                                <?php if (!empty($time_slot['time']) || !empty($time_slot['activity'])) : ?>
-                                                                    <div class="flex items-start text-sm">
-                                                                        <span class="font-medium text-red-600 w-16 flex-shrink-0"><?php echo esc_html($time_slot['time']); ?></span>
-                                                                        <span class="text-gray-700"><?php echo esc_html($time_slot['activity']); ?></span>
-                                                                    </div>
-                                                                <?php endif; ?>
-                                                            <?php endforeach; ?>
+                            </div>
+
+                            <!-- Contenido de pestañas -->
+                            <div class="tab-content-container">
+                                
+                                <!-- Tab: Overview -->
+                                <div class="tab-content active" id="tab-overview">
+                                    <div class="mb-8">
+                                        <span class="text-sm font-medium text-red-600 uppercase tracking-wide mb-2 block">Experience</span>
+                                        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6"><?php _e('Tour Overview', 'wptbt-tours'); ?></h2>
+                                    </div>
+                                    <div class="prose prose-lg max-w-none text-gray-700">
+                                        <?php the_content(); ?>
+                                    </div>
+                                </div>
+
+                                <!-- Tab: Itinerary -->
+                                <?php if (!empty($itinerary)) : ?>
+                                    <div class="tab-content" id="tab-itinerary">
+                                        <div class="mb-8">
+                                            <span class="text-sm font-medium text-red-600 uppercase tracking-wide mb-2 block">Day by Day</span>
+                                            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6"><?php _e('Detailed Itinerary', 'wptbt-tours'); ?></h2>
+                                        </div>
+                                        <div class="space-y-6">
+                                            <?php foreach ($itinerary as $index => $day) : ?>
+                                                <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 group">
+                                                    <div class="flex items-center mb-4">
+                                                        <div class="flex-shrink-0 w-12 h-12 bg-red-600 text-white rounded-lg flex items-center justify-center font-bold group-hover:bg-red-700 transition-colors">
+                                                            <?php echo $index + 1; ?>
+                                                        </div>
+                                                        <div class="ml-4">
+                                                            <h3 class="text-xl font-bold text-gray-900">
+                                                                <?php echo esc_html($day['title']); ?>
+                                                            </h3>
                                                         </div>
                                                     </div>
-                                                <?php endif; ?>
-                                                
-                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                                    <?php if ($day['meals']) : ?>
-                                                        <div class="flex items-center text-gray-600">
-                                                            <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    
+                                                    <div class="ml-16">
+                                                        <p class="text-gray-700 mb-6">
+                                                            <?php echo esc_html($day['description']); ?>
+                                                        </p>
+                                                        
+                                                        <!-- Horarios del día -->
+                                                        <?php if (isset($day['schedule']) && !empty($day['schedule'])) : ?>
+                                                            <div class="mb-6 bg-gray-50 rounded-lg p-4">
+                                                                <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                                                                    <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                                    </svg>
+                                                                    <?php _e('Daily Schedule', 'wptbt-tours'); ?>
+                                                                </h4>
+                                                                <div class="space-y-2">
+                                                                    <?php foreach ($day['schedule'] as $time_slot) : ?>
+                                                                        <?php if (!empty($time_slot['time']) || !empty($time_slot['activity'])) : ?>
+                                                                            <div class="flex items-start text-sm">
+                                                                                <span class="font-medium text-red-600 w-20 flex-shrink-0 bg-white px-2 py-1 rounded"><?php echo esc_html($time_slot['time']); ?></span>
+                                                                                <span class="text-gray-700 ml-3"><?php echo esc_html($time_slot['activity']); ?></span>
+                                                                            </div>
+                                                                        <?php endif; ?>
+                                                                    <?php endforeach; ?>
+                                                                </div>
+                                                            </div>
+                                                        <?php endif; ?>
+                                                        
+                                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                                            <?php if ($day['meals']) : ?>
+                                                                <div class="flex items-center text-gray-600 bg-blue-50 p-3 rounded-lg">
+                                                                    <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                                                    </svg>
+                                                                    <strong><?php _e('Meals:', 'wptbt-tours'); ?></strong>
+                                                                    <span class="ml-1"><?php echo esc_html($day['meals']); ?></span>
+                                                                </div>
+                                                            <?php endif; ?>
+                                                            
+                                                            <?php if ($day['accommodation']) : ?>
+                                                                <div class="flex items-center text-gray-600 bg-purple-50 p-3 rounded-lg">
+                                                                    <svg class="w-4 h-4 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                                                    </svg>
+                                                                    <strong><?php _e('Stay:', 'wptbt-tours'); ?></strong>
+                                                                    <span class="ml-1"><?php echo esc_html($day['accommodation']); ?></span>
+                                                                </div>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+
+                                <!-- Tab: Incluido y No Incluido -->
+                                <?php if ($includes || $excludes) : ?>
+                                    <div class="tab-content" id="tab-includes">
+                                        <div class="mb-8">
+                                            <span class="text-sm font-medium text-red-600 uppercase tracking-wide mb-2 block">Package Details</span>
+                                            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6"><?php _e("What's Included", 'wptbt-tours'); ?></h2>
+                                        </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                            
+                                            <?php if ($includes) : ?>
+                                                <div class="bg-green-50 rounded-xl p-6 border border-green-200 hover:shadow-lg transition-shadow">
+                                                    <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                                                        <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-3">
+                                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                            </svg>
+                                                        </div>
+                                                        <?php _e('Included', 'wptbt-tours'); ?>
+                                                    </h3>
+                                                    <ul class="space-y-3 text-gray-700">
+                                                        <?php if (is_array($includes)) : ?>
+                                                            <?php foreach ($includes as $item) : ?>
+                                                                <li class="flex items-start">
+                                                                    <svg class="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                                    </svg>
+                                                                    <span><?php echo esc_html($item); ?></span>
+                                                                </li>
+                                                            <?php endforeach; ?>
+                                                        <?php else : ?>
+                                                            <li><?php echo wpautop(esc_html($includes)); ?></li>
+                                                        <?php endif; ?>
+                                                    </ul>
+                                                </div>
+                                            <?php endif; ?>
+
+                                            <?php if ($excludes) : ?>
+                                                <div class="bg-red-50 rounded-xl p-6 border border-red-200 hover:shadow-lg transition-shadow">
+                                                    <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                                                        <div class="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center mr-3">
+                                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                            </svg>
+                                                        </div>
+                                                        <?php _e('Not Included', 'wptbt-tours'); ?>
+                                                    </h3>
+                                                    <ul class="space-y-3 text-gray-700">
+                                                        <?php if (is_array($excludes)) : ?>
+                                                            <?php foreach ($excludes as $item) : ?>
+                                                                <li class="flex items-start">
+                                                                    <svg class="w-4 h-4 text-red-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                                    </svg>
+                                                                    <span><?php echo esc_html($item); ?></span>
+                                                                </li>
+                                                            <?php endforeach; ?>
+                                                        <?php else : ?>
+                                                            <li><?php echo wpautop(esc_html($excludes)); ?></li>
+                                                        <?php endif; ?>
+                                                    </ul>
+                                                </div>
+                                            <?php endif; ?>
+
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+
+                                <!-- Tab: Location -->
+                                <?php if ($google_maps_url || $departure_point) : ?>
+                                    <div class="tab-content" id="tab-location">
+                                        <div class="mb-8">
+                                            <span class="text-sm font-medium text-red-600 uppercase tracking-wide mb-2 block">Travel Info</span>
+                                            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6"><?php _e('Location & Meeting Points', 'wptbt-tours'); ?></h2>
+                                        </div>
+                                        
+                                        <div class="space-y-6">
+                                            <?php if ($departure_point) : ?>
+                                                <div class="bg-blue-50 rounded-xl p-6 border border-blue-200">
+                                                    <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                                                        <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
+                                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                                            </svg>
+                                                        </div>
+                                                        <?php _e('Departure Point', 'wptbt-tours'); ?>
+                                                    </h3>
+                                                    <p class="text-gray-700"><?php echo esc_html($departure_point); ?></p>
+                                                </div>
+                                            <?php endif; ?>
+                                            
+                                            <?php if ($return_point) : ?>
+                                                <div class="bg-green-50 rounded-xl p-6 border border-green-200">
+                                                    <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                                                        <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-3">
+                                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                                                            </svg>
+                                                        </div>
+                                                        <?php _e('Return Point', 'wptbt-tours'); ?>
+                                                    </h3>
+                                                    <p class="text-gray-700"><?php echo esc_html($return_point); ?></p>
+                                                </div>
+                                            <?php endif; ?>
+                                            
+                                            <?php if ($google_maps_url) : ?>
+                                                <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                                                    <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                                                        <div class="w-8 h-8 bg-gray-600 rounded-lg flex items-center justify-center mr-3">
+                                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                                                            </svg>
+                                                        </div>
+                                                        <?php _e('View on Map', 'wptbt-tours'); ?>
+                                                    </h3>
+                                                    <a href="<?php echo esc_url($google_maps_url); ?>" target="_blank" 
+                                                       class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                                        </svg>
+                                                        <?php _e('Open in Google Maps', 'wptbt-tours'); ?>
+                                                    </a>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+
+                                <!-- Tab: Gallery -->
+                                <?php if (isset($gallery_data['images']) && !empty($gallery_data['images'])) : ?>
+                                    <div class="tab-content" id="tab-gallery">
+                                        <div class="mb-8">
+                                            <span class="text-sm font-medium text-red-600 uppercase tracking-wide mb-2 block">Visual Tour</span>
+                                            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6"><?php _e('Photo Gallery', 'wptbt-tours'); ?></h2>
+                                            <p class="text-gray-600 text-lg leading-relaxed"><?php _e('Explore our stunning collection of images showcasing the beauty and experiences of this tour.', 'wptbt-tours'); ?></p>
+                                        </div>
+                                        
+                                        <?php if (!empty($gallery_data['images'])) : ?>
+                                            <?php
+                                            // Usar el shortcode de galería existente con configuración para tours
+                                            $gallery_image_ids = implode(',', $gallery_data['images']);
+                                            
+                                            // Shortcode optimizado para tours de viajes - sin títulos extras
+                                            echo do_shortcode('[wptbt_gallery 
+                                                ids="' . $gallery_image_ids . '" 
+                                                title="" 
+                                                subtitle="" 
+                                                description="" 
+                                                columns="3" 
+                                                display_mode="masonry" 
+                                                hover_effect="zoom" 
+                                                background_color="#FFFFFF" 
+                                                text_color="#1F2937" 
+                                                accent_color="#DC2626" 
+                                                secondary_color="#059669" 
+                                                full_width="false" 
+                                                enable_lightbox="true" 
+                                                spacing="20"
+                                            ]');
+                                            ?>
+                                        <?php else : ?>
+                                            <!-- Mensaje cuando no hay imágenes -->
+                                            <div class="text-center py-12">
+                                                <div class="max-w-md mx-auto">
+                                                    <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                    </svg>
+                                                    <h3 class="text-lg font-medium text-gray-900 mb-2"><?php _e('No images available', 'wptbt-tours'); ?></h3>
+                                                    <p class="text-gray-600"><?php _e('Gallery images will be displayed here once they are added to this tour.', 'wptbt-tours'); ?></p>
+                                                    <?php if (current_user_can('edit_posts')) : ?>
+                                                        <a href="<?php echo esc_url(get_edit_post_link()); ?>" 
+                                                           class="inline-flex items-center mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                                             </svg>
-                                                            <strong><?php _e('Meals:', 'wptbt-tours'); ?></strong>
-                                                            <span class="ml-1"><?php echo esc_html($day['meals']); ?></span>
-                                                        </div>
-                                                    <?php endif; ?>
-                                                    
-                                                    <?php if ($day['accommodation']) : ?>
-                                                        <div class="flex items-center text-gray-600">
-                                                            <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                                                            </svg>
-                                                            <strong><?php _e('Stay:', 'wptbt-tours'); ?></strong>
-                                                            <span class="ml-1"><?php echo esc_html($day['accommodation']); ?></span>
-                                                        </div>
+                                                            <?php _e('Add Images', 'wptbt-tours'); ?>
+                                                        </a>
                                                     <?php endif; ?>
                                                 </div>
                                             </div>
-                                        </div>
-                                    <?php endforeach; ?>
-                                </div>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endif; ?>
+
                             </div>
-                        <?php endif; ?>
-
-                        <!-- Incluido y No Incluido -->
-                        <?php if ($includes || $excludes) : ?>
-                            <div>
-                                <div class="mb-8">
-                                    <span class="text-sm font-medium text-red-600 uppercase tracking-wide mb-2 block">Package Details</span>
-                                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6"><?php _e("What's Included", 'wptbt-tours'); ?></h2>
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    
-                                    <?php if ($includes) : ?>
-                                        <div class="bg-green-50 rounded-xl p-6 border border-green-200">
-                                            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                                                <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-3">
-                                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                    </svg>
-                                                </div>
-                                                <?php _e('Included', 'wptbt-tours'); ?>
-                                            </h3>
-                                            <ul class="space-y-2 text-gray-700">
-                                                <?php if (is_array($includes)) : ?>
-                                                    <?php foreach ($includes as $item) : ?>
-                                                        <li class="flex items-start">
-                                                            <svg class="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                            </svg>
-                                                            <?php echo esc_html($item); ?>
-                                                        </li>
-                                                    <?php endforeach; ?>
-                                                <?php else : ?>
-                                                    <li><?php echo wpautop(esc_html($includes)); ?></li>
-                                                <?php endif; ?>
-                                            </ul>
-                                        </div>
-                                    <?php endif; ?>
-
-                                    <?php if ($excludes) : ?>
-                                        <div class="bg-red-50 rounded-xl p-6 border border-red-200">
-                                            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                                                <div class="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center mr-3">
-                                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                    </svg>
-                                                </div>
-                                                <?php _e('Not Included', 'wptbt-tours'); ?>
-                                            </h3>
-                                            <ul class="space-y-2 text-gray-700">
-                                                <?php if (is_array($excludes)) : ?>
-                                                    <?php foreach ($excludes as $item) : ?>
-                                                        <li class="flex items-start">
-                                                            <svg class="w-4 h-4 text-red-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                            </svg>
-                                                            <?php echo esc_html($item); ?>
-                                                        </li>
-                                                    <?php endforeach; ?>
-                                                <?php else : ?>
-                                                    <li><?php echo wpautop(esc_html($excludes)); ?></li>
-                                                <?php endif; ?>
-                                            </ul>
-                                        </div>
-                                    <?php endif; ?>
-
-                                </div>
-                            </div>
-                        <?php endif; ?>
+                        </div>
                     </div>
 
                     <!-- Sidebar -->
@@ -541,7 +691,7 @@ $categories = get_the_terms($tour_id, 'tour-categories');
         <!-- Booking Section -->
         <section id="book-tour" class="py-20 bg-gradient-to-br from-blue-50 to-teal-50">
             <div class="container mx-auto px-4">
-                <div class="max-w-4xl mx-auto">
+                <div class="max-w-4xl">
                     <div class="text-center mb-12">
                         <h2 class="text-4xl font-bold text-gray-900 mb-4">
                             <?php _e('Book Your Adventure', 'wptbt-tours'); ?>
@@ -833,6 +983,35 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Tab system functionality
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetTab = button.dataset.tab;
+            
+            // Remove active class from all buttons and contents
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Add active class to clicked button and corresponding content
+            button.classList.add('active');
+            const targetContent = document.getElementById(`tab-${targetTab}`);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+            
+            // Smooth scroll to content if needed
+            const tabNavigation = document.querySelector('.tab-navigation');
+            if (tabNavigation) {
+                tabNavigation.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        });
+    });
+
+    // Gallery functionality now handled by SolidJS component
+
     // Smooth scrolling for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
@@ -885,6 +1064,95 @@ document.addEventListener('DOMContentLoaded', function() {
     animation: fadeInUp 0.6s ease-out forwards;
 }
 
+/* Tab system styles */
+.tab-navigation {
+    backdrop-filter: blur(10px);
+}
+
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 24px;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    border-bottom: 3px solid transparent;
+    position: relative;
+    white-space: nowrap;
+}
+
+.tab-btn:hover {
+    color: #374151;
+    background: rgba(239, 246, 255, 0.5);
+}
+
+.tab-btn.active {
+    color: #dc2626;
+    background: rgba(239, 246, 255, 0.8);
+    border-bottom-color: #dc2626;
+}
+
+.tab-btn .tab-icon {
+    font-size: 18px;
+}
+
+.tab-btn .tab-text {
+    font-weight: 600;
+}
+
+/* Tab content */
+.tab-content {
+    display: none;
+    animation: fadeInUp 0.4s ease-out;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Scrollbar hidden for mobile tab navigation */
+.scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+}
+
+/* Gallery lightbox styles */
+.lightbox-modal {
+    backdrop-filter: blur(4px);
+}
+
+.lightbox-image {
+    border-radius: 8px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Enhanced gallery items */
+.gallery-item {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.gallery-item:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: translateY(-2px);
+}
+
+/* Enhanced schedule styling */
+.tab-content .bg-gray-50 {
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    border: 1px solid #e5e7eb;
+}
+
 /* Custom scrollbar for dates */
 .max-h-48::-webkit-scrollbar {
     width: 4px;
@@ -912,11 +1180,90 @@ document.addEventListener('DOMContentLoaded', function() {
     background-size: cover;
 }
 
+/* Responsive design */
 @media (max-width: 768px) {
     .tour-hero {
         background-attachment: scroll;
     }
+    
+    .tab-btn {
+        padding: 12px 16px;
+        min-width: 120px;
+        justify-content: center;
+    }
+    
+    .tab-btn .tab-text {
+        font-size: 14px;
+    }
+    
+    .tab-navigation {
+        margin-bottom: 24px;
+    }
+    
+    .tab-navigation .flex {
+        padding: 8px;
+    }
+}
+
+@media (max-width: 640px) {
+    .tab-btn {
+        flex-direction: column;
+        gap: 4px;
+        padding: 12px 8px;
+        min-width: 80px;
+    }
+    
+    .tab-btn .tab-icon {
+        font-size: 16px;
+    }
+    
+    .tab-btn .tab-text {
+        font-size: 12px;
+    }
+}
+
+/* Enhanced hover effects */
+.tour-content-tabs .tab-content > div > div {
+    transition: all 0.3s ease;
+}
+
+.tour-content-tabs .hover\:shadow-lg:hover {
+    transform: translateY(-2px);
+}
+
+/* Loading animation for tab content */
+@keyframes tabFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tab-content.active {
+    animation: tabFadeIn 0.3s ease-out;
+}
+
+/* Simple gallery button styles */
+.hero-gallery-open {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.hero-gallery-open:hover {
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
 }
 </style>
+
+<script>
+// Simple tour page JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Tour page loaded successfully');
+});
+</script>
 
 <?php get_footer(); ?>

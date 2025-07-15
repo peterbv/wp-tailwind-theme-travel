@@ -148,77 +148,17 @@ class WPTBT_Tours
 
     public function add_meta_boxes()
     {
-        // NUEVA: Galería de imágenes
+        // Meta box principal con tabs organizados
         add_meta_box(
-            'wptbt_tour_gallery',
-            __('🖼️ Tour Image Gallery', $this->translate),
-            [$this, 'render_gallery_meta_box'],
+            'wptbt_tour_main',
+            __('🎯 Tour Management Hub', $this->translate),
+            [$this, 'render_main_meta_box'],
             'tours',
             'normal',
             'high'
         );
 
-        // Meta box de precios actualizado
-        add_meta_box(
-            'wptbt_tour_pricing',
-            __('💰 Tour Pricing', $this->translate),
-            [$this, 'render_pricing_meta_box'],
-            'tours',
-            'normal',
-            'high'
-        );
-
-        // NUEVA: Información de contacto y reservas
-        add_meta_box(
-            'wptbt_tour_booking',
-            __('📞 Booking Information', $this->translate),
-            [$this, 'render_booking_meta_box'],
-            'tours',
-            'normal',
-            'high'
-        );
-
-        // Meta box de detalles del tour
-        add_meta_box(
-            'wptbt_tour_details',
-            __('ℹ️ Tour Details', $this->translate),
-            [$this, 'render_tour_details_meta_box'],
-            'tours',
-            'normal',
-            'high'
-        );
-
-        // NUEVA: Itinerario del tour
-        add_meta_box(
-            'wptbt_tour_itinerary',
-            __('🗓️ Tour Itinerary', $this->translate),
-            [$this, 'render_itinerary_meta_box'],
-            'tours',
-            'normal',
-            'high'
-        );
-
-        // Meta box de fechas de salida
-        add_meta_box(
-            'wptbt_tour_dates',
-            __('📅 Departure Dates', $this->translate),
-            [$this, 'render_dates_meta_box'],
-            'tours',
-            'normal',
-            'high'
-        );
-
-        // NUEVA: Ubicación y mapas
-        add_meta_box(
-            'wptbt_tour_location',
-            __('📍 Location & Maps', $this->translate),
-            [$this, 'render_location_meta_box'],
-            'tours',
-            'side',
-            'high'
-        );
-
-        // Meta box de subtítulo
+        // Meta box de subtítulo (mantener en sidebar)
         add_meta_box(
             'wptbt_tour_subtitle',
             __('📝 Tour Subtitle', $this->translate),
@@ -228,7 +168,7 @@ class WPTBT_Tours
             'high'
         );
 
-        // NUEVA: SEO y promoción
+        // NUEVA: SEO y promoción (mantener en sidebar)
         add_meta_box(
             'wptbt_tour_seo',
             __('🚀 SEO & Promotion', $this->translate),
@@ -238,25 +178,327 @@ class WPTBT_Tours
             'default'
         );
 
-        // Meta box para horarios y disponibilidad del formulario de reservas
+        // NUEVA: Ubicación y mapas (mantener en sidebar)
         add_meta_box(
-            'wptbt_tour_schedule',
-            __('🕒 Tour Schedule & Availability', $this->translate),
-            [$this, 'render_schedule_meta_box'],
+            'wptbt_tour_location',
+            __('📍 Location & Maps', $this->translate),
+            [$this, 'render_location_meta_box'],
             'tours',
-            'normal',
+            'side',
             'high'
         );
+    }
 
-        // Meta box para precios del formulario de reservas
-        add_meta_box(
-            'wptbt_tour_booking_prices',
-            __('💰 Booking Prices & Options', $this->translate),
-            [$this, 'render_booking_prices_meta_box'],
-            'tours',
-            'normal',
-            'high'
-        );
+    /**
+     * NUEVA: Meta box principal con sistema de tabs
+     */
+    public function render_main_meta_box($post)
+    {
+        // Incluir todos los nonces necesarios
+        wp_nonce_field('wptbt_save_tour_gallery', 'wptbt_tour_gallery_nonce');
+        wp_nonce_field('wptbt_save_tour_pricing', 'wptbt_tour_pricing_nonce');
+        wp_nonce_field('wptbt_save_tour_booking', 'wptbt_tour_booking_nonce');
+        wp_nonce_field('wptbt_save_tour_details', 'wptbt_tour_details_nonce');
+        wp_nonce_field('wptbt_save_tour_itinerary', 'wptbt_tour_itinerary_nonce');
+        wp_nonce_field('wptbt_save_tour_dates', 'wptbt_tour_dates_nonce');
+        wp_nonce_field('wptbt_save_tour_schedule', 'wptbt_tour_schedule_nonce');
+        wp_nonce_field('wptbt_save_tour_booking_prices', 'wptbt_tour_booking_prices_nonce');
+        ?>
+        
+        <div class="wptbt-tour-tabs-container">
+            <!-- Navegación de tabs -->
+            <div class="wptbt-tabs-nav">
+                <button type="button" class="wptbt-tab-btn active" data-tab="gallery">
+                    <span class="tab-icon">🖼️</span>
+                    <span class="tab-label"><?php _e('Gallery', $this->translate); ?></span>
+                </button>
+                <button type="button" class="wptbt-tab-btn" data-tab="pricing">
+                    <span class="tab-icon">💰</span>
+                    <span class="tab-label"><?php _e('Pricing', $this->translate); ?></span>
+                </button>
+                <button type="button" class="wptbt-tab-btn" data-tab="details">
+                    <span class="tab-icon">ℹ️</span>
+                    <span class="tab-label"><?php _e('Details', $this->translate); ?></span>
+                </button>
+                <button type="button" class="wptbt-tab-btn" data-tab="itinerary">
+                    <span class="tab-icon">🗓️</span>
+                    <span class="tab-label"><?php _e('Itinerary', $this->translate); ?></span>
+                </button>
+                <button type="button" class="wptbt-tab-btn" data-tab="booking">
+                    <span class="tab-icon">📞</span>
+                    <span class="tab-label"><?php _e('Booking', $this->translate); ?></span>
+                </button>
+                <button type="button" class="wptbt-tab-btn" data-tab="dates">
+                    <span class="tab-icon">📅</span>
+                    <span class="tab-label"><?php _e('Dates', $this->translate); ?></span>
+                </button>
+                <button type="button" class="wptbt-tab-btn" data-tab="availability">
+                    <span class="tab-icon">🕒</span>
+                    <span class="tab-label"><?php _e('Availability', $this->translate); ?></span>
+                </button>
+            </div>
+
+            <!-- Contenido de tabs -->
+            <div class="wptbt-tabs-content">
+                
+                <!-- Tab: Gallery -->
+                <div class="wptbt-tab-content active" id="tab-gallery">
+                    <div class="tab-header">
+                        <h3>🖼️ <?php _e('Tour Image Gallery', $this->translate); ?></h3>
+                        <p class="tab-description"><?php _e('Manage the image gallery for your tour. These images will be displayed in the tour page gallery section.', $this->translate); ?></p>
+                    </div>
+                    <?php $this->render_gallery_content($post); ?>
+                </div>
+
+                <!-- Tab: Pricing -->
+                <div class="wptbt-tab-content" id="tab-pricing">
+                    <div class="tab-header">
+                        <h3>💰 <?php _e('Tour Pricing', $this->translate); ?></h3>
+                        <p class="tab-description"><?php _e('Set up your tour pricing structure. You can configure different prices for international, national, and promotional offers.', $this->translate); ?></p>
+                    </div>
+                    <?php $this->render_pricing_content($post); ?>
+                </div>
+
+                <!-- Tab: Details -->
+                <div class="wptbt-tab-content" id="tab-details">
+                    <div class="tab-header">
+                        <h3>ℹ️ <?php _e('Tour Details', $this->translate); ?></h3>
+                        <p class="tab-description"><?php _e('Configure tour specifications, difficulty level, and what\'s included or excluded in the tour package.', $this->translate); ?></p>
+                    </div>
+                    <?php $this->render_tour_details_content($post); ?>
+                </div>
+
+                <!-- Tab: Itinerary -->
+                <div class="wptbt-tab-content" id="tab-itinerary">
+                    <div class="tab-header">
+                        <h3>🗓️ <?php _e('Tour Itinerary', $this->translate); ?></h3>
+                        <p class="tab-description"><?php _e('Create a detailed day-by-day itinerary with schedules, activities, meals, and accommodation information.', $this->translate); ?></p>
+                    </div>
+                    <?php $this->render_itinerary_content($post); ?>
+                </div>
+
+                <!-- Tab: Booking -->
+                <div class="wptbt-tab-content" id="tab-booking">
+                    <div class="tab-header">
+                        <h3>📞 <?php _e('Booking Information', $this->translate); ?></h3>
+                        <p class="tab-description"><?php _e('Set up contact information and booking policies for customer inquiries and reservations.', $this->translate); ?></p>
+                    </div>
+                    <?php $this->render_booking_content($post); ?>
+                </div>
+
+                <!-- Tab: Dates -->
+                <div class="wptbt-tab-content" id="tab-dates">
+                    <div class="tab-header">
+                        <h3>📅 <?php _e('Departure Dates', $this->translate); ?></h3>
+                        <p class="tab-description"><?php _e('Configure available departure dates for this tour. Customers will see these dates when booking.', $this->translate); ?></p>
+                    </div>
+                    <?php $this->render_dates_content($post); ?>
+                </div>
+
+                <!-- Tab: Availability -->
+                <div class="wptbt-tab-content" id="tab-availability">
+                    <div class="tab-header">
+                        <h3>🕒 <?php _e('Tour Schedule & Availability', $this->translate); ?></h3>
+                        <p class="tab-description"><?php _e('Set up departure times and pricing options for the booking form functionality.', $this->translate); ?></p>
+                    </div>
+                    <div class="availability-grid">
+                        <div class="availability-section">
+                            <h4><?php _e('Departure Times', $this->translate); ?></h4>
+                            <?php $this->render_schedule_content($post); ?>
+                        </div>
+                        <div class="availability-section">
+                            <h4><?php _e('Booking Prices', $this->translate); ?></h4>
+                            <?php $this->render_booking_prices_content($post); ?>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <style>
+        .wptbt-tour-tabs-container {
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .wptbt-tabs-nav {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            flex-wrap: wrap;
+        }
+
+        .wptbt-tab-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            border: none;
+            background: transparent;
+            color: #6c757d;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .wptbt-tab-btn:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .wptbt-tab-btn.active {
+            background: #fff;
+            color: #007cba;
+            border-bottom-color: #007cba;
+        }
+
+        .tab-icon {
+            font-size: 16px;
+        }
+
+        .tab-label {
+            font-weight: 600;
+        }
+
+        .wptbt-tabs-content {
+            padding: 0;
+        }
+
+        .wptbt-tab-content {
+            display: none;
+            padding: 24px;
+            min-height: 400px;
+        }
+
+        .wptbt-tab-content.active {
+            display: block;
+        }
+
+        .tab-header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .tab-header h3 {
+            margin: 0 0 8px 0;
+            font-size: 18px;
+            color: #007cba;
+        }
+
+        .tab-description {
+            margin: 0;
+            color: #6c757d;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .availability-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .availability-section h4 {
+            margin: 0 0 16px 0;
+            padding: 12px;
+            background: #f8f9fa;
+            border-left: 4px solid #007cba;
+            font-size: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .wptbt-tabs-nav {
+                overflow-x: auto;
+            }
+            
+            .wptbt-tab-btn {
+                min-width: 100px;
+                padding: 10px 12px;
+            }
+            
+            .availability-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        </style>
+
+        <script>
+        jQuery(document).ready(function($) {
+            // Manejo de tabs
+            $('.wptbt-tab-btn').on('click', function() {
+                var tab = $(this).data('tab');
+                
+                // Cambiar tab activo
+                $('.wptbt-tab-btn').removeClass('active');
+                $(this).addClass('active');
+                
+                // Mostrar contenido correspondiente
+                $('.wptbt-tab-content').removeClass('active');
+                $('#tab-' + tab).addClass('active');
+                
+                // Trigger resize para elementos que lo necesiten
+                $(window).trigger('resize');
+            });
+        });
+        </script>
+        <?php
+    }
+
+    /**
+     * Métodos de contenido para los tabs
+     */
+    public function render_gallery_content($post)
+    {
+        $gallery_images = get_post_meta($post->ID, '_tour_gallery_images', true);
+        if (!is_array($gallery_images)) {
+            $gallery_images = [];
+        }
+        
+        $use_gallery_as_featured = get_post_meta($post->ID, '_tour_use_gallery_as_featured', true);
+        
+        $this->render_gallery_meta_box($post);
+    }
+    
+    public function render_pricing_content($post)
+    {
+        $this->render_pricing_meta_box($post);
+    }
+    
+    public function render_tour_details_content($post)
+    {
+        $this->render_tour_details_meta_box($post);
+    }
+    
+    public function render_itinerary_content($post)
+    {
+        $this->render_itinerary_meta_box($post);
+    }
+    
+    public function render_booking_content($post)
+    {
+        $this->render_booking_meta_box($post);
+    }
+    
+    public function render_dates_content($post)
+    {
+        $this->render_dates_meta_box($post);
+    }
+    
+    public function render_schedule_content($post)
+    {
+        $this->render_schedule_meta_box($post);
+    }
+    
+    public function render_booking_prices_content($post)
+    {
+        $this->render_booking_prices_meta_box($post);
     }
 
     /**

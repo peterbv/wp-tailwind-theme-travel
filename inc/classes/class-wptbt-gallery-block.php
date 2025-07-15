@@ -139,9 +139,9 @@ class WPTBT_Gallery_Block
     public function render_gallery_block($attributes)
     {
         // Extraer atributos
-        $title = isset($attributes['title']) ? $attributes['title'] : __('Our Gallery', $this->translate);
-        $subtitle = isset($attributes['subtitle']) ? $attributes['subtitle'] : __('Relaxation Spaces', $this->translate);
-        $description = isset($attributes['description']) ? $attributes['description'] : __('Explore our facilities and services through our image gallery.', $this->translate);
+        $title = isset($attributes['title']) ? $attributes['title'] : '';
+        $subtitle = isset($attributes['subtitle']) ? $attributes['subtitle'] : '';
+        $description = isset($attributes['description']) ? $attributes['description'] : '';
         $images = isset($attributes['images']) ? $attributes['images'] : [];
         $columns = isset($attributes['columns']) ? intval($attributes['columns']) : 3;
         $display_mode = isset($attributes['displayMode']) ? $attributes['displayMode'] : 'grid';
@@ -206,9 +206,9 @@ class WPTBT_Gallery_Block
     {
         $attributes = shortcode_atts(
             array(
-                'title' => __('Our Gallery', $this->translate),
-                'subtitle' => __('Relaxation Spaces', $this->translate),
-                'description' => __('Explore our facilities and services through our image gallery.', $this->translate),
+                'title' => '',
+                'subtitle' => '',
+                'description' => '',
                 'ids' => '', // IDs de imágenes separados por comas
                 'columns' => 3,
                 'display_mode' => 'grid',
