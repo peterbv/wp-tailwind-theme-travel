@@ -794,10 +794,22 @@ class WPTBT_Tours
                     var container = $('.schedule-items-' + dayIndex);
                     var itemCount = container.find('.schedule-item').length;
                     
-                    var newItem = '<div class="schedule-item" style="display: flex; gap: 10px; margin-bottom: 8px; align-items: center;">' +
-                        '<input type="text" name="tour_itinerary[' + dayIndex + '][schedule][' + itemCount + '][time]" placeholder="<?php esc_attr_e('e.g., 08:00', $this->translate); ?>" style="width: 80px;" />' +
-                        '<input type="text" name="tour_itinerary[' + dayIndex + '][schedule][' + itemCount + '][activity]" placeholder="<?php esc_attr_e('Activity description...', $this->translate); ?>" style="flex: 1;" />' +
-                        '<button type="button" class="button button-small remove-schedule-item"><?php _e('Remove', $this->translate); ?></button>' +
+                    var newItem = '<div class="schedule-item" style="display: grid; grid-template-columns: 120px auto 1fr 100px; gap: 10px; margin-bottom: 10px; align-items: start; padding: 10px; background: white; border-radius: 6px; border: 1px solid #e0e0e0;">' +
+                        '<div>' +
+                            '<label style="font-size: 12px; color: #666; display: block; margin-bottom: 2px;"><?php _e('Time', $this->translate); ?></label>' +
+                            '<input type="text" name="tour_itinerary[' + dayIndex + '][schedule][' + itemCount + '][time]" placeholder="06:00" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" />' +
+                        '</div>' +
+                        '<div>' +
+                            '<label style="font-size: 12px; color: #666; display: block; margin-bottom: 2px;"><?php _e('Time Range', $this->translate); ?></label>' +
+                            '<input type="text" name="tour_itinerary[' + dayIndex + '][schedule][' + itemCount + '][time_range]" placeholder="06:00 – 06:30 a.m." style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" />' +
+                        '</div>' +
+                        '<div>' +
+                            '<label style="font-size: 12px; color: #666; display: block; margin-bottom: 2px;"><?php _e('Activity Description', $this->translate); ?></label>' +
+                            '<textarea name="tour_itinerary[' + dayIndex + '][schedule][' + itemCount + '][activity]" rows="2" placeholder="<?php esc_attr_e('Hotel Pickup in Cusco - Departure in a tourist minivan...', $this->translate); ?>" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;"></textarea>' +
+                        '</div>' +
+                        '<div style="display: flex; align-items: end; height: 100%;">' +
+                            '<button type="button" class="button button-small remove-schedule-item" style="background: #dc3545; color: white; border: none; width: 100%; height: 30px;"><?php _e('Remove', $this->translate); ?></button>' +
+                        '</div>' +
                         '</div>';
                     
                     container.append(newItem);
@@ -836,63 +848,127 @@ class WPTBT_Tours
     private function render_itinerary_day($index, $day)
     {
         $title = isset($day['title']) ? $day['title'] : '';
+        $date_label = isset($day['date_label']) ? $day['date_label'] : '';
         $description = isset($day['description']) ? $day['description'] : '';
         $meals = isset($day['meals']) ? $day['meals'] : '';
         $accommodation = isset($day['accommodation']) ? $day['accommodation'] : '';
         $schedule = isset($day['schedule']) && is_array($day['schedule']) ? $day['schedule'] : [];
         ?>
-        <div class="itinerary-day" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h4 class="day-number" style="margin: 0; color: #007cba;">
-                    <?php echo $index !== '{{INDEX}}' ? 'Day ' . ($index + 1) : 'Day {{INDEX_PLUS_1}}'; ?>
+        <div class="itinerary-day" style="margin-bottom: 25px; padding: 20px; border: 1px solid #ddd; border-radius: 12px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #f0f0f0;">
+                <h4 class="day-number" style="margin: 0; color: #007cba; font-size: 18px; font-weight: 600;">
+                    <?php echo $index !== '{{INDEX}}' ? 'DAY ' . ($index + 1) : 'DAY {{INDEX_PLUS_1}}'; ?>
                 </h4>
-                <button type="button" class="button button-small remove-day">
+                <button type="button" class="button button-small remove-day" style="background: #dc3545; color: white; border: none;">
                     <?php _e('Remove Day', $this->translate); ?>
                 </button>
             </div>
             
-            <table class="form-table" style="margin: 0;">
-                <tr>
-                    <th style="width: 150px;"><label><?php _e('Title:', $this->translate); ?></label></th>
-                    <td><input type="text" name="tour_itinerary[<?php echo $index; ?>][title]" value="<?php echo esc_attr($title); ?>" style="width: 100%;" placeholder="<?php esc_attr_e('e.g., Arrival in Cusco', $this->translate); ?>" /></td>
-                </tr>
-                <tr>
-                    <th><label><?php _e('Description:', $this->translate); ?></label></th>
-                    <td><textarea name="tour_itinerary[<?php echo $index; ?>][description]" rows="3" style="width: 100%;" placeholder="<?php esc_attr_e('Detailed description of activities...', $this->translate); ?>"><?php echo esc_textarea($description); ?></textarea></td>
-                </tr>
-                <tr>
-                    <th><label><?php _e('Meals:', $this->translate); ?></label></th>
-                    <td><input type="text" name="tour_itinerary[<?php echo $index; ?>][meals]" value="<?php echo esc_attr($meals); ?>" style="width: 100%;" placeholder="<?php esc_attr_e('Breakfast, Lunch, Dinner', $this->translate); ?>" /></td>
-                </tr>
-                <tr>
-                    <th><label><?php _e('Accommodation:', $this->translate); ?></label></th>
-                    <td><input type="text" name="tour_itinerary[<?php echo $index; ?>][accommodation]" value="<?php echo esc_attr($accommodation); ?>" style="width: 100%;" placeholder="<?php esc_attr_e('Hotel name or type', $this->translate); ?>" /></td>
-                </tr>
-                <tr>
-                    <th style="vertical-align: top; padding-top: 15px;"><label><?php _e('Schedule:', $this->translate); ?></label></th>
-                    <td>
-                        <div class="schedule-container-<?php echo $index; ?>" style="border: 1px solid #ddd; border-radius: 4px; padding: 10px; background: white;">
-                            <div style="margin-bottom: 10px;">
-                                <button type="button" class="button button-small add-schedule-item" data-day="<?php echo $index; ?>">
-                                    <?php _e('Add Time Slot', $this->translate); ?>
-                                </button>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">
+                    <?php _e('Date/Location:', $this->translate); ?>
+                </label>
+                <input type="text" name="tour_itinerary[<?php echo $index; ?>][date_label]" 
+                       value="<?php echo esc_attr($date_label); ?>" 
+                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" 
+                       placeholder="<?php esc_attr_e('e.g., Cusco – Hydroelectric – Aguas Calientes', $this->translate); ?>" />
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">
+                    <?php _e('Day Title:', $this->translate); ?>
+                </label>
+                <input type="text" name="tour_itinerary[<?php echo $index; ?>][title]" 
+                       value="<?php echo esc_attr($title); ?>" 
+                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" 
+                       placeholder="<?php esc_attr_e('e.g., Arrival and Transfer to Sacred Valley', $this->translate); ?>" />
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">
+                    <?php _e('Day Overview:', $this->translate); ?>
+                    <small style="font-weight: normal; color: #666; font-size: 12px;">
+                        (<?php _e('HTML allowed: &lt;strong&gt;, &lt;em&gt;, &lt;br&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;', $this->translate); ?>)
+                    </small>
+                </label>
+                <textarea name="tour_itinerary[<?php echo $index; ?>][description]" 
+                          rows="4" 
+                          style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;" 
+                          placeholder="<?php esc_attr_e('Brief overview: Departure in <strong>tourist minivan</strong> through <em>sacred valleys</em>...', $this->translate); ?>"><?php echo esc_textarea($description); ?></textarea>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">
+                        <?php _e('Meals Included:', $this->translate); ?>
+                    </label>
+                    <input type="text" name="tour_itinerary[<?php echo $index; ?>][meals]" 
+                           value="<?php echo esc_attr($meals); ?>" 
+                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" 
+                           placeholder="<?php esc_attr_e('e.g., Breakfast, Lunch', $this->translate); ?>" />
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #333;">
+                        <?php _e('Accommodation:', $this->translate); ?>
+                    </label>
+                    <input type="text" name="tour_itinerary[<?php echo $index; ?>][accommodation]" 
+                           value="<?php echo esc_attr($accommodation); ?>" 
+                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" 
+                           placeholder="<?php esc_attr_e('e.g., Hotel in Aguas Calientes', $this->translate); ?>" />
+                </div>
+            </div>
+            
+            <div style="background: #f8f9fa; border-radius: 8px; padding: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <label style="font-weight: 600; color: #333; font-size: 16px;">
+                        <?php _e('Detailed Schedule:', $this->translate); ?>
+                    </label>
+                    <button type="button" class="button button-primary button-small add-schedule-item" data-day="<?php echo $index; ?>">
+                        <?php _e('Add Activity', $this->translate); ?>
+                    </button>
+                </div>
+                <div class="schedule-items-<?php echo $index; ?>">
+                    <?php if (empty($schedule)): ?>
+                        <p style="text-align: center; color: #666; margin: 20px 0; font-style: italic;">
+                            <?php _e('No activities added yet. Click "Add Activity" to start building the schedule.', $this->translate); ?>
+                        </p>
+                    <?php else: ?>
+                        <?php foreach ($schedule as $s_index => $time_slot): ?>
+                            <div class="schedule-item" style="display: grid; grid-template-columns: 120px auto 1fr 100px; gap: 10px; margin-bottom: 10px; align-items: start; padding: 10px; background: white; border-radius: 6px; border: 1px solid #e0e0e0;">
+                                <div>
+                                    <label style="font-size: 12px; color: #666; display: block; margin-bottom: 2px;"><?php _e('Time', $this->translate); ?></label>
+                                    <input type="text" name="tour_itinerary[<?php echo $index; ?>][schedule][<?php echo $s_index; ?>][time]" 
+                                           value="<?php echo esc_attr(isset($time_slot['time']) ? $time_slot['time'] : ''); ?>" 
+                                           placeholder="06:00" 
+                                           style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" />
+                                </div>
+                                <div>
+                                    <label style="font-size: 12px; color: #666; display: block; margin-bottom: 2px;"><?php _e('Time Range', $this->translate); ?></label>
+                                    <input type="text" name="tour_itinerary[<?php echo $index; ?>][schedule][<?php echo $s_index; ?>][time_range]" 
+                                           value="<?php echo esc_attr(isset($time_slot['time_range']) ? $time_slot['time_range'] : ''); ?>" 
+                                           placeholder="06:00 – 06:30 a.m." 
+                                           style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" />
+                                </div>
+                                <div>
+                                    <label style="font-size: 12px; color: #666; display: block; margin-bottom: 2px;">
+                                        <?php _e('Activity Description', $this->translate); ?>
+                                        <small style="color: #999;">(<?php _e('HTML OK', $this->translate); ?>)</small>
+                                    </label>
+                                    <textarea name="tour_itinerary[<?php echo $index; ?>][schedule][<?php echo $s_index; ?>][activity]" 
+                                              rows="3"
+                                              placeholder="<?php esc_attr_e('Hotel Pickup in Cusco - Departure in <strong>tourist minivan</strong>...', $this->translate); ?>" 
+                                              style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; resize: vertical; font-family: monospace; font-size: 12px;"><?php echo esc_textarea(isset($time_slot['activity']) ? $time_slot['activity'] : ''); ?></textarea>
+                                </div>
+                                <div style="display: flex; align-items: end; height: 100%;">
+                                    <button type="button" class="button button-small remove-schedule-item" style="background: #dc3545; color: white; border: none; width: 100%; height: 30px;">
+                                        <?php _e('Remove', $this->translate); ?>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="schedule-items-<?php echo $index; ?>">
-                                <?php foreach ($schedule as $s_index => $time_slot): ?>
-                                    <div class="schedule-item" style="display: flex; gap: 10px; margin-bottom: 8px; align-items: center;">
-                                        <input type="text" name="tour_itinerary[<?php echo $index; ?>][schedule][<?php echo $s_index; ?>][time]" 
-                                               value="<?php echo esc_attr($time_slot['time']); ?>" 
-                                               placeholder="<?php esc_attr_e('e.g., 08:00', $this->translate); ?>" 
-                                               style="width: 80px;" />
-                                        <input type="text" name="tour_itinerary[<?php echo $index; ?>][schedule][<?php echo $s_index; ?>][activity]" 
-                                               value="<?php echo esc_attr($time_slot['activity']); ?>" 
-                                               placeholder="<?php esc_attr_e('Activity description...', $this->translate); ?>" 
-                                               style="flex: 1;" />
-                                        <button type="button" class="button button-small remove-schedule-item"><?php _e('Remove', $this->translate); ?></button>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
                     </td>
                 </tr>
             </table>
@@ -1619,25 +1695,27 @@ class WPTBT_Tours
             if (isset($_POST['tour_itinerary']) && is_array($_POST['tour_itinerary'])) {
                 $itinerary = [];
                 foreach ($_POST['tour_itinerary'] as $day) {
-                    if (!empty($day['title']) || !empty($day['description'])) {
+                    if (!empty($day['title']) || !empty($day['description']) || !empty($day['date_label'])) {
                         // Procesar horarios si existen
                         $schedule = [];
                         if (isset($day['schedule']) && is_array($day['schedule'])) {
                             foreach ($day['schedule'] as $time_slot) {
-                                if (!empty($time_slot['time']) || !empty($time_slot['activity'])) {
+                                if (!empty($time_slot['time']) || !empty($time_slot['time_range']) || !empty($time_slot['activity'])) {
                                     $schedule[] = [
-                                        'time' => sanitize_text_field($time_slot['time']),
-                                        'activity' => sanitize_text_field($time_slot['activity'])
+                                        'time' => sanitize_text_field($time_slot['time'] ?? ''),
+                                        'time_range' => sanitize_text_field($time_slot['time_range'] ?? ''),
+                                        'activity' => wp_kses_post($time_slot['activity'] ?? '')
                                     ];
                                 }
                             }
                         }
                         
                         $itinerary[] = [
-                            'title' => sanitize_text_field($day['title']),
-                            'description' => sanitize_textarea_field($day['description']),
-                            'meals' => sanitize_text_field($day['meals']),
-                            'accommodation' => sanitize_text_field($day['accommodation']),
+                            'title' => sanitize_text_field($day['title'] ?? ''),
+                            'date_label' => sanitize_text_field($day['date_label'] ?? ''),
+                            'description' => wp_kses_post($day['description'] ?? ''),
+                            'meals' => sanitize_text_field($day['meals'] ?? ''),
+                            'accommodation' => sanitize_text_field($day['accommodation'] ?? ''),
                             'schedule' => $schedule
                         ];
                     }

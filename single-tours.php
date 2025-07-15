@@ -255,40 +255,61 @@ $categories = get_the_terms($tour_id, 'tour-categories');
                                             <span class="text-sm font-medium text-red-600 uppercase tracking-wide mb-2 block">Day by Day</span>
                                             <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6"><?php _e('Detailed Itinerary', 'wptbt-tours'); ?></h2>
                                         </div>
-                                        <div class="space-y-6">
+                                        <div class="space-y-8">
                                             <?php foreach ($itinerary as $index => $day) : ?>
-                                                <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 group">
-                                                    <div class="flex items-center mb-4">
-                                                        <div class="flex-shrink-0 w-12 h-12 bg-red-600 text-white rounded-lg flex items-center justify-center font-bold group-hover:bg-red-700 transition-colors">
-                                                            <?php echo $index + 1; ?>
-                                                        </div>
-                                                        <div class="ml-4">
-                                                            <h3 class="text-xl font-bold text-gray-900">
-                                                                <?php echo esc_html($day['title']); ?>
-                                                            </h3>
+                                                <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300">
+                                                    <!-- Day Header -->
+                                                    <div class="bg-gradient-to-r from-red-600 to-red-700 p-6">
+                                                        <div class="flex items-center justify-between">
+                                                            <div>
+                                                                <h3 class="text-2xl font-bold mb-1">
+                                                                    DAY <?php echo $index + 1; ?>: <?php echo esc_html($day['title'] ?: 'Tour Day ' . ($index + 1)); ?>
+                                                                </h3>
+                                                                <?php if (!empty($day['date_label'] ?? '')) : ?>
+                                                                    <p class="text-red-100 text-lg">
+                                                                        <?php echo esc_html($day['date_label'] ?? ''); ?>
+                                                                    </p>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                            <!--<div class="text-4xl font-bold opacity-80">
+                                                                <?php echo $index + 1; ?>
+                                                            </div>-->
                                                         </div>
                                                     </div>
                                                     
-                                                    <div class="ml-16">
-                                                        <p class="text-gray-700 mb-6">
-                                                            <?php echo esc_html($day['description']); ?>
-                                                        </p>
+                                                    <div class="p-6">
+                                                        <!-- Day Description -->
+                                                        <?php if (!empty($day['description'] ?? '')) : ?>
+                                                            <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                                                                <div class="text-gray-700 leading-relaxed prose prose-sm max-w-none">
+                                                                    <?php echo wp_kses_post($day['description'] ?? ''); ?>
+                                                                </div>
+                                                            </div>
+                                                        <?php endif; ?>
                                                         
-                                                        <!-- Horarios del día -->
+                                                        <!-- Detailed Schedule -->
                                                         <?php if (isset($day['schedule']) && !empty($day['schedule'])) : ?>
-                                                            <div class="mb-6 bg-gray-50 rounded-lg p-4">
-                                                                <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
-                                                                    <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <div class="mb-6">
+                                                                <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                                                    <svg class="w-5 h-5 mr-2 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                                     </svg>
-                                                                    <?php _e('Daily Schedule', 'wptbt-tours'); ?>
+                                                                    <?php _e('Schedule', 'wptbt-tours'); ?>
                                                                 </h4>
-                                                                <div class="space-y-2">
+                                                                <div class="space-y-4">
                                                                     <?php foreach ($day['schedule'] as $time_slot) : ?>
-                                                                        <?php if (!empty($time_slot['time']) || !empty($time_slot['activity'])) : ?>
-                                                                            <div class="flex items-start text-sm">
-                                                                                <span class="font-medium text-red-600 w-20 flex-shrink-0 bg-white px-2 py-1 rounded"><?php echo esc_html($time_slot['time']); ?></span>
-                                                                                <span class="text-gray-700 ml-3"><?php echo esc_html($time_slot['activity']); ?></span>
+                                                                        <?php if (!empty($time_slot['time_range'] ?? '') || !empty($time_slot['time'] ?? '') || !empty($time_slot['activity'] ?? '')) : ?>
+                                                                            <div class="flex gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                                                                <div class="flex-shrink-0">
+                                                                                    <div class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                                                                        <?php echo esc_html(($time_slot['time_range'] ?? '') ?: ($time_slot['time'] ?? '') ?: ''); ?>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="flex-1">
+                                                                                    <div class="text-gray-800 leading-relaxed prose prose-sm max-w-none">
+                                                                                        <?php echo wp_kses_post($time_slot['activity'] ?? ''); ?>
+                                                                                    </div>
+                                                                                </div>
                                                                             </div>
                                                                         <?php endif; ?>
                                                                     <?php endforeach; ?>
@@ -296,27 +317,34 @@ $categories = get_the_terms($tour_id, 'tour-categories');
                                                             </div>
                                                         <?php endif; ?>
                                                         
-                                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                                            <?php if ($day['meals']) : ?>
-                                                                <div class="flex items-center text-gray-600 bg-blue-50 p-3 rounded-lg">
-                                                                    <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                                                    </svg>
-                                                                    <strong><?php _e('Meals:', 'wptbt-tours'); ?></strong>
-                                                                    <span class="ml-1"><?php echo esc_html($day['meals']); ?></span>
-                                                                </div>
-                                                            <?php endif; ?>
-                                                            
-                                                            <?php if ($day['accommodation']) : ?>
-                                                                <div class="flex items-center text-gray-600 bg-purple-50 p-3 rounded-lg">
-                                                                    <svg class="w-4 h-4 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                                                                    </svg>
-                                                                    <strong><?php _e('Stay:', 'wptbt-tours'); ?></strong>
-                                                                    <span class="ml-1"><?php echo esc_html($day['accommodation']); ?></span>
-                                                                </div>
-                                                            <?php endif; ?>
-                                                        </div>
+                                                        <!-- Meals and Accommodation -->
+                                                        <?php if (!empty($day['meals'] ?? '') || !empty($day['accommodation'] ?? '')) : ?>
+                                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                <?php if (!empty($day['meals'] ?? '')) : ?>
+                                                                    <div class="flex items-center text-gray-700 bg-blue-50 p-4 rounded-lg border border-blue-200">
+                                                                        <svg class="w-5 h-5 mr-3 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                                                        </svg>
+                                                                        <div>
+                                                                            <strong class="block text-blue-900"><?php _e('Meals Included:', 'wptbt-tours'); ?></strong>
+                                                                            <span class="text-blue-800"><?php echo esc_html($day['meals'] ?? ''); ?></span>
+                                                                        </div>
+                                                                    </div>
+                                                                <?php endif; ?>
+                                                                
+                                                                <?php if (!empty($day['accommodation'] ?? '')) : ?>
+                                                                    <div class="flex items-center text-gray-700 bg-purple-50 p-4 rounded-lg border border-purple-200">
+                                                                        <svg class="w-5 h-5 mr-3 text-purple-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                                                        </svg>
+                                                                        <div>
+                                                                            <strong class="block text-purple-900"><?php _e('Accommodation:', 'wptbt-tours'); ?></strong>
+                                                                            <span class="text-purple-800"><?php echo esc_html($day['accommodation'] ?? ''); ?></span>
+                                                                        </div>
+                                                                    </div>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        <?php endif; ?>
                                                     </div>
                                                 </div>
                                             <?php endforeach; ?>
