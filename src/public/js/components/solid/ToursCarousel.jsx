@@ -54,22 +54,44 @@ const ToursCarousel = (props) => {
   const [isLoaded, setIsLoaded] = createSignal(false);
   const [toursLoaded, setToursLoaded] = createSignal(0);
   const [hoveredTour, setHoveredTour] = createSignal(null);
+  const [isTransitioning, setIsTransitioning] = createSignal(false);
 
   // Referencias
   let carouselRef;
 
-  // Calcular slides necesarios para efecto infinito
-  const totalSlides = () => Math.ceil(tours.length / slidesToShow);
+  // Lista circular de tours para efecto infinito
+  const [circularTours, setCircularTours] = createSignal([]);
   
-  // Duplicar tours para efecto infinito suave
-  const infiniteTours = () => {
-    if (!infinite || tours.length <= slidesToShow) return tours;
-    return [...tours, ...tours, ...tours]; // Triple para mejor efecto infinito
+  // Inicializar lista circular
+  const initializeCircularTours = () => {
+    if (!infinite || tours.length === 0) return tours;
+    // Duplicar la lista para tener suficientes elementos para el efecto circular
+    const multiplier = Math.max(3, Math.ceil((slidesToShow + 2) / tours.length));
+    const result = [];
+    for (let i = 0; i < multiplier; i++) {
+      result.push(...tours.map((tour, index) => ({
+        ...tour,
+        uniqueId: `${tour.id || index}-${i}` // ID único para evitar conflictos
+      })));
+    }
+    return result;
+  };
+  
+  // Calcular slides totales
+  const totalSlides = () => {
+    if (!infinite) {
+      // En modo no infinito, cada card es un slide individual
+      return Math.max(0, tours.length - slidesToShow + 1);
+    }
+    return tours.length;
   };
 
   // Autoplay
   const startAutoplay = () => {
     if (!isAutoPlaying() || autoplaySpeed <= 0) return;
+    
+    // Limpiar cualquier intervalo previo antes de crear uno nuevo
+    stopAutoplay();
     
     const interval = setInterval(() => {
       if (!isHovering() || !pauseOnHover) {
@@ -87,18 +109,57 @@ const ToursCarousel = (props) => {
     }
   };
 
-  // Navegación
+  // Navegación simplificada - movimiento de 1 card
   const nextSlide = () => {
+    // Prevenir múltiples transiciones simultáneas
+    if (isTransitioning()) return;
+    
     if (infinite) {
-      setCurrentSlide((prev) => (prev + 1) % totalSlides());
+      setIsTransitioning(true);
+      setCurrentSlide((prev) => prev + 1);
+      
+      // Después de la transición, reciclar sin cambiar currentSlide
+      setTimeout(() => {
+        // Verificar nuevamente el estado para evitar condiciones de carrera
+        if (!isTransitioning()) return;
+        
+        const current = circularTours();
+        const newList = [...current];
+        // Mover el primer elemento al final
+        const firstElement = newList.shift();
+        if (firstElement) {
+          newList.push(firstElement);
+          setCircularTours(newList);
+          // Reset la posición para mantener la continuidad visual sin doble movimiento
+          setCurrentSlide(0);
+        }
+        setIsTransitioning(false);
+      }, 500);
     } else {
-      setCurrentSlide((prev) => Math.min(prev + 1, totalSlides() - 1));
+      setCurrentSlide((prev) => Math.min(prev + 1, tours.length - slidesToShow));
     }
   };
 
   const prevSlide = () => {
+    // Prevenir múltiples transiciones simultáneas
+    if (isTransitioning()) return;
+    
     if (infinite) {
-      setCurrentSlide((prev) => (prev - 1 + totalSlides()) % totalSlides());
+      setIsTransitioning(true);
+      
+      // Para ir hacia atrás, mover el último elemento al principio
+      const current = circularTours();
+      const newList = [...current];
+      const lastElement = newList.pop();
+      if (lastElement) {
+        newList.unshift(lastElement);
+        setCircularTours(newList);
+        setCurrentSlide(0); // Reset a posición inicial
+      }
+      
+      setTimeout(() => {
+        setIsTransitioning(false);
+      }, 50);
     } else {
       setCurrentSlide((prev) => Math.max(prev - 1, 0));
     }
@@ -110,10 +171,19 @@ const ToursCarousel = (props) => {
 
   // Efectos
   onMount(() => {
+    // Inicializar tours circulares
+    if (infinite && tours.length > 0) {
+      setCircularTours(initializeCircularTours());
+      setCurrentSlide(0); // Empezar en posición 0 para el efecto infinito
+    } else {
+      setCircularTours(tours);
+    }
+    
     if (tours.length > slidesToShow) {
       startAutoplay();
     }
     setIsLoaded(true);
+    setIsTransitioning(false);
   });
 
   onCleanup(() => {
@@ -123,8 +193,13 @@ const ToursCarousel = (props) => {
   createEffect(() => {
     if (isHovering() && pauseOnHover) {
       stopAutoplay();
-    } else if (!isHovering() && isAutoPlaying()) {
-      startAutoplay();
+    } else if (!isHovering() && isAutoPlaying() && !isTransitioning()) {
+      // Solo reanudar autoplay si no hay una transición en curso
+      setTimeout(() => {
+        if (!isHovering() && !isTransitioning()) {
+          startAutoplay();
+        }
+      }, 100); // Pequeño delay para evitar conflictos
     }
   });
 
@@ -146,22 +221,37 @@ const ToursCarousel = (props) => {
 
   // Estilo de transformación para el carousel
   const getCarouselTransform = () => {
+    // Ancho de un solo card (no del grupo completo)
+    const singleCardWidth = 100 / slidesToShow;
+    
+    if (!infinite) {
+      const translateValue = animationDirection === "left" 
+        ? -currentSlide() * singleCardWidth
+        : currentSlide() * singleCardWidth;
+      
+      return {
+        transform: `translateX(${translateValue}%)`,
+        transition: "transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+      };
+    }
+    
+    // Para efecto infinito - mover un card a la vez
     const translateValue = animationDirection === "left" 
-      ? -currentSlide() * (100 / slidesToShow)
-      : currentSlide() * (100 / slidesToShow);
+      ? -currentSlide() * singleCardWidth
+      : currentSlide() * singleCardWidth;
     
     return {
       transform: `translateX(${translateValue}%)`,
-      transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+      transition: isTransitioning() ? "transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)" : "none",
     };
   };
 
   // Calcular slides visibles responsivos
   const getResponsiveSlidesToShow = () => {
-    const maxSlides = Math.min(slidesToShow, 4); // Máximo 4 para mejor visualización
+    const maxSlides = slidesToShow; // Respeta la configuración del usuario
     return {
       small: Math.min(maxSlides, 1), // 1 en móvil
-      medium: Math.min(maxSlides, 2), // 2 en tablet
+      medium: Math.min(maxSlides, 3), // 3 en tablet
       large: maxSlides, // Completo en desktop
     };
   };
@@ -287,12 +377,14 @@ const ToursCarousel = (props) => {
                 style={getCarouselTransform()}
                 ref={carouselRef}
               >
-                <For each={infiniteTours()}>
+                <For each={circularTours()}>
                   {(tour, index) => (
                     <article
                       class={`tour-card flex-shrink-0 px-3 transition-all duration-500`}
                       style={{
                         width: `${100 / slidesToShow}%`,
+                        "min-width": `${100 / slidesToShow}%`,
+                        "flex-shrink": "0",
                         transform: hoveredTour() === index() ? "translateY(-8px)" : "translateY(0)",
                       }}
                       onMouseEnter={() => setHoveredTour(index())}
@@ -391,8 +483,8 @@ const ToursCarousel = (props) => {
               </div>
             </div>
 
-            {/* Indicadores (dots) */}
-            <Show when={showDots && tours.length > slidesToShow}>
+            {/* Indicadores (dots) - Solo para modo no infinito */}
+            <Show when={showDots && !infinite && tours.length > slidesToShow}>
               <div class="carousel-dots flex justify-center space-x-2 mt-6">
                 <For each={Array(totalSlides()).fill().map((_, i) => i)}>
                   {(dotIndex) => (
