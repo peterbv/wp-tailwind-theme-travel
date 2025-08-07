@@ -24,15 +24,35 @@ import {
     const [mapLibrary, setMapLibrary] = createSignal(null);
   
     // Propiedades con valores por defecto - usando createMemo para derivar valores
-    const config = createMemo(() => ({
-      title: props.title || __("Find Us", "wp-tailwind-blocks"),
-      subtitle: props.subtitle || __("Our Location", "wp-tailwind-blocks"),
-      description: props.description ||
-        __("Visit us to experience our services in person", "wp-tailwind-blocks"),
-      mainLocation: {
-        lat: props.mainLocation?.lat || -13.53168,
-        lng: props.mainLocation?.lng || -71.96741,
-        title: props.mainLocation?.title || "Mystical Terra Spa",
+    const config = createMemo(() => {
+      console.log('Props mainLocation:', props.mainLocation);
+      
+      // Validar y corregir coordenadas
+      let lat = parseFloat(props.mainLocation?.lat);
+      let lng = parseFloat(props.mainLocation?.lng);
+      
+      // Validar que las coordenadas estén en rangos válidos
+      if (isNaN(lat) || lat < -90 || lat > 90) {
+        console.warn('Latitud inválida:', lat, 'usando valor por defecto');
+        lat = -13.53168;
+      }
+      
+      if (isNaN(lng) || lng < -180 || lng > 180) {
+        console.warn('Longitud inválida:', lng, 'usando valor por defecto');
+        lng = -71.96741;
+      }
+      
+      console.log('Parsed coordinates:', { lat, lng });
+      
+      return {
+        title: props.title || __("Find Us", "wp-tailwind-blocks"),
+        subtitle: props.subtitle || __("Our Location", "wp-tailwind-blocks"),
+        description: props.description ||
+          __("Visit us to experience our services in person", "wp-tailwind-blocks"),
+        mainLocation: {
+          lat: lat,
+          lng: lng,
+          title: props.mainLocation?.title || "Mystical Terra Spa",
         address: props.mainLocation?.address || "Calle Principal 123, Cusco, Perú",
         description: props.mainLocation?.description || "Our main spa location",
         // Nuevas propiedades SEO (opcionales)
@@ -44,7 +64,7 @@ import {
         email: props.mainLocation?.email || "info@mysticalterraspa.com",
         website: props.mainLocation?.website || "https://mysticalterraspa.com",
         openingHours: props.mainLocation?.openingHours || ["Mo-Su 09:00-20:00"],
-      },
+        },
       pointsOfInterest: Array.isArray(props.pointsOfInterest) ? props.pointsOfInterest : [],
       zoom: props.zoom || 14,
       mapHeight: props.mapHeight || 500,
@@ -73,7 +93,10 @@ import {
       reviews: props.reviews || [],
       amenities: props.amenities || [],
       languages: props.languages || ["es", "en"],
-    }));
+      // NUEVO: Contexto del mapa (tour vs default)
+      mapContext: props.mapContext || 'default',
+      };
+    });
   
     // Estados originales (sin cambios)
     const [map, setMap] = createSignal(null);
@@ -254,7 +277,11 @@ import {
     };
 
     const loadLeaflet = async () => {
-      if (window.L) return Promise.resolve();
+      // Verificar si Leaflet ya está completamente cargado
+      if (window.L && typeof window.L.map === 'function' && window.L.tileLayer && window.L.marker) {
+        console.log("Leaflet ya está cargado y disponible");
+        return Promise.resolve();
+      }
 
       try {
         if (!document.querySelector('link[href*="leaflet.css"]')) {
@@ -276,7 +303,25 @@ import {
           
           script.onload = () => {
             clearTimeout(scriptTimeout);
-            resolve();
+            
+            // Esperar a que Leaflet esté completamente disponible
+            let checkAttempts = 0;
+            const maxAttempts = 100; // máximo 5 segundos (100 * 50ms)
+            
+            const checkLeaflet = () => {
+              checkAttempts++;
+              if (window.L && typeof window.L.map === 'function' && window.L.tileLayer && window.L.marker) {
+                console.log("Leaflet cargado exitosamente con todas sus funciones");
+                resolve();
+              } else if (checkAttempts >= maxAttempts) {
+                reject(new Error("Timeout esperando a que Leaflet esté completamente disponible"));
+              } else {
+                console.log(`Esperando a que Leaflet esté completamente disponible... intento ${checkAttempts}`);
+                setTimeout(checkLeaflet, 50);
+              }
+            };
+            
+            checkLeaflet();
           };
           
           script.onerror = () => {
@@ -467,11 +512,16 @@ import {
     const initializeLeafletMap = () => {
       return new Promise((resolve, reject) => {
         try {
-          if (!window.L) {
-            throw new Error("Leaflet no está cargado correctamente");
+          if (!window.L || typeof window.L.map !== 'function') {
+            throw new Error("Leaflet no está cargado correctamente o L.map no está disponible");
           }
           
           const L = window.L;
+          
+          // Verificar que las funciones esenciales de Leaflet estén disponibles
+          if (!L.map || !L.tileLayer || !L.marker || !L.divIcon) {
+            throw new Error("Algunas funciones esenciales de Leaflet no están disponibles");
+          }
         
           if (!mapContainer) {
             throw new Error("El contenedor del mapa no está disponible");
@@ -481,10 +531,22 @@ import {
           console.log("Coordenadas:", config().mainLocation.lat, config().mainLocation.lng);
           
           try {
+            if(mapContainer) {
+              console.log('container existe:', mapContainer);
+            }else{
+              console.log('no existe container');
+            }
+            console.log("Inicializando mapa Leaflet...", {
+              center: [config().mainLocation.lat, config().mainLocation.lng],
+              zoom: config().zoom,
+              zoomControl: config().enableZoomControls,
+            });
             const mapInstance = L.map(mapContainer, {
               center: [config().mainLocation.lat, config().mainLocation.lng],
               zoom: config().zoom,
               zoomControl: config().enableZoomControls,
+              maxZoom: 19,
+              minZoom: 1
             });
             
             let tileLayer;
@@ -495,6 +557,8 @@ import {
                   {
                     attribution:
                       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                    maxZoom: 19,
+                    minZoom: 1
                   }
                 );
                 break;
@@ -504,6 +568,8 @@ import {
                   {
                     attribution:
                       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                    maxZoom: 19,
+                    minZoom: 1
                   }
                 );
                 break;
@@ -513,6 +579,8 @@ import {
                   {
                     attribution:
                       "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
+                    maxZoom: 18,
+                    minZoom: 1
                   }
                 );
                 break;
@@ -522,6 +590,8 @@ import {
                   {
                     attribution:
                       'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+                    maxZoom: 17,
+                    minZoom: 1
                   }
                 );
                 break;
@@ -531,11 +601,27 @@ import {
                   {
                     attribution:
                       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                    maxZoom: 19,
+                    minZoom: 1
                   }
                 );
             }
-          
-            tileLayer.addTo(mapInstance);
+
+            // Verificar que el tileLayer y mapInstance estén listos antes de agregar
+            if (tileLayer && mapInstance) {
+              console.log('Agregando tileLayer al mapa...');
+              // Usar setTimeout para evitar bloqueos en el hilo principal
+              setTimeout(() => {
+                try {
+                  tileLayer.addTo(mapInstance);
+                  console.log('TileLayer agregado exitosamente');
+                } catch (tileError) {
+                  console.error('Error agregando tileLayer:', tileError);
+                }
+              }, 50);
+            } else {
+              console.error('TileLayer o mapInstance no están disponibles:', { tileLayer, mapInstance });
+            }
           
             const mainIcon = L.divIcon({
               html: `
@@ -1104,7 +1190,7 @@ import {
       initializeMap();
     };
 
-    // onMount original con pequeños ajustes SEO
+    // onMount con manejo especial para mapas en tabs
     onMount(() => {
       const handleFullscreenChange = () => {
         setIsFullscreen(
@@ -1126,9 +1212,51 @@ import {
       document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
       document.addEventListener("msfullscreenchange", handleFullscreenChange);
 
+      // Configurar observer para detectar cuando el contenedor se vuelve visible
+      const resizeObserver = new ResizeObserver((entries) => {
+        for (let entry of entries) {
+          if (entry.target === mapContainer && map()) {
+            console.log("Contenedor del mapa redimensionado, actualizando mapa");
+            setTimeout(() => {
+              if (config().mapProvider === "google" && map()) {
+                window.google.maps.event.trigger(map(), 'resize');
+              } else if (map()) {
+                map().invalidateSize(true);
+              }
+            }, 100);
+          }
+        }
+      });
+
+      // Observer para detectar cambios de visibilidad
+      const intersectionObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && entry.target === mapContainer && map()) {
+            console.log("Contenedor del mapa se volvió visible, actualizando mapa");
+            setTimeout(() => {
+              if (config().mapProvider === "google" && map()) {
+                window.google.maps.event.trigger(map(), 'resize');
+              } else if (map()) {
+                map().invalidateSize(true);
+              }
+            }, 200);
+          }
+        });
+      }, { threshold: 0.1 });
+
       setIsMobile(window.innerWidth < 768);
       console.log("Componente montado, inicializando mapa");
-      initializeMap();
+      
+      // Pequeño retraso para asegurar que el DOM esté completamente listo
+      setTimeout(() => {
+        initializeMap();
+        
+        // Configurar observers después de inicializar el mapa
+        if (mapContainer) {
+          resizeObserver.observe(mapContainer);
+          intersectionObserver.observe(mapContainer);
+        }
+      }, 100);
 
       onCleanup(() => {
         console.log("Limpiando recursos del componente de mapa");
@@ -1136,6 +1264,17 @@ import {
         document.removeEventListener("mozfullscreenchange", handleFullscreenChange);
         document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
         document.removeEventListener("msfullscreenchange", handleFullscreenChange);
+
+        // Limpiar observers
+        if (resizeObserver && mapContainer) {
+          resizeObserver.unobserve(mapContainer);
+          resizeObserver.disconnect();
+        }
+        
+        if (intersectionObserver && mapContainer) {
+          intersectionObserver.unobserve(mapContainer);
+          intersectionObserver.disconnect();
+        }
 
         if (mapContainer && mapContainer._resizeHandler) {
           window.removeEventListener("resize", mapContainer._resizeHandler);
@@ -1281,43 +1420,45 @@ import {
           </div>
         </Show>
 
-        {/* Encabezado de la sección (sin cambios visuales) */}
-        <div class="container mx-auto px-4 relative">
-          <div class="text-center mb-12 relative">
-            <Show when={config().subtitle}>
-              <span
-                class="block text-lg italic font-medium mb-2"
-                style={{ color: config().accentColor }}
-              >
-                {config().subtitle}
-              </span>
-            </Show>
-
-            <Show when={config().title}>
-              <div class="relative inline-block">
-                <h2 class="text-3xl md:text-4xl lg:text-5xl fancy-text font-medium mb-4">
-                  {config().title}
-                </h2>
-                <div
-                  class="absolute -bottom-2 left-1/2 w-24 h-0.5 transform -translate-x-1/2"
-                  style={{ "background-color": config().accentColor }}
-                  aria-hidden="true"
+        {/* Encabezado de la sección - solo mostrar cuando NO es contexto de tour */}
+        <Show when={config().mapContext !== 'tour'}>
+          <div class="container mx-auto px-4 relative">
+            <div class="text-center mb-12 relative">
+              <Show when={config().subtitle}>
+                <span
+                  class="block text-lg italic font-medium mb-2"
+                  style={{ color: config().accentColor }}
                 >
-                  <div
-                    class="absolute left-1/2 top-1/2 w-2 h-2 rounded-full -translate-x-1/2 -translate-y-1/2"
-                    style={{ "background-color": config().accentColor }}
-                  ></div>
-                </div>
-              </div>
-            </Show>
+                  {config().subtitle}
+                </span>
+              </Show>
 
-            <Show when={config().description}>
-              <p class="text-xl md:text-2xl fancy-text font-light mt-8 max-w-2xl mx-auto italic opacity-80">
-                {config().description}
-              </p>
-            </Show>
+              <Show when={config().title}>
+                <div class="relative inline-block">
+                  <h2 class="text-3xl md:text-4xl lg:text-5xl fancy-text font-medium mb-4">
+                    {config().title}
+                  </h2>
+                  <div
+                    class="absolute -bottom-2 left-1/2 w-24 h-0.5 transform -translate-x-1/2"
+                    style={{ "background-color": config().accentColor }}
+                    aria-hidden="true"
+                  >
+                    <div
+                      class="absolute left-1/2 top-1/2 w-2 h-2 rounded-full -translate-x-1/2 -translate-y-1/2"
+                      style={{ "background-color": config().accentColor }}
+                    ></div>
+                  </div>
+                </div>
+              </Show>
+
+              <Show when={config().description}>
+                <p class="text-xl md:text-2xl fancy-text font-light mt-8 max-w-2xl mx-auto italic opacity-80">
+                  {config().description}
+                </p>
+              </Show>
+            </div>
           </div>
-        </div>
+        </Show>
 
         {/* Contenedor del mapa (sin cambios visuales) */}
         <div class="map-wrapper relative mx-auto w-full px-4 relative">

@@ -87,11 +87,11 @@ function initInteractiveMap() {
             console.warn("Error al parsear mainLocation, usando valores fallback", e);
           }
         }
+        
+        
       } catch (error) {
         console.warn("Error al parsear datos JSON:", error);
         // Mostrar mensaje de depuración con los datos que se intentaron analizar
-        console.debug("pointsOfInterest raw data:", container.dataset.pointsOfInterest);
-        console.debug("mainLocation raw data:", container.dataset.mainLocation);
       }
 
       // Configurar props para el componente con validación de tipos
@@ -120,6 +120,7 @@ function initInteractiveMap() {
         phone: container.dataset.phone || "",
         email: container.dataset.email || "",
         bookingUrl: container.dataset.bookingUrl || "#booking",
+        mapContext: container.dataset.mapContext || "default",
       };
 
       console.log("Inicializando mapa con propiedades:", props);

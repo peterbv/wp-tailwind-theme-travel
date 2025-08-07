@@ -8,6 +8,7 @@ class WPTBT_Tours
 {
     private $translate = 'wptbt-tours';
     private $site_slugs = [];
+    private $destination_slugs = [];
 
     public function __construct()
     {
@@ -27,10 +28,26 @@ class WPTBT_Tours
         add_filter('manage_tours_posts_columns', [$this, 'add_admin_columns']);
         add_action('manage_tours_posts_custom_column', [$this, 'show_admin_columns'], 10, 2);
         
+        // Soporte para imagen destacada en taxonomías
+        add_action('destinations_add_form_fields', [$this, 'add_destination_image_field']);
+        add_action('destinations_edit_form_fields', [$this, 'edit_destination_image_field']);
+        add_action('edited_destinations', [$this, 'save_destination_image'], 10, 2);
+        add_action('create_destinations', [$this, 'save_destination_image'], 10, 2);
+        add_filter('manage_edit-destinations_columns', [$this, 'add_destination_columns']);
+        add_filter('manage_destinations_custom_column', [$this, 'add_destination_column_content'], 10, 3);
+        
+        
         $this->site_slugs = [
             1 => 'tours',     // Inglés
             2 => 'tours',     // Español  
             3 => 'tours',     // Portugués
+        ];
+        
+        // Slugs para taxonomía destinations
+        $this->destination_slugs = [
+            1 => 'destination',   // Inglés
+            2 => 'destino',       // Español
+            3 => 'destino',       // Portugués
         ];
     }
 
@@ -41,6 +58,15 @@ class WPTBT_Tours
             return $this->site_slugs[$blog_id];
         }
         return 'tours';
+    }
+    
+    private function get_destination_slug()
+    {
+        $blog_id = get_current_blog_id();
+        if (isset($this->destination_slugs[$blog_id])) {
+            return $this->destination_slugs[$blog_id];
+        }
+        return 'destination';
     }
 
     public function register_post_type()
@@ -105,7 +131,10 @@ class WPTBT_Tours
             'show_ui'           => true,
             'show_admin_column' => true,
             'query_var'         => true,
-            'rewrite'           => ['slug' => 'destino'],
+            'rewrite'           => [
+                'slug' => $this->get_destination_slug(),
+                'with_front' => false
+            ],
             'show_in_rest'      => true,
         ]);
     }
@@ -128,7 +157,10 @@ class WPTBT_Tours
             'show_ui'           => true,
             'show_admin_column' => true,
             'query_var'         => true,
-            'rewrite'           => ['slug' => 'categoria-tour'],
+            'rewrite'           => [
+                'slug' => 'categoria-tour',
+                'with_front' => false
+            ],
             'show_in_rest'      => true,
         ]);
     }
@@ -142,6 +174,14 @@ class WPTBT_Tours
                 wp_enqueue_script('jquery-ui-sortable');
                 wp_enqueue_script('jquery-ui-datepicker');
                 wp_enqueue_style('jquery-ui', 'https://code.jquery.com/ui/1.12.1/themes/ui-lightness/jquery-ui.css');
+            }
+        }
+        
+        // Enqueue media scripts for destinations taxonomy pages
+        if ('term.php' == $hook || 'edit-tags.php' == $hook) {
+            $screen = get_current_screen();
+            if ($screen && $screen->taxonomy == 'destinations') {
+                wp_enqueue_media();
             }
         }
     }
@@ -178,15 +218,6 @@ class WPTBT_Tours
             'default'
         );
 
-        // NUEVA: Ubicación y mapas (mantener en sidebar)
-        add_meta_box(
-            'wptbt_tour_location',
-            __('📍 Location & Maps', $this->translate),
-            [$this, 'render_location_meta_box'],
-            'tours',
-            'side',
-            'high'
-        );
     }
 
     /**
@@ -818,6 +849,37 @@ class WPTBT_Tours
                 $(document).on('click', '.remove-schedule-item', function() {
                     $(this).closest('.schedule-item').remove();
                 });
+                
+                // Manejar ubicaciones
+                $(document).on('click', '.add-location-item', function() {
+                    var dayIndex = $(this).data('day');
+                    var container = $('.locations-items-' + dayIndex);
+                    var itemCount = container.find('.location-item').length;
+                    
+                    var newItem = '<div class="location-item" style="display: grid; grid-template-columns: 1fr 120px 120px 80px; gap: 10px; margin-bottom: 10px; align-items: end; padding: 10px; background: white; border-radius: 6px; border: 1px solid #e0e0e0;">' +
+                        '<div>' +
+                            '<label style="font-size: 12px; color: #666; display: block; margin-bottom: 2px;"><?php _e('Location Name', $this->translate); ?></label>' +
+                            '<input type="text" name="tour_itinerary[' + dayIndex + '][locations][' + itemCount + '][name]" placeholder="<?php esc_attr_e('e.g., Pisac Market', $this->translate); ?>" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" />' +
+                        '</div>' +
+                        '<div>' +
+                            '<label style="font-size: 12px; color: #666; display: block; margin-bottom: 2px;"><?php _e('Latitude', $this->translate); ?></label>' +
+                            '<input type="number" name="tour_itinerary[' + dayIndex + '][locations][' + itemCount + '][lat]" placeholder="-13.53168" step="any" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" />' +
+                        '</div>' +
+                        '<div>' +
+                            '<label style="font-size: 12px; color: #666; display: block; margin-bottom: 2px;"><?php _e('Longitude', $this->translate); ?></label>' +
+                            '<input type="number" name="tour_itinerary[' + dayIndex + '][locations][' + itemCount + '][lng]" placeholder="-71.96741" step="any" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" />' +
+                        '</div>' +
+                        '<div>' +
+                            '<button type="button" class="button button-small remove-location-item" style="background: #dc3545; color: white; border: none; width: 100%; height: 30px;"><?php _e('Remove', $this->translate); ?></button>' +
+                        '</div>' +
+                        '</div>';
+                    
+                    container.append(newItem);
+                });
+                
+                $(document).on('click', '.remove-location-item', function() {
+                    $(this).closest('.location-item').remove();
+                });
 
                 function updateDayNumbers() {
                     $('.itinerary-day').each(function(index) {
@@ -918,6 +980,63 @@ class WPTBT_Tours
                 </div>
             </div>
             
+            <!-- Sección de ubicaciones/paradas del día -->
+            <div style="background: #f0f8ff; border: 1px solid #0073aa; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <label style="font-weight: 600; color: #0073aa; font-size: 16px;">
+                        📍 <?php _e('Locations & Route:', $this->translate); ?>
+                    </label>
+                    <button type="button" class="button button-primary button-small add-location-item" data-day="<?php echo $index; ?>">
+                        <?php _e('Add Location', $this->translate); ?>
+                    </button>
+                </div>
+                <div class="locations-items-<?php echo $index; ?>">
+                    <?php 
+                    $locations = isset($day['locations']) && is_array($day['locations']) ? $day['locations'] : [];
+                    if (empty($locations)): ?>
+                        <p style="text-align: center; color: #666; margin: 20px 0; font-style: italic;">
+                            <?php _e('No locations added yet. Add locations to show the route on the interactive map.', $this->translate); ?>
+                        </p>
+                    <?php else: ?>
+                        <?php foreach ($locations as $l_index => $location): ?>
+                            <div class="location-item" style="display: grid; grid-template-columns: 1fr 120px 120px 80px; gap: 10px; margin-bottom: 10px; align-items: end; padding: 10px; background: white; border-radius: 6px; border: 1px solid #e0e0e0;">
+                                <div>
+                                    <label style="font-size: 12px; color: #666; display: block; margin-bottom: 2px;"><?php _e('Location Name', $this->translate); ?></label>
+                                    <input type="text" name="tour_itinerary[<?php echo $index; ?>][locations][<?php echo $l_index; ?>][name]" 
+                                           value="<?php echo esc_attr(isset($location['name']) ? $location['name'] : ''); ?>" 
+                                           placeholder="<?php esc_attr_e('e.g., Pisac Market', $this->translate); ?>" 
+                                           style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" />
+                                </div>
+                                <div>
+                                    <label style="font-size: 12px; color: #666; display: block; margin-bottom: 2px;"><?php _e('Latitude', $this->translate); ?></label>
+                                    <input type="number" name="tour_itinerary[<?php echo $index; ?>][locations][<?php echo $l_index; ?>][lat]" 
+                                           value="<?php echo esc_attr(isset($location['lat']) ? $location['lat'] : ''); ?>" 
+                                           placeholder="-13.53168" 
+                                           step="any"
+                                           style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" />
+                                </div>
+                                <div>
+                                    <label style="font-size: 12px; color: #666; display: block; margin-bottom: 2px;"><?php _e('Longitude', $this->translate); ?></label>
+                                    <input type="number" name="tour_itinerary[<?php echo $index; ?>][locations][<?php echo $l_index; ?>][lng]" 
+                                           value="<?php echo esc_attr(isset($location['lng']) ? $location['lng'] : ''); ?>" 
+                                           placeholder="-71.96741" 
+                                           step="any"
+                                           style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" />
+                                </div>
+                                <div>
+                                    <button type="button" class="button button-small remove-location-item" style="background: #dc3545; color: white; border: none; width: 100%; height: 30px;">
+                                        <?php _e('Remove', $this->translate); ?>
+                                    </button>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+                <p style="margin: 10px 0 0 0; font-size: 12px; color: #666;">
+                    💡 <?php _e('Tip: Add the main locations/stops for this day. These will appear as markers on the interactive map showing the tour route.', $this->translate); ?>
+                </p>
+            </div>
+            
             <div style="background: #f8f9fa; border-radius: 8px; padding: 15px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <label style="font-weight: 600; color: #333; font-size: 16px;">
@@ -990,32 +1109,30 @@ class WPTBT_Tours
         $google_maps_url = get_post_meta($post->ID, '_tour_google_maps_url', true);
         ?>
         
-        <table class="form-table">
-            <tr>
-                <th><label for="tour_departure_point"><?php _e('Departure Point:', $this->translate); ?></label></th>
-                <td><input type="text" id="tour_departure_point" name="tour_departure_point" value="<?php echo esc_attr($departure_point); ?>" style="width: 100%;" placeholder="<?php esc_attr_e('Hotel pickup / Meeting point', $this->translate); ?>" /></td>
-            </tr>
-            <tr>
-                <th><label for="tour_return_point"><?php _e('Return Point:', $this->translate); ?></label></th>
-                <td><input type="text" id="tour_return_point" name="tour_return_point" value="<?php echo esc_attr($return_point); ?>" style="width: 100%;" placeholder="<?php esc_attr_e('Same as departure / City center', $this->translate); ?>" /></td>
-            </tr>
-            <tr>
-                <th><label for="tour_google_maps_url"><?php _e('Google Maps URL:', $this->translate); ?></label></th>
-                <td><input type="url" id="tour_google_maps_url" name="tour_google_maps_url" value="<?php echo esc_attr($google_maps_url); ?>" style="width: 100%;" placeholder="https://maps.google.com/..." /></td>
-            </tr>
-        </table>
+        <div style="margin-bottom: 15px;">
+            <div>
+                <div><label for="tour_departure_point"><?php _e('Departure Point:', $this->translate); ?></label></div>
+                <div><input type="text" id="tour_departure_point" name="tour_departure_point" value="<?php echo esc_attr($departure_point); ?>" style="width: 100%;" placeholder="<?php esc_attr_e('Hotel pickup / Meeting point', $this->translate); ?>" /></div>
+            </div>
+            <div>
+                <div><label for="tour_return_point"><?php _e('Return Point:', $this->translate); ?></label></div>
+                <div><input type="text" id="tour_return_point" name="tour_return_point" value="<?php echo esc_attr($return_point); ?>" style="width: 100%;" placeholder="<?php esc_attr_e('Same as departure / City center', $this->translate); ?>" /></div>
+            </div>
+            <div>
+                <div><label for="tour_google_maps_url"><?php _e('Google Maps URL:', $this->translate); ?></label></div>
+                <div><input type="url" id="tour_google_maps_url" name="tour_google_maps_url" value="<?php echo esc_attr($google_maps_url); ?>" style="width: 100%;" placeholder="https://maps.google.com/..." /></div>
+            </div>
+        </div>
         
         <div style="margin-top: 20px;">
             <h4><?php _e('Coordinates (Optional)', $this->translate); ?></h4>
-            <div style="display: flex; gap: 10px;">
-                <div style="flex: 1;">
-                    <label for="tour_latitude"><?php _e('Latitude:', $this->translate); ?></label>
-                    <input type="number" id="tour_latitude" name="tour_latitude" value="<?php echo esc_attr($latitude); ?>" step="any" style="width: 100%;" placeholder="-13.531950" />
-                </div>
-                <div style="flex: 1;">
-                    <label for="tour_longitude"><?php _e('Longitude:', $this->translate); ?></label>
-                    <input type="number" id="tour_longitude" name="tour_longitude" value="<?php echo esc_attr($longitude); ?>" step="any" style="width: 100%;" placeholder="-71.967463" />
-                </div>
+            <div style="margin-bottom: 15px;">
+                <label for="tour_latitude" style="display: block; margin-bottom: 5px; font-weight: 500;"><?php _e('Latitude:', $this->translate); ?></label>
+                <input type="number" id="tour_latitude" name="tour_latitude" value="<?php echo esc_attr($latitude); ?>" step="any" style="width: 100%;" placeholder="-13.531950" />
+            </div>
+            <div>
+                <label for="tour_longitude" style="display: block; margin-bottom: 5px; font-weight: 500;"><?php _e('Longitude:', $this->translate); ?></label>
+                <input type="number" id="tour_longitude" name="tour_longitude" value="<?php echo esc_attr($longitude); ?>" step="any" style="width: 100%;" placeholder="-71.967463" />
             </div>
         </div>
         <?php
@@ -1287,81 +1404,260 @@ class WPTBT_Tours
         $includes = get_post_meta($post->ID, '_tour_includes', true);
         $excludes = get_post_meta($post->ID, '_tour_excludes', true);
         
-        // Asegurar que includes y excludes sean arrays
+        // Nuevos campos para información técnica
+        $total_duration = get_post_meta($post->ID, '_tour_total_duration', true);
+        $alternative_route = get_post_meta($post->ID, '_tour_alternative_route', true);
+        $altitude_points = get_post_meta($post->ID, '_tour_altitude_points', true);
+        $technical_description = get_post_meta($post->ID, '_tour_technical_description', true);
+        
+        // Asegurar que includes, excludes y altitude_points sean arrays
         if (!is_array($includes)) $includes = [];
         if (!is_array($excludes)) $excludes = [];
+        if (!is_array($altitude_points)) $altitude_points = [];
         ?>
-        <table class="form-table">
-            <tr>
-                <th><label for="tour_difficulty"><?php _e('Difficulty Level:', $this->translate); ?></label></th>
-                <td>
-                    <select id="tour_difficulty" name="tour_difficulty">
-                        <option value=""><?php _e('Select...', $this->translate); ?></option>
-                        <option value="easy" <?php selected($difficulty, 'easy'); ?>><?php _e('Easy', $this->translate); ?></option>
-                        <option value="moderate" <?php selected($difficulty, 'moderate'); ?>><?php _e('Moderate', $this->translate); ?></option>
-                        <option value="challenging" <?php selected($difficulty, 'challenging'); ?>><?php _e('Challenging', $this->translate); ?></option>
-                        <option value="extreme" <?php selected($difficulty, 'extreme'); ?>><?php _e('Extreme', $this->translate); ?></option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <th><label for="tour_min_age"><?php _e('Minimum Age:', $this->translate); ?></label></th>
-                <td><input type="number" id="tour_min_age" name="tour_min_age" value="<?php echo esc_attr($min_age); ?>" min="0" /></td>
-            </tr>
-            <tr>
-                <th><label for="tour_max_people"><?php _e('Maximum People:', $this->translate); ?></label></th>
-                <td><input type="number" id="tour_max_people" name="tour_max_people" value="<?php echo esc_attr($max_people); ?>" min="1" /></td>
-            </tr>
-            <tr>
-                <th style="vertical-align: top; padding-top: 15px;"><label><?php _e('Includes:', $this->translate); ?></label></th>
-                <td>
-                    <div class="includes-container" style="border: 1px solid #ddd; border-radius: 4px; padding: 10px; background: white;">
-                        <div style="margin-bottom: 10px;">
-                            <button type="button" class="button button-small add-include-item">
-                                <?php _e('Add Item', $this->translate); ?>
-                            </button>
-                        </div>
-                        <div class="includes-list">
-                            <?php foreach ($includes as $index => $item): ?>
-                                <div class="include-item" style="display: flex; gap: 10px; margin-bottom: 8px; align-items: center;">
-                                    <input type="text" name="tour_includes[<?php echo $index; ?>]" 
-                                           value="<?php echo esc_attr($item); ?>" 
-                                           placeholder="<?php esc_attr_e('e.g., Professional guide', $this->translate); ?>" 
-                                           style="flex: 1;" />
-                                    <button type="button" class="button button-small remove-include-item"><?php _e('Remove', $this->translate); ?></button>
+        <div class="wptbt-tour-details-tabs">
+            <!-- Navegación de pestañas -->
+            <div class="wptbt-details-tabs-nav" style="margin-bottom: 20px; border-bottom: 1px solid #ddd;">
+                <button type="button" class="wptbt-details-tab-btn active" data-tab="basic-info" style="padding: 10px 15px; margin-right: 10px; background: #0073aa; color: white; border: none; cursor: pointer;">
+                    <?php _e('Basic Info', $this->translate); ?>
+                </button>
+                <button type="button" class="wptbt-details-tab-btn" data-tab="technical-info" style="padding: 10px 15px; margin-right: 10px; background: #f1f1f1; color: #333; border: none; cursor: pointer;">
+                    <?php _e('Technical Info', $this->translate); ?>
+                </button>
+                <button type="button" class="wptbt-details-tab-btn" data-tab="altitude-points" style="padding: 10px 15px; background: #f1f1f1; color: #333; border: none; cursor: pointer;">
+                    <?php _e('Altitude Points', $this->translate); ?>
+                </button>
+            </div>
+
+            <!-- Pestaña: Basic Info -->
+            <div class="wptbt-details-tab-content active" id="details-tab-basic-info">
+                <table class="form-table">
+                    <tr>
+                        <th><label for="tour_difficulty"><?php _e('Difficulty Level:', $this->translate); ?></label></th>
+                        <td>
+                            <select id="tour_difficulty" name="tour_difficulty">
+                                <option value=""><?php _e('Select...', $this->translate); ?></option>
+                                <option value="easy" <?php selected($difficulty, 'easy'); ?>><?php _e('Easy', $this->translate); ?></option>
+                                <option value="moderate" <?php selected($difficulty, 'moderate'); ?>><?php _e('Moderate', $this->translate); ?></option>
+                                <option value="moderate-high" <?php selected($difficulty, 'moderate-high'); ?>><?php _e('Moderate - High', $this->translate); ?></option>
+                                <option value="challenging" <?php selected($difficulty, 'challenging'); ?>><?php _e('Challenging', $this->translate); ?></option>
+                                <option value="extreme" <?php selected($difficulty, 'extreme'); ?>><?php _e('Extreme', $this->translate); ?></option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="tour_min_age"><?php _e('Minimum Age:', $this->translate); ?></label></th>
+                        <td><input type="number" id="tour_min_age" name="tour_min_age" value="<?php echo esc_attr($min_age); ?>" min="0" /></td>
+                    </tr>
+                    <tr>
+                        <th><label for="tour_max_people"><?php _e('Maximum People:', $this->translate); ?></label></th>
+                        <td><input type="number" id="tour_max_people" name="tour_max_people" value="<?php echo esc_attr($max_people); ?>" min="1" /></td>
+                    </tr>
+                    <tr>
+                        <th style="vertical-align: top; padding-top: 15px;"><label><?php _e('Includes:', $this->translate); ?></label></th>
+                        <td>
+                            <div class="includes-container" style="border: 1px solid #ddd; border-radius: 4px; padding: 10px; background: white;">
+                                <div style="margin-bottom: 10px;">
+                                    <button type="button" class="button button-small add-include-item">
+                                        <?php _e('Add Item', $this->translate); ?>
+                                    </button>
                                 </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <th style="vertical-align: top; padding-top: 15px;"><label><?php _e('Does not include:', $this->translate); ?></label></th>
-                <td>
-                    <div class="excludes-container" style="border: 1px solid #ddd; border-radius: 4px; padding: 10px; background: white;">
-                        <div style="margin-bottom: 10px;">
-                            <button type="button" class="button button-small add-exclude-item">
-                                <?php _e('Add Item', $this->translate); ?>
-                            </button>
-                        </div>
-                        <div class="excludes-list">
-                            <?php foreach ($excludes as $index => $item): ?>
-                                <div class="exclude-item" style="display: flex; gap: 10px; margin-bottom: 8px; align-items: center;">
-                                    <input type="text" name="tour_excludes[<?php echo $index; ?>]" 
-                                           value="<?php echo esc_attr($item); ?>" 
-                                           placeholder="<?php esc_attr_e('e.g., Personal expenses', $this->translate); ?>" 
-                                           style="flex: 1;" />
-                                    <button type="button" class="button button-small remove-exclude-item"><?php _e('Remove', $this->translate); ?></button>
+                                <div class="includes-list">
+                                    <?php foreach ($includes as $index => $item): ?>
+                                        <div class="include-item" style="display: flex; gap: 10px; margin-bottom: 8px; align-items: center;">
+                                            <input type="text" name="tour_includes[<?php echo $index; ?>]" 
+                                                   value="<?php echo esc_attr($item); ?>" 
+                                                   placeholder="<?php esc_attr_e('e.g., Professional guide', $this->translate); ?>" 
+                                                   style="flex: 1;" />
+                                            <button type="button" class="button button-small remove-include-item"><?php _e('Remove', $this->translate); ?></button>
+                                        </div>
+                                    <?php endforeach; ?>
                                 </div>
-                            <?php endforeach; ?>
-                        </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style="vertical-align: top; padding-top: 15px;"><label><?php _e('Does not include:', $this->translate); ?></label></th>
+                        <td>
+                            <div class="excludes-container" style="border: 1px solid #ddd; border-radius: 4px; padding: 10px; background: white;">
+                                <div style="margin-bottom: 10px;">
+                                    <button type="button" class="button button-small add-exclude-item">
+                                        <?php _e('Add Item', $this->translate); ?>
+                                    </button>
+                                </div>
+                                <div class="excludes-list">
+                                    <?php foreach ($excludes as $index => $item): ?>
+                                        <div class="exclude-item" style="display: flex; gap: 10px; margin-bottom: 8px; align-items: center;">
+                                            <input type="text" name="tour_excludes[<?php echo $index; ?>]" 
+                                                   value="<?php echo esc_attr($item); ?>" 
+                                                   placeholder="<?php esc_attr_e('e.g., Personal expenses', $this->translate); ?>" 
+                                                   style="flex: 1;" />
+                                            <button type="button" class="button button-small remove-exclude-item"><?php _e('Remove', $this->translate); ?></button>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style="vertical-align: top; padding-top: 15px;"><label><?php _e('Recommendations:', $this->translate); ?></label></th>
+                        <td>
+                            <div class="recommendations-container" style="border: 1px solid #ddd; border-radius: 4px; padding: 10px; background: white;">
+                                <div style="margin-bottom: 10px;">
+                                    <button type="button" class="button button-small add-recommendation-item">
+                                        <?php _e('Add Item', $this->translate); ?>
+                                    </button>
+                                </div>
+                                <div class="recommendations-list">
+                                    <?php 
+                                    $recommendations = get_post_meta($post->ID, '_tour_recommendations', true);
+                                    if (!is_array($recommendations)) {
+                                        $recommendations = array();
+                                    }
+                                    foreach ($recommendations as $index => $item): ?>
+                                        <div class="recommendation-item" style="display: flex; gap: 10px; margin-bottom: 8px; align-items: center;">
+                                            <input type="text" name="tour_recommendations[<?php echo $index; ?>]" 
+                                                   value="<?php echo esc_attr($item); ?>" 
+                                                   placeholder="<?php esc_attr_e('e.g., Bring comfortable walking shoes', $this->translate); ?>" 
+                                                   style="flex: 1;" />
+                                            <button type="button" class="button button-small remove-recommendation-item"><?php _e('Remove', $this->translate); ?></button>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style="vertical-align: top; padding-top: 15px;"><label><?php _e('What to Bring:', $this->translate); ?></label></th>
+                        <td>
+                            <div class="what-to-bring-container" style="border: 1px solid #ddd; border-radius: 4px; padding: 10px; background: white;">
+                                <div style="margin-bottom: 10px;">
+                                    <button type="button" class="button button-small add-what-to-bring-item">
+                                        <?php _e('Add Item', $this->translate); ?>
+                                    </button>
+                                </div>
+                                <div class="what-to-bring-list">
+                                    <?php 
+                                    $what_to_bring = get_post_meta($post->ID, '_tour_what_to_bring', true);
+                                    if (!is_array($what_to_bring)) {
+                                        $what_to_bring = array();
+                                    }
+                                    foreach ($what_to_bring as $index => $item): ?>
+                                        <div class="what-to-bring-item" style="display: flex; gap: 10px; margin-bottom: 8px; align-items: center;">
+                                            <input type="text" name="tour_what_to_bring[<?php echo $index; ?>]" 
+                                                   value="<?php echo esc_attr($item); ?>" 
+                                                   placeholder="<?php esc_attr_e('e.g., Comfortable hiking boots', $this->translate); ?>" 
+                                                   style="flex: 1;" />
+                                            <button type="button" class="button button-small remove-what-to-bring-item"><?php _e('Remove', $this->translate); ?></button>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Pestaña: Technical Info -->
+            <div class="wptbt-details-tab-content" id="details-tab-technical-info" style="display: none;">
+                <table class="form-table">
+                    <tr>
+                        <th><label for="tour_total_duration"><?php _e('Total Duration:', $this->translate); ?></label></th>
+                        <td>
+                            <input type="text" id="tour_total_duration" name="tour_total_duration" 
+                                   value="<?php echo esc_attr($total_duration); ?>" 
+                                   placeholder="e.g., 2 Days / 1 Night" style="width: 100%;" />
+                            <p class="description"><?php _e('Format: "2 Days / 1 Night" or "Full Day"', $this->translate); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="tour_alternative_route"><?php _e('Alternative Route Info:', $this->translate); ?></label></th>
+                        <td>
+                            <input type="text" id="tour_alternative_route" name="tour_alternative_route" 
+                                   value="<?php echo esc_attr($alternative_route); ?>" 
+                                   placeholder="e.g., Ideal for Adventurous Travelers" style="width: 100%;" />
+                            <p class="description"><?php _e('Additional route information or target audience', $this->translate); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="tour_technical_description"><?php _e('Technical Description:', $this->translate); ?></label></th>
+                        <td>
+                            <textarea id="tour_technical_description" name="tour_technical_description" 
+                                      rows="6" style="width: 100%;" 
+                                      placeholder="<?php esc_attr_e('Detailed technical description about the tour route, experience, and what makes it special...', $this->translate); ?>"><?php echo esc_textarea($technical_description); ?></textarea>
+                            <p class="description"><?php _e('Detailed description that will appear in the technical information section', $this->translate); ?></p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Pestaña: Altitude Points -->
+            <div class="wptbt-details-tab-content" id="details-tab-altitude-points" style="display: none;">
+                <h4><?php _e('Altitude Points', $this->translate); ?></h4>
+                <p><?php _e('Add the main altitude points of your tour for technical reference.', $this->translate); ?></p>
+                
+                <div class="altitude-points-container" style="border: 1px solid #ddd; border-radius: 4px; padding: 15px; background: white; margin-top: 10px;">
+                    <div style="margin-bottom: 10px;">
+                        <button type="button" class="button button-primary add-altitude-point">
+                            <?php _e('Add Altitude Point', $this->translate); ?>
+                        </button>
                     </div>
-                </td>
-            </tr>
-        </table>
+                    <div class="altitude-points-list">
+                        <?php foreach ($altitude_points as $index => $point): ?>
+                            <div class="altitude-point-item" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-bottom: 10px; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 4px;">
+                                <input type="text" name="tour_altitude_points[<?php echo $index; ?>][location]" 
+                                       value="<?php echo esc_attr($point['location'] ?? ''); ?>" 
+                                       placeholder="<?php esc_attr_e('e.g., Cusco', $this->translate); ?>" />
+                                <input type="text" name="tour_altitude_points[<?php echo $index; ?>][altitude]" 
+                                       value="<?php echo esc_attr($point['altitude'] ?? ''); ?>" 
+                                       placeholder="<?php esc_attr_e('e.g., 3,399 m.a.s.l.', $this->translate); ?>" />
+                                <button type="button" class="button button-small remove-altitude-point"><?php _e('Remove', $this->translate); ?></button>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
         
         <script type="text/javascript">
             jQuery(document).ready(function($) {
+                // Manejar pestañas de details
+                $('.wptbt-details-tab-btn').on('click', function() {
+                    var tab = $(this).data('tab');
+                    
+                    // Cambiar botones activos
+                    $('.wptbt-details-tab-btn').removeClass('active').css({
+                        'background': '#f1f1f1',
+                        'color': '#333'
+                    });
+                    $(this).addClass('active').css({
+                        'background': '#0073aa',
+                        'color': 'white'
+                    });
+                    
+                    // Cambiar contenido activo
+                    $('.wptbt-details-tab-content').removeClass('active').hide();
+                    $('#details-tab-' + tab).addClass('active').show();
+                });
+                
+                // Manejar altitude points
+                $('.add-altitude-point').on('click', function() {
+                    var container = $('.altitude-points-list');
+                    var itemCount = container.find('.altitude-point-item').length;
+                    
+                    var newItem = '<div class="altitude-point-item" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-bottom: 10px; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 4px;">' +
+                        '<input type="text" name="tour_altitude_points[' + itemCount + '][location]" placeholder="<?php esc_attr_e('e.g., Cusco', $this->translate); ?>" />' +
+                        '<input type="text" name="tour_altitude_points[' + itemCount + '][altitude]" placeholder="<?php esc_attr_e('e.g., 3,399 m.a.s.l.', $this->translate); ?>" />' +
+                        '<button type="button" class="button button-small remove-altitude-point"><?php _e('Remove', $this->translate); ?></button>' +
+                        '</div>';
+                    
+                    container.append(newItem);
+                });
+                
+                $(document).on('click', '.remove-altitude-point', function() {
+                    $(this).closest('.altitude-point-item').remove();
+                });
+                
                 // Manejar includes
                 $('.add-include-item').on('click', function() {
                     var container = $('.includes-list');
@@ -1394,6 +1690,40 @@ class WPTBT_Tours
                 
                 $(document).on('click', '.remove-exclude-item', function() {
                     $(this).closest('.exclude-item').remove();
+                });
+                
+                // Manejar recommendations
+                $('.add-recommendation-item').on('click', function() {
+                    var container = $('.recommendations-list');
+                    var itemCount = container.find('.recommendation-item').length;
+                    
+                    var newItem = '<div class="recommendation-item" style="display: flex; gap: 10px; margin-bottom: 8px; align-items: center;">' +
+                        '<input type="text" name="tour_recommendations[' + itemCount + ']" placeholder="<?php esc_attr_e('e.g., Bring comfortable walking shoes', $this->translate); ?>" style="flex: 1;" />' +
+                        '<button type="button" class="button button-small remove-recommendation-item"><?php _e('Remove', $this->translate); ?></button>' +
+                        '</div>';
+                    
+                    container.append(newItem);
+                });
+                
+                $(document).on('click', '.remove-recommendation-item', function() {
+                    $(this).closest('.recommendation-item').remove();
+                });
+                
+                // Manejar what to bring
+                $('.add-what-to-bring-item').on('click', function() {
+                    var container = $('.what-to-bring-list');
+                    var itemCount = container.find('.what-to-bring-item').length;
+                    
+                    var newItem = '<div class="what-to-bring-item" style="display: flex; gap: 10px; margin-bottom: 8px; align-items: center;">' +
+                        '<input type="text" name="tour_what_to_bring[' + itemCount + ']" placeholder="<?php esc_attr_e('e.g., Comfortable hiking boots', $this->translate); ?>" style="flex: 1;" />' +
+                        '<button type="button" class="button button-small remove-what-to-bring-item"><?php _e('Remove', $this->translate); ?></button>' +
+                        '</div>';
+                    
+                    container.append(newItem);
+                });
+                
+                $(document).on('click', '.remove-what-to-bring-item', function() {
+                    $(this).closest('.what-to-bring-item').remove();
                 });
             });
         </script>
@@ -1710,13 +2040,42 @@ class WPTBT_Tours
                             }
                         }
                         
+                        // Procesar ubicaciones si existen
+                        $locations = [];
+                        if (isset($day['locations']) && is_array($day['locations'])) {
+                            foreach ($day['locations'] as $location) {
+                                if (!empty($location['name']) || !empty($location['lat']) || !empty($location['lng'])) {
+                                    $lat = floatval($location['lat'] ?? 0);
+                                    $lng = floatval($location['lng'] ?? 0);
+                                    
+                                    // Validar rangos de coordenadas antes de guardar
+                                    if ($lat < -90 || $lat > 90) {
+                                        error_log("Latitud inválida detectada en tour location: $lat");
+                                        $lat = 0; // Usar 0 como fallback para coordenadas inválidas
+                                    }
+                                    
+                                    if ($lng < -180 || $lng > 180) {
+                                        error_log("Longitud inválida detectada en tour location: $lng");
+                                        $lng = 0; // Usar 0 como fallback para coordenadas inválidas
+                                    }
+                                    
+                                    $locations[] = [
+                                        'name' => sanitize_text_field($location['name'] ?? ''),
+                                        'lat' => $lat,
+                                        'lng' => $lng
+                                    ];
+                                }
+                            }
+                        }
+                        
                         $itinerary[] = [
                             'title' => sanitize_text_field($day['title'] ?? ''),
                             'date_label' => sanitize_text_field($day['date_label'] ?? ''),
                             'description' => wp_kses_post($day['description'] ?? ''),
                             'meals' => sanitize_text_field($day['meals'] ?? ''),
                             'accommodation' => sanitize_text_field($day['accommodation'] ?? ''),
-                            'schedule' => $schedule
+                            'schedule' => $schedule,
+                            'locations' => $locations
                         ];
                     }
                 }
@@ -1728,11 +2087,30 @@ class WPTBT_Tours
 
         // Guardar ubicación
         if (isset($_POST['wptbt_tour_location_nonce']) && wp_verify_nonce($_POST['wptbt_tour_location_nonce'], 'wptbt_save_tour_location')) {
-            $location_fields = ['tour_departure_point', 'tour_return_point', 'tour_google_maps_url', 'tour_latitude', 'tour_longitude'];
+            $location_fields = ['tour_departure_point', 'tour_return_point', 'tour_google_maps_url'];
             foreach ($location_fields as $field) {
                 if (isset($_POST[$field])) {
                     update_post_meta($post_id, '_' . $field, sanitize_text_field($_POST[$field]));
                 }
+            }
+            
+            // Validar y guardar coordenadas por separado
+            if (isset($_POST['tour_latitude'])) {
+                $latitude = floatval($_POST['tour_latitude']);
+                if ($latitude < -90 || $latitude > 90) {
+                    error_log("Latitud inválida detectada en tour principal: $latitude");
+                    $latitude = 0; // Usar 0 como fallback para coordenadas inválidas
+                }
+                update_post_meta($post_id, '_tour_latitude', $latitude);
+            }
+            
+            if (isset($_POST['tour_longitude'])) {
+                $longitude = floatval($_POST['tour_longitude']);
+                if ($longitude < -180 || $longitude > 180) {
+                    error_log("Longitud inválida detectada en tour principal: $longitude");
+                    $longitude = 0; // Usar 0 como fallback para coordenadas inválidas
+                }
+                update_post_meta($post_id, '_tour_longitude', $longitude);
             }
         }
 
@@ -1770,11 +2148,32 @@ class WPTBT_Tours
 
         // Guardar detalles del tour (mejorado para listas)
         if (isset($_POST['wptbt_tour_details_nonce']) && wp_verify_nonce($_POST['wptbt_tour_details_nonce'], 'wptbt_save_tour_details')) {
-            $simple_fields = ['tour_difficulty', 'tour_min_age', 'tour_max_people'];
+            $simple_fields = ['tour_difficulty', 'tour_min_age', 'tour_max_people', 'tour_total_duration', 'tour_alternative_route'];
             foreach ($simple_fields as $field) {
                 if (isset($_POST[$field])) {
                     update_post_meta($post_id, '_' . $field, sanitize_text_field($_POST[$field]));
                 }
+            }
+            
+            // Guardar descripción técnica
+            if (isset($_POST['tour_technical_description'])) {
+                update_post_meta($post_id, '_tour_technical_description', wp_kses_post($_POST['tour_technical_description']));
+            }
+            
+            // Guardar altitude points como array
+            if (isset($_POST['tour_altitude_points']) && is_array($_POST['tour_altitude_points'])) {
+                $altitude_points = array();
+                foreach ($_POST['tour_altitude_points'] as $point) {
+                    if (!empty($point['location']) && !empty($point['altitude'])) {
+                        $altitude_points[] = array(
+                            'location' => sanitize_text_field($point['location']),
+                            'altitude' => sanitize_text_field($point['altitude'])
+                        );
+                    }
+                }
+                update_post_meta($post_id, '_tour_altitude_points', $altitude_points);
+            } else {
+                delete_post_meta($post_id, '_tour_altitude_points');
             }
             
             // Guardar includes como array
@@ -1791,6 +2190,22 @@ class WPTBT_Tours
                 update_post_meta($post_id, '_tour_excludes', $excludes);
             } else {
                 delete_post_meta($post_id, '_tour_excludes');
+            }
+            
+            // Guardar recommendations como array
+            if (isset($_POST['tour_recommendations']) && is_array($_POST['tour_recommendations'])) {
+                $recommendations = array_filter(array_map('sanitize_text_field', $_POST['tour_recommendations']));
+                update_post_meta($post_id, '_tour_recommendations', $recommendations);
+            } else {
+                delete_post_meta($post_id, '_tour_recommendations');
+            }
+            
+            // Guardar what to bring como array
+            if (isset($_POST['tour_what_to_bring']) && is_array($_POST['tour_what_to_bring'])) {
+                $what_to_bring = array_filter(array_map('sanitize_text_field', $_POST['tour_what_to_bring']));
+                update_post_meta($post_id, '_tour_what_to_bring', $what_to_bring);
+            } else {
+                delete_post_meta($post_id, '_tour_what_to_bring');
             }
         }
 
@@ -2086,6 +2501,187 @@ class WPTBT_Tours
             'currency' => get_post_meta($tour_id, '_tour_currency', true) ?: 'USD'
         ];
     }
+
+    // ===== MÉTODOS PARA IMAGEN DESTACADA EN TAXONOMÍAS =====
+
+    /**
+     * Agregar campo de imagen en formulario de nueva taxonomía
+     */
+    public function add_destination_image_field($tag)
+    {
+        ?>
+        <div class="form-field">
+            <label for="destination_image"><?php _e('Featured Image', $this->translate); ?></label>
+            <input type="button" class="button destination-image-upload" value="<?php _e('Upload Image', $this->translate); ?>" />
+            <input type="hidden" name="destination_image" id="destination_image" value="" />
+            <div class="destination-image-preview"></div>
+            <p class="description"><?php _e('Choose an image that represents this destination.', $this->translate); ?></p>
+        </div>
+        <script>
+        jQuery(document).ready(function($) {
+            var file_frame;
+            
+            $('.destination-image-upload').on('click', function(event) {
+                event.preventDefault();
+                
+                if (file_frame) {
+                    file_frame.open();
+                    return;
+                }
+                
+                file_frame = wp.media.frames.file_frame = wp.media({
+                    title: '<?php _e('Select Image', $this->translate); ?>',
+                    button: {
+                        text: '<?php _e('Use Image', $this->translate); ?>'
+                    },
+                    multiple: false
+                });
+                
+                file_frame.on('select', function() {
+                    var attachment = file_frame.state().get('selection').first().toJSON();
+                    $('#destination_image').val(attachment.id);
+                    $('.destination-image-preview').html('<img src="' + attachment.sizes.thumbnail.url + '" style="max-width: 150px; height: auto;" />');
+                });
+                
+                file_frame.open();
+            });
+        });
+        </script>
+        <?php
+    }
+
+    /**
+     * Agregar campo de imagen en formulario de edición de taxonomía
+     */
+    public function edit_destination_image_field($term)
+    {
+        $image_id = get_term_meta($term->term_id, 'destination_image', true);
+        $image_url = '';
+        
+        if ($image_id) {
+            $image_array = wp_get_attachment_image_src($image_id, 'thumbnail');
+            $image_url = $image_array[0];
+        }
+        ?>
+        <tr class="form-field">
+            <th scope="row" valign="top">
+                <label for="destination_image"><?php _e('Featured Image', $this->translate); ?></label>
+            </th>
+            <td>
+                <input type="button" class="button destination-image-upload" value="<?php _e('Upload/Change Image', $this->translate); ?>" />
+                <input type="hidden" name="destination_image" id="destination_image" value="<?php echo esc_attr($image_id); ?>" />
+                <div class="destination-image-preview">
+                    <?php if ($image_url): ?>
+                        <img src="<?php echo esc_url($image_url); ?>" style="max-width: 150px; height: auto;" />
+                    <?php endif; ?>
+                </div>
+                <p class="description"><?php _e('Choose an image that represents this destination.', $this->translate); ?></p>
+                
+                <?php if ($image_id): ?>
+                    <br/><br/>
+                    <input type="button" class="button destination-image-remove" value="<?php _e('Remove Image', $this->translate); ?>" />
+                <?php endif; ?>
+            </td>
+        </tr>
+        <script>
+        jQuery(document).ready(function($) {
+            var file_frame;
+            
+            $('.destination-image-upload').on('click', function(event) {
+                event.preventDefault();
+                
+                if (file_frame) {
+                    file_frame.open();
+                    return;
+                }
+                
+                file_frame = wp.media.frames.file_frame = wp.media({
+                    title: '<?php _e('Select Image', $this->translate); ?>',
+                    button: {
+                        text: '<?php _e('Use Image', $this->translate); ?>'
+                    },
+                    multiple: false
+                });
+                
+                file_frame.on('select', function() {
+                    var attachment = file_frame.state().get('selection').first().toJSON();
+                    $('#destination_image').val(attachment.id);
+                    $('.destination-image-preview').html('<img src="' + attachment.sizes.thumbnail.url + '" style="max-width: 150px; height: auto;" />');
+                });
+                
+                file_frame.open();
+            });
+            
+            $('.destination-image-remove').on('click', function(event) {
+                event.preventDefault();
+                $('#destination_image').val('');
+                $('.destination-image-preview').html('');
+                $(this).hide();
+            });
+        });
+        </script>
+        <?php
+    }
+
+    /**
+     * Guardar imagen de taxonomía
+     */
+    public function save_destination_image($term_id, $tt_id = '')
+    {
+        if (isset($_POST['destination_image']) && '' !== $_POST['destination_image']) {
+            update_term_meta($term_id, 'destination_image', absint($_POST['destination_image']));
+        } else {
+            delete_term_meta($term_id, 'destination_image');
+        }
+    }
+
+    /**
+     * Agregar columnas en admin de taxonomía
+     */
+    public function add_destination_columns($columns)
+    {
+        $new_columns = [];
+        $new_columns['cb'] = $columns['cb'];
+        $new_columns['destination_image'] = __('Image', $this->translate);
+        $new_columns['name'] = $columns['name'];
+        $new_columns['description'] = $columns['description'];
+        $new_columns['slug'] = $columns['slug'];
+        $new_columns['posts'] = $columns['posts'];
+        
+        return $new_columns;
+    }
+
+    /**
+     * Mostrar contenido de columnas en admin de taxonomía
+     */
+    public function add_destination_column_content($content, $column_name, $term_id)
+    {
+        if ($column_name === 'destination_image') {
+            $image_id = get_term_meta($term_id, 'destination_image', true);
+            if ($image_id) {
+                $image_array = wp_get_attachment_image_src($image_id, 'thumbnail');
+                if ($image_array) {
+                    $content = '<img src="' . esc_url($image_array[0]) . '" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;" />';
+                }
+            } else {
+                $content = '—';
+            }
+        }
+        return $content;
+    }
+
+    /**
+     * Obtener imagen destacada de un destino
+     */
+    public static function get_destination_image($term_id, $size = 'full')
+    {
+        $image_id = get_term_meta($term_id, 'destination_image', true);
+        if ($image_id) {
+            return wp_get_attachment_image_src($image_id, $size);
+        }
+        return false;
+    }
+
 }
 
 new WPTBT_Tours();

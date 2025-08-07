@@ -42,6 +42,7 @@ const adminEntries = {
   ),
   "gallery-block": path.resolve(__dirname, "src/admin/js/gallery-block.js"),
   "tours-carousel-block": path.resolve(__dirname, "src/admin/js/tours-carousel-block.js"),
+  "destinations-carousel-block": path.resolve(__dirname, "src/admin/js/destinations-carousel-block.js"),
   "interactive-map-block": path.resolve(__dirname, "src/admin/js/interactive-map-block.js"),
 
   // CSS/SASS
@@ -71,6 +72,10 @@ const adminEntries = {
   "tours-carousel-block-style": path.resolve(
     __dirname,
     "src/admin/css/tours-carousel-block-style.css"
+  ),
+  "destinations-carousel-block-style": path.resolve(
+    __dirname,
+    "src/admin/css/destinations-carousel-block-style.css"
   ),
   "interactive-map-block-style": path.resolve(
     __dirname,

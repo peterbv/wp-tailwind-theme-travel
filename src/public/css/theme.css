@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+@utility container {
+  /* Centrado automático y padding personalizado */
+  margin-inline: auto;
+  padding-inline: 1rem;
+  
+  /* Anchos máximos más contenidos para mejor legibilidad */
+  width: 100%;
+  
+  @media (width >= 640px) {
+    max-width: 640px;
+  }
+  
+  @media (width >= 768px) {
+    max-width: 768px;
+  }
+  
+  @media (width >= 1024px) {
+    max-width: 1024px;
+  }
+  
+  @media (width >= 1280px) {
+    max-width: 1152px; /* Más contenido que el default de 1280px */
+  }
+  
+  @media (width >= 1536px) {
+    max-width: 1280px; /* Más contenido que el default de 1536px */
+  }
+}

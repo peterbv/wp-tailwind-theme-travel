@@ -29,8 +29,8 @@ get_header();
 // Establecer variables para schema.org
 $organization_name = get_bloginfo('name');
 $organization_url = get_home_url();
-$archive_title = get_theme_mod('services_archive_title', __('Our Tours', 'wptbt-services'));
-$archive_desc = get_theme_mod('services_archive_description', __('Discover our complete range of services designed to provide you with an incomparable relaxation and wellness experience. Each treatment has been carefully designed to rejuvenate your body and mind.', 'wptbt-services'));
+$archive_title = get_theme_mod('tours_archive_title', __('Our Tours', 'wptbt-tours'));
+$archive_desc = get_theme_mod('tours_archive_description', __('Explore our amazing collection of tours and adventures designed to create unforgettable memories and unique travel experiences.', 'wptbt-tours'));
 ?>
 
 <!-- Schema.org para la página de archivo de destinations - SEO Improvement -->
@@ -56,15 +56,15 @@ $archive_desc = get_theme_mod('services_archive_description', __('Discover our c
         <div class="container mx-auto px-4 relative z-20">
             <div class="text-center max-w-3xl mx-auto">
                 <h1 class="text-4xl md:text-5xl lg:text-6xl fancy-text font-medium mb-4 text-spa-primary reveal-item opacity-0 translate-y-8" itemprop="headline">
-                    <?php echo esc_html(get_theme_mod('services_archive_title', __('Our Services', 'wptbt-services'))); ?>
+                    <?php echo esc_html(get_theme_mod('tours_archive_title', __('Our Tours', 'wptbt-tours'))); ?>
                 </h1>
 
                 <p class="text-xl md:text-2xl text-spa-accent italic mb-8 reveal-item opacity-0 translate-y-8 delay-300">
-                    <?php echo esc_html(get_theme_mod('services_archive_subtitle', __('Luxury treatments for your wellbeing', 'wptbt-services'))); ?>
+                    <?php echo esc_html(get_theme_mod('tours_archive_subtitle', __('Discover amazing adventures and unforgettable experiences', 'wptbt-tours'))); ?>
                 </p>
 
                 <div class="prose max-w-2xl mx-auto text-center text-gray-600 reveal-item opacity-0 translate-y-8 delay-600" itemprop="description">
-                    <p><?php echo esc_html(get_theme_mod('services_archive_description', __('Discover our complete range of services designed to provide you with an incomparable relaxation and wellness experience. Each treatment has been carefully designed to rejuvenate your body and mind.', 'wptbt-services'))); ?></p>
+                    <p><?php echo esc_html(get_theme_mod('tours_archive_description', __('Explore our amazing collection of tours and adventures designed to create unforgettable memories and unique travel experiences.', 'wptbt-tours'))); ?></p>
                 </div>
             </div>
         </div>
@@ -95,13 +95,13 @@ $archive_desc = get_theme_mod('services_archive_description', __('Discover our c
 
         if (!is_wp_error($terms) && !empty($terms)) :
         ?>
-            <nav class="service-filters py-8 bg-white" aria-label="<?php esc_attr_e('Service Categories', 'wptbt-services'); ?>">
+            <nav class="service-filters py-8 bg-white" aria-label="<?php esc_attr_e('Service Categories', 'wptbt-tours'); ?>">
                 <div class="container mx-auto px-4">
                     <div class="flex flex-wrap justify-center items-center gap-4 reveal-item opacity-0 translate-y-8">
                         <a href="#todos" class="filter-btn active px-4 py-2 rounded-sm bg-amber-50 text-gray-700 border border-amber-200 hover:bg-amber-600 hover:text-white transition duration-300"
                             aria-current="true"
                             data-category="all">
-                            <?php esc_html_e('All', 'wptbt-services'); ?>
+                            <?php esc_html_e('All', 'wptbt-tours'); ?>
                         </a>
                         <?php foreach ($terms as $term) : ?>
                             <a href="#<?php echo esc_attr($term->slug); ?>" class="filter-btn px-4 py-2 rounded-sm bg-amber-50 text-gray-700 border border-amber-200 hover:bg-amber-600 hover:text-white transition duration-300"
@@ -117,7 +117,7 @@ $archive_desc = get_theme_mod('services_archive_description', __('Discover our c
     <?php endif; ?>
 
     <!-- Lista de destinations -->
-    <section class="services-list py-12 md:py-16 bg-white" aria-label="<?php esc_attr_e('Services List', 'wptbt-services'); ?>">
+    <section class="services-list py-12 md:py-16 bg-white" aria-label="<?php esc_attr_e('Services List', 'wptbt-tours'); ?>">
         <div class="container mx-auto px-4">
             <!-- Schema.org para la lista de destinations - SEO Improvement -->
             <script type="application/ld+json">
@@ -152,20 +152,30 @@ $archive_desc = get_theme_mod('services_archive_description', __('Discover our c
                 if (have_posts()) :
                     $delay = 0;
                     while (have_posts()) : the_post();
-                        // Obtener datos del servicio
-                        $precio = get_post_meta(get_the_ID(), '_wptbt_service_price', true);
-                        $precio_duracion1 = get_post_meta(get_the_ID(), '_wptbt_service_duration1', true) . ' ' . __('min', 'wptbt-services') . '.';
-                        $precio_valor1 = get_post_meta(get_the_ID(), '_wptbt_service_price1', true);
-                        $precio_duracion2 = get_post_meta(get_the_ID(), '_wptbt_service_duration2', true) . ' ' . __('min', 'wptbt-services') . '.';
-                        $precio_valor2 = get_post_meta(get_the_ID(), '_wptbt_service_price2', true);
-
-                        // Obtener categorías para filtrado
-                        $service_categories = get_the_category();
+                        // Obtener datos del tour usando las nuevas funciones
+                        $tour_id = get_the_ID();
+                        $pricing_data = WPTBT_Tours::get_tour_pricing_data($tour_id);
+                        $subtitle = get_post_meta($tour_id, '_wptbt_tour_subtitle', true);
+                        $difficulty = get_post_meta($tour_id, '_tour_difficulty', true);
+                        $duration = get_post_meta($tour_id, '_tour_duration', true);
+                        
+                        // Obtener términos de taxonomías para filtrado
+                        $destinations = get_the_terms($tour_id, 'destinations');
+                        $categories = get_the_terms($tour_id, 'tour-categories');
+                        
+                        $location = '';
+                        if ($destinations && !is_wp_error($destinations)) {
+                            $location = $destinations[0]->name;
+                        }
+                        
+                        // Classes para filtrado
                         $category_classes = '';
                         $category_names = array();
-                        foreach ($service_categories as $category) {
-                            $category_classes .= ' cat-' . $category->slug;
-                            $category_names[] = $category->name;
+                        if ($categories && !is_wp_error($categories)) {
+                            foreach ($categories as $category) {
+                                $category_classes .= ' cat-' . $category->slug;
+                                $category_names[] = $category->name;
+                            }
                         }
                         $category_text = !empty($category_names) ? implode(', ', $category_names) : '';
 
@@ -174,107 +184,138 @@ $archive_desc = get_theme_mod('services_archive_description', __('Discover our c
                         $image_alt = get_post_meta($image_id, '_wp_attachment_image_alt', true);
                         $image_alt = empty($image_alt) ? get_the_title() . ' - ' . $organization_name : $image_alt;
                 ?>
-                        <div class="service-card reveal-item opacity-0 translate-y-8 delay-<?php echo $delay; ?> filter-item<?php echo $category_classes; ?>"
-                            itemscope itemtype="https://schema.org/Service">
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 h-full group transition-all duration-300 hover:shadow-lg relative">
+                        <!-- Card con el estilo del carousel -->
+                        <article class="tour-card reveal-item opacity-0 translate-y-8 delay-<?php echo $delay; ?> filter-item<?php echo $category_classes; ?> bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-500 hover:shadow-2xl relative h-96 md:h-[500px]"
+                            itemscope itemtype="https://schema.org/TouristAttraction">
+                            <!-- Imagen que ocupa todo el card -->
+                            <div class="tour-image absolute inset-0 overflow-hidden">
                                 <?php if (has_post_thumbnail()) : ?>
-                                    <div class="service-thumbnail h-56 overflow-hidden relative">
-                                        <?php the_post_thumbnail('medium_large', array(
-                                            'class' => 'w-full h-full object-cover group-hover:scale-110 transition-transform duration-700',
+                                    <a href="<?php the_permalink(); ?>">
+                                        <?php the_post_thumbnail('large', array(
+                                            'class' => 'w-full h-full object-cover transition-transform duration-700 hover:scale-110',
                                             'alt' => esc_attr($image_alt),
                                             'itemprop' => 'image'
                                         )); ?>
-                                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-70"></div>
-                                    </div>
+                                    </a>
+                                <?php else : ?>
+                                    <div class="w-full h-full bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900"></div>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <!-- Degradado de oscuro a transparente -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+                            
+                            <!-- Badge de precio especial -->
+                            <?php if ($pricing_data['promotion'] && $pricing_data['original']) : ?>
+                                <div class="absolute top-4 right-4 px-3 py-1 rounded-full text-white font-semibold text-sm shadow-md z-10 bg-red-600">
+                                    Special Price
+                                </div>
+                            <?php endif; ?>
+
+
+                            <!-- Schema.org meta data -->
+                            <?php if (!empty($category_text)) : ?>
+                                <meta itemprop="category" content="<?php echo esc_attr($category_text); ?>">
+                            <?php endif; ?>
+                            <meta itemprop="name" content="<?php echo esc_attr(get_the_title()); ?>">
+                            <meta itemprop="description" content="<?php echo esc_attr(wp_trim_words(get_the_excerpt(), 20)); ?>">
+                            <meta itemprop="url" content="<?php echo esc_url(get_permalink()); ?>">
+
+                            <!-- Contenido del card superpuesto -->
+                            <div class="tour-content absolute bottom-0 left-0 right-0 p-6 z-10">
+                                <h3 class="tour-title fancy-text text-lg font-bold mb-2 line-clamp-2 hover:text-opacity-80 transition-colors" itemprop="name">
+                                    <a href="<?php the_permalink(); ?>" class="text-white hover:text-gray-200 transition-colors">
+                                        <?php the_title(); ?>
+                                    </a>
+                                </h3>
+
+                                <?php if ($subtitle) : ?>
+                                    <p class="tour-subtitle text-white/90 text-sm mb-4 line-clamp-3">
+                                        <?php echo esc_html($subtitle); ?>
+                                    </p>
                                 <?php endif; ?>
 
-                                <div class="p-6 relative <?php echo has_post_thumbnail() ? '-mt-20' : ''; ?>">
-                                    <?php if (has_post_thumbnail()) : ?>
-                                        <div class="bg-white rounded-lg shadow-md p-5 mb-4 relative">
-                                        <?php endif; ?>
-                                        <h3 class="text-xl fancy-text font-medium mb-2 text-spa-primary transition-colors duration-300 group-hover:text-spa-accent" itemprop="name">
-                                            <?php the_title(); ?>
-                                        </h3>
-
-                                        <div class="text-gray-600 text-sm mb-4" itemprop="description">
-                                            <?php echo wp_trim_words(get_the_excerpt(), 20); ?>
-                                        </div>
-
-                                        <?php if (!empty($category_text)) : ?>
-                                            <meta itemprop="category" content="<?php echo esc_attr($category_text); ?>">
-                                        <?php endif; ?>
-
-                                        <!-- MEJORADO: Precios con colores de contraste fijo -->
-                                        <div class="flex flex-wrap gap-2 mb-4">
-                                            <?php if (!empty($precio_duracion1) && !empty($precio_valor1)) : ?>
-                                                <div class="inline-block px-3 py-2 rounded-lg bg-amber-50 border border-amber-200 text-sm font-medium">
-                                                    <span class="text-gray-700" itemprop="serviceType"><?php echo esc_html($precio_duracion1); ?></span>
-                                                    <span class="font-bold" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-                                                        <meta itemprop="priceCurrency" content="PEN">
-                                                        <span itemprop="price"><?php echo esc_html($precio_valor1); ?></span>
-                                                    </span>
-                                                </div>
-                                            <?php endif; ?>
-
-                                            <?php if (!empty($precio_duracion2) && !empty($precio_valor2)) : ?>
-                                                <div class="inline-block px-3 py-2 rounded-lg bg-amber-50 border border-amber-200 text-sm font-medium">
-                                                    <span class="text-gray-700" itemprop="serviceType"><?php echo esc_html($precio_duracion2); ?></span>
-                                                    <span class="font-bold" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-                                                        <meta itemprop="priceCurrency" content="PEN">
-                                                        <span itemprop="price"><?php echo esc_html($precio_valor2); ?></span>
-                                                    </span>
-                                                </div>
-                                            <?php endif; ?>
-
-                                            <?php if (empty($precio_duracion1) && empty($precio_valor1) && empty($precio_duracion2) && empty($precio_valor2) && !empty($precio)) : ?>
-                                                <div class="inline-block px-3 py-2 rounded-lg bg-amber-50 border border-amber-200 text-sm font-medium">
-                                                    <span class="text-gray-700"><?php esc_html_e('Price from:', 'wptbt-services'); ?></span>
-                                                    <span class="font-bold" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-                                                        <meta itemprop="priceCurrency" content="PEN">
-                                                        <span itemprop="price"><?php echo esc_html($precio); ?></span>
-                                                    </span>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                        <?php if (has_post_thumbnail()) : ?>
-                                        </div>
+                                <!-- Meta información -->
+                                <div class="tour-meta flex items-center justify-between text-sm text-white/80 mb-4">
+                                    <?php if ($location) : ?>
+                                        <span class="flex items-center text-white/80">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            </svg>
+                                            <?php echo esc_html($location); ?>
+                                        </span>
                                     <?php endif; ?>
 
-                                    <!-- MEJORADO: Botón con colores de contraste fijo -->
-                                    <a href="<?php the_permalink(); ?>"
-                                        class="inline-block px-4 py-2 bg-amber-600 text-white text-sm font-semibold rounded-lg transition-all duration-300 hover:bg-amber-700 hover:translate-y-[-2px] hover:shadow-md"
-                                        itemprop="url"
-                                        title="<?php echo esc_attr(sprintf(__('View details of %s', 'wptbt-services'), get_the_title())); ?>">
-                                        <?php esc_html_e('View details', 'wptbt-services'); ?> <span class="ml-1" aria-hidden="true">→</span>
-                                    </a>
+                                    <?php if ($difficulty) : ?>
+                                        <span class="flex items-center text-white/80">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                            </svg>
+                                            <?php echo esc_html($difficulty); ?>
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
 
-                                    <!-- Provider information for schema.org -->
-                                    <div itemprop="provider" itemscope itemtype="https://schema.org/Organization" class="hidden">
-                                        <meta itemprop="name" content="<?php echo esc_attr($organization_name); ?>">
-                                        <meta itemprop="url" content="<?php echo esc_url($organization_url); ?>">
-                                    </div>
+                                <!-- Botón CTA y Precio -->
+                                <div class="flex items-center justify-between">
+                                    <a href="<?php the_permalink(); ?>" 
+                                       class="tour-cta-btn inline-flex items-center justify-center px-6 py-2 rounded-lg text-white font-medium transition-all duration-300 hover:shadow-lg hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-red-600 hover:bg-red-700"
+                                       itemprop="url"
+                                       title="<?php echo esc_attr(sprintf(__('View details of %s', 'wptbt-tours'), get_the_title())); ?>">
+                                        <?php _e('View Tour', 'wptbt-tours'); ?>
+                                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                        </svg>
+                                    </a>
+                                    
+                                    <?php if ($pricing_data['best_price']) : ?>
+                                        <div class="text-white font-bold" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                                            <meta itemprop="priceCurrency" content="<?php echo esc_attr($pricing_data['currency']); ?>">
+                                            <?php if ($pricing_data['promotion'] && $pricing_data['original']) : ?>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-lg font-bold" itemprop="price" content="<?php echo esc_attr($pricing_data['promotion']); ?>">
+                                                        <?php echo $pricing_data['symbol'] . $pricing_data['promotion']; ?>
+                                                    </span>
+                                                    <span class="text-sm line-through opacity-75">
+                                                        <?php echo $pricing_data['symbol'] . $pricing_data['original']; ?>
+                                                    </span>
+                                                </div>
+                                            <?php else : ?>
+                                                <span class="text-lg font-bold" itemprop="price" content="<?php echo esc_attr($pricing_data['best_price']); ?>">
+                                                    <?php echo $pricing_data['symbol'] . $pricing_data['best_price']; ?>
+                                                </span>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+
+                                <!-- Provider information for schema.org -->
+                                <div itemprop="provider" itemscope itemtype="https://schema.org/Organization" class="hidden">
+                                    <meta itemprop="name" content="<?php echo esc_attr($organization_name); ?>">
+                                    <meta itemprop="url" content="<?php echo esc_url($organization_url); ?>">
                                 </div>
                             </div>
-                        </div>
+                        </article>
                     <?php
                         // Rotamos los retrasos de animación
                         $delay = ($delay + 300) % 900;
                     endwhile;
 
                     // Paginación mejorada
-                    echo '<nav class="col-span-full mt-12 text-center" aria-label="' . esc_attr__('Pagination', 'wptbt-services') . '">';
+                    echo '<nav class="col-span-full mt-12 text-center" aria-label="' . esc_attr__('Pagination', 'wptbt-tours') . '">';
                     the_posts_pagination(array(
                         'mid_size' => 2,
-                        'prev_text' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg><span class="sr-only">' . __('Previous page', 'wptbt-services') . '</span>',
-                        'next_text' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg><span class="sr-only">' . __('Next page', 'wptbt-services') . '</span>',
+                        'prev_text' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg><span class="sr-only">' . __('Previous page', 'wptbt-tours') . '</span>',
+                        'next_text' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg><span class="sr-only">' . __('Next page', 'wptbt-tours') . '</span>',
                         'class' => 'pagination flex justify-center gap-2',
-                        'before_page_number' => '<span class="sr-only">' . __('Page', 'wptbt-services') . ' </span>',
+                        'before_page_number' => '<span class="sr-only">' . __('Page', 'wptbt-tours') . ' </span>',
                     ));
                     echo '</nav>';
                 else :
                     ?>
                     <div class="col-span-full text-center py-16">
-                        <p class="text-xl text-gray-500"><?php esc_html_e('No services found.', 'wptbt-services'); ?></p>
+                        <p class="text-xl text-gray-500"><?php esc_html_e('No services found.', 'wptbt-tours'); ?></p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -282,7 +323,7 @@ $archive_desc = get_theme_mod('services_archive_description', __('Discover our c
     </section>
 
     <!-- Banner de CTA -->
-    <?php if (get_theme_mod('show_services_cta', true)) : ?>
+    <?php if (get_theme_mod('show_tours_cta', true)) : ?>
         <section class="cta-banner bg-spa-primary text-white py-16 relative overflow-hidden">
             <!-- Elementos decorativos (solo visibles si no hay imagen de fondo) -->
             <?php if (empty(wptbt_get_cta_background_image())) : ?>
@@ -293,15 +334,15 @@ $archive_desc = get_theme_mod('services_archive_description', __('Discover our c
             <div class="container mx-auto px-4 relative z-10">
                 <div class="max-w-2xl mx-auto text-center">
                     <h2 class="text-3xl md:text-4xl fancy-text font-medium mb-4 reveal-item opacity-0 translate-y-8">
-                        <?php echo esc_html(get_theme_mod('services_archive_cta_title', __('Ready to renew your wellbeing?', 'wptbt-services'))); ?>
+                        <?php echo esc_html(get_theme_mod('tours_archive_cta_title', __('Ready for your next adventure?', 'wptbt-tours'))); ?>
                     </h2>
                     <p class="text-xl opacity-90 mb-8 reveal-item opacity-0 translate-y-8 delay-300">
-                        <?php echo esc_html(get_theme_mod('services_archive_cta_text', __('Book now and enjoy our exclusive services designed for your relaxation and wellbeing.', 'wptbt-services'))); ?>
+                        <?php echo esc_html(get_theme_mod('tours_archive_cta_text', __('Discover amazing tours and create unforgettable memories with our exclusive travel experiences.', 'wptbt-tours'))); ?>
                     </p>
                     <!-- MEJORADO: Botón CTA con colores de contraste fijo -->
                     <a href="<?php echo esc_url(get_theme_mod('cta_button_url', '#')); ?>" class="inline-block px-8 py-3 bg-amber-600 text-white font-semibold rounded-lg transition-all duration-300 hover:bg-amber-700 transform hover:-translate-y-1 hover:shadow-lg reveal-item opacity-0 translate-y-8 delay-600"
-                        title="<?php echo esc_attr(get_theme_mod('services_archive_cta_button_text', __('Book Now', 'wptbt-services'))); ?>">
-                        <?php echo esc_html(get_theme_mod('services_archive_cta_button_text', __('Book Now', 'wptbt-services'))); ?>
+                        title="<?php echo esc_attr(get_theme_mod('tours_archive_cta_button_text', __('Explore Tours', 'wptbt-tours'))); ?>">
+                        <?php echo esc_html(get_theme_mod('tours_archive_cta_button_text', __('Explore Tours', 'wptbt-tours'))); ?>
                     </a>
                 </div>
             </div>
@@ -310,9 +351,9 @@ $archive_desc = get_theme_mod('services_archive_description', __('Discover our c
 
     <?php
     // Formulario de reserva
-    if (get_theme_mod('show_services_booking_form', false)) :
+    if (get_theme_mod('show_tours_booking_form', false)) :
         // Obtener la imagen de fondo
-        $bg_image_id = get_theme_mod('services_booking_form_bg_image', '');
+        $bg_image_id = get_theme_mod('tours_booking_form_bg_image', '');
         $bg_image_url = '';
 
         if (!empty($bg_image_id)) {
@@ -322,14 +363,14 @@ $archive_desc = get_theme_mod('services_archive_description', __('Discover our c
         }
 
         // Obtener las opciones del formulario
-        $form_title = get_theme_mod('services_booking_form_title', __('Book Your Appointment', 'wptbt-services'));
-        $form_subtitle = get_theme_mod('services_booking_form_subtitle', __('Appointment', 'wptbt-services'));
-        $form_description = get_theme_mod('services_booking_form_description', __('Book your treatment now and enjoy a moment of relaxation.', 'wptbt-services'));
-        $form_button_text = get_theme_mod('services_booking_form_button_text', __('BOOK NOW', 'wptbt-services'));
-        $form_accent_color = get_theme_mod('services_booking_form_accent_color', '#D4B254');
-        $form_email = get_theme_mod('services_booking_form_email', get_option('admin_email'));
-        $show_top_wave = get_theme_mod('services_booking_form_show_top_wave', true);
-        $show_bottom_wave = get_theme_mod('services_booking_form_show_bottom_wave', true);
+        $form_title = get_theme_mod('tours_booking_form_title', __('Book Your Appointment', 'wptbt-tours'));
+        $form_subtitle = get_theme_mod('tours_booking_form_subtitle', __('Appointment', 'wptbt-tours'));
+        $form_description = get_theme_mod('tours_booking_form_description', __('Book your treatment now and enjoy a moment of relaxation.', 'wptbt-tours'));
+        $form_button_text = get_theme_mod('tours_booking_form_button_text', __('BOOK NOW', 'wptbt-tours'));
+        $form_accent_color = get_theme_mod('tours_booking_form_accent_color', '#D4B254');
+        $form_email = get_theme_mod('tours_booking_form_email', get_option('admin_email'));
+        $show_top_wave = get_theme_mod('tours_booking_form_show_top_wave', true);
+        $show_bottom_wave = get_theme_mod('tours_booking_form_show_bottom_wave', true);
         // Configurar las opciones para el bloque de reserva
         $booking_attributes = array(
             'title' => $form_title,

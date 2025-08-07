@@ -176,6 +176,15 @@ class WPTBT_Solid_JS_Loader
                 'Find Us' => __('Find Us', $translate_name),
                 'Our Location' => __('Our Location', $translate_name),
                 'Visit us and discover our relaxing spa in the heart of the city' => __('Visit us and discover our relaxing spa in the heart of the city', $translate_name),
+                
+                // Textos específicos para tours
+                'Interactive Tour Route' => __('Interactive Tour Route', $translate_name),
+                'Follow the complete journey' => __('Follow the complete journey', $translate_name),
+                'Interactive map showing all stops and destinations of this tour' => __('Interactive map showing all stops and destinations of this tour', $translate_name),
+                'Complete tour route with all stops' => __('Complete tour route with all stops', $translate_name),
+                'Loading interactive map...' => __('Loading interactive map...', $translate_name),
+                'Map loaded successfully' => __('Map loaded successfully', $translate_name),
+                'Failed to load the map. Please try again later.' => __('Failed to load the map. Please try again later.', $translate_name),
 
                 // Elementos de navegación y formulario
                 'Get Directions' => __('Get Directions', $translate_name),
@@ -747,8 +756,47 @@ function wptbt_interactive_map_component($props = [], $container_attrs = [])
     // ID único para el contenedor
     $container_id = isset($container_attrs['id']) ? $container_attrs['id'] : 'interactive-map-' . uniqid();
 
-    // Formato de puntos de interés para el data-attribute si existen
-    $points_of_interest_json = isset($props['pointsOfInterest']) ? json_encode($props['pointsOfInterest']) : '';
+    // Validar y sanitizar coordenadas de la ubicación principal
+    $latitude = isset($props['latitude']) ? floatval($props['latitude']) : -13.518333;
+    $longitude = isset($props['longitude']) ? floatval($props['longitude']) : -71.978056;
+    
+    // Validar rangos de coordenadas
+    if ($latitude < -90 || $latitude > 90) {
+        error_log("Latitud inválida detectada: $latitude, usando valor por defecto");
+        $latitude = -13.518333;
+    }
+    
+    if ($longitude < -180 || $longitude > 180) {
+        error_log("Longitud inválida detectada: $longitude, usando valor por defecto");
+        $longitude = -71.978056;
+    }
+
+    // Validar y sanitizar puntos de interés
+    $validated_points = [];
+    if (isset($props['pointsOfInterest']) && is_array($props['pointsOfInterest'])) {
+        foreach ($props['pointsOfInterest'] as $point) {
+            if (isset($point['lat']) && isset($point['lng'])) {
+                $point_lat = floatval($point['lat']);
+                $point_lng = floatval($point['lng']);
+                
+                // Solo incluir puntos con coordenadas válidas
+                if ($point_lat >= -90 && $point_lat <= 90 && $point_lng >= -180 && $point_lng <= 180) {
+                    $validated_points[] = [
+                        'lat' => $point_lat,
+                        'lng' => $point_lng,
+                        'title' => isset($point['title']) ? sanitize_text_field($point['title']) : '',
+                        'description' => isset($point['description']) ? sanitize_text_field($point['description']) : '',
+                        'category' => isset($point['category']) ? sanitize_text_field($point['category']) : ''
+                    ];
+                } else {
+                    error_log("Coordenadas inválidas en punto de interés: lat=$point_lat, lng=$point_lng");
+                }
+            }
+        }
+    }
+
+    // Formato de puntos de interés validados para el data-attribute
+    $points_of_interest_json = json_encode($validated_points);
 
     // Configurar atributos del contenedor
     $default_container_attrs = [
@@ -758,8 +806,8 @@ function wptbt_interactive_map_component($props = [], $container_attrs = [])
         'data-title' => isset($props['title']) ? $props['title'] : 'Find Us',
         'data-subtitle' => isset($props['subtitle']) ? $props['subtitle'] : 'Our Location',
         'data-description' => isset($props['description']) ? $props['description'] : '',
-        'data-latitude' => isset($props['latitude']) ? $props['latitude'] : -13.518333,
-        'data-longitude' => isset($props['longitude']) ? $props['longitude'] : -71.978056,
+        'data-latitude' => $latitude,
+        'data-longitude' => $longitude,
         'data-zoom' => isset($props['zoom']) ? $props['zoom'] : 15,
         'data-marker-title' => isset($props['markerTitle']) ? $props['markerTitle'] : 'Mystical Terra Spa',
         'data-marker-description' => isset($props['markerDescription']) ? $props['markerDescription'] : 'Your wellness sanctuary',
@@ -776,6 +824,7 @@ function wptbt_interactive_map_component($props = [], $container_attrs = [])
         'data-phone' => isset($props['phone']) ? $props['phone'] : '',
         'data-email' => isset($props['email']) ? $props['email'] : '',
         'data-booking-url' => isset($props['bookingUrl']) ? $props['bookingUrl'] : '#booking',
+        'data-map-context' => isset($props['mapContext']) ? $props['mapContext'] : 'default',
         'data-intersect-once' => 'true',
         'data-intersect-threshold' => '0.25',
     ];

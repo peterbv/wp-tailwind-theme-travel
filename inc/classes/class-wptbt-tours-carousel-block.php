@@ -215,10 +215,18 @@ class WPTBT_Tours_Carousel_Block
                 $featured_image = get_the_post_thumbnail_url($post_id, 'large');
                 
                 // Obtener meta datos
+                $subtitle = get_post_meta($post_id, '_wptbt_tour_subtitle', true);
                 $duration = get_post_meta($post_id, '_tour_duration', true);
                 $difficulty = get_post_meta($post_id, '_tour_difficulty', true);
                 $min_age = get_post_meta($post_id, '_tour_min_age', true);
                 $max_people = get_post_meta($post_id, '_tour_max_people', true);
+                
+                // Obtener precios
+                $price_promotion = get_post_meta($post_id, '_tour_price_promotion', true);
+                $price_original = get_post_meta($post_id, '_tour_price_original', true);
+                $price_international = get_post_meta($post_id, '_tour_price_international', true);
+                $price_national = get_post_meta($post_id, '_tour_price_national', true);
+                $currency = get_post_meta($post_id, '_tour_currency', true) ?: 'USD';
                 
                 // Obtener términos de taxonomías
                 $destinations = get_the_terms($post_id, 'destinations');
@@ -232,11 +240,17 @@ class WPTBT_Tours_Carousel_Block
                 $tours[] = [
                     'id' => $post_id,
                     'title' => get_the_title(),
+                    'subtitle' => $subtitle ?: '',
                     'excerpt' => get_the_excerpt(),
                     'permalink' => get_permalink(),
                     'slug' => get_post_field('post_name', $post_id),
                     'featured_image' => $featured_image ?: '',
                     'price' => $pricing_data['adult_price'] ?? '',
+                    'price_promotion' => $price_promotion ?: '',
+                    'price_original' => $price_original ?: '',
+                    'price_international' => $price_international ?: '',
+                    'price_national' => $price_national ?: '',
+                    'currency' => $currency,
                     'duration' => $duration ?: '',
                     'difficulty' => $difficulty ?: '',
                     'location' => $location,

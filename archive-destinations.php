@@ -22,7 +22,7 @@ $archive_title = get_theme_mod('services_archive_title', __('Our Services', 'wpt
 $archive_desc = get_theme_mod('services_archive_description', __('Discover our complete range of services designed to provide you with an incomparable relaxation and wellness experience. Each treatment has been carefully designed to rejuvenate your body and mind.', 'wptbt-services'));
 ?>
 
-<!-- Schema.org para la página de archivo de servicios - SEO Improvement -->
+<!-- Schema.org para la página de archivo de destinos - SEO Improvement -->
 <script type="application/ld+json">
 {
     "@context": "https://schema.org",

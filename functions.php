@@ -68,6 +68,7 @@ class WPTBT_Theme_Init
             'inc/classes/class-wptbt-google-reviews-block.php',
             'inc/classes/class-wptbt-gallery-block.php',
             'inc/classes/class-wptbt-tours-carousel-block.php',
+            'inc/classes/class-wptbt-destinations-carousel-block.php',
             'inc/classes/class-wptbt-interactive-map-block.php',
             'inc/classes/class-wptbt-walker-nav-menu.php',
             'inc/classes/class-wptbt-banner-metabox.php',
@@ -672,16 +673,16 @@ function wptbt_get_cta_background_image()
 }
 
 /**
- * Modificar la consulta principal para la página de archivo de servicios
+ * Modificar la consulta principal para la página de archivo de tours
  */
-function wptbt_modify_services_query($query)
+function wptbt_modify_tours_query($query)
 {
-    if (!is_admin() && $query->is_main_query() && is_post_type_archive('servicio')) {
-        $services_per_page = get_theme_mod('services_per_page', 9);
-        $query->set('posts_per_page', $services_per_page);
+    if (!is_admin() && $query->is_main_query() && is_post_type_archive('tours')) {
+        $tours_per_page = get_theme_mod('tours_per_page', 9);
+        $query->set('posts_per_page', $tours_per_page);
     }
 }
-add_action('pre_get_posts', 'wptbt_modify_services_query');
+add_action('pre_get_posts', 'wptbt_modify_tours_query');
 
 /**
  * Cargar los estilos personalizados para el banner CTA con imagen de fondo
@@ -1034,6 +1035,65 @@ add_action('pre_get_posts', function($query) {
         $query->set('order', 'ASC');
     }
 }, 99);
+
+/**
+ * Funciones adicionales para mejorar el blog
+ */
+
+/**
+ * Remover '/blog' de los permalinks de posts
+ * Funciona con la estructura /blog/%postname%/ configurada en WordPress
+ */
+function wptbt_remove_blog_prefix_from_posts() {
+    // Agregar reglas de rewrite para posts sin el prefijo /blog
+    add_rewrite_rule(
+        '^(?!blog|wp-admin|wp-content|wp-includes|tours|destino|destination)([^/]+)/?$',
+        'index.php?name=$matches[1]',
+        'top'
+    );
+}
+add_action('init', 'wptbt_remove_blog_prefix_from_posts');
+
+/**
+ * Filtrar los permalinks de posts para remover '/blog'
+ */
+function wptbt_filter_post_permalink($post_link, $post) {
+    if (is_object($post) && $post->post_type === 'post') {
+        // Remover /blog/ del permalink
+        $post_link = str_replace('/blog/', '/', $post_link);
+    }
+    return $post_link;
+}
+add_filter('post_link', 'wptbt_filter_post_permalink', 10, 2);
+
+/**
+ * Redireccionar URLs con /blog/ a URLs limpias
+ */
+function wptbt_redirect_blog_urls() {
+    $request_uri = $_SERVER['REQUEST_URI'];
+    
+    // Si la URL contiene /blog/ y no es admin
+    if (strpos($request_uri, '/blog/') !== false && !is_admin()) {
+        $new_url = str_replace('/blog/', '/', $request_uri);
+        $new_url = home_url($new_url);
+        
+        // Redireccionar con 301 (permanente)
+        wp_redirect($new_url, 301);
+        exit;
+    }
+}
+add_action('template_redirect', 'wptbt_redirect_blog_urls');
+
+/**
+ * Forzar flush de rewrite rules para taxonomías
+ */
+function wptbt_flush_rewrite_rules_taxonomies() {
+    if (!get_option('wptbt_taxonomy_rewrite_rules_flushed_v2')) {
+        flush_rewrite_rules();
+        update_option('wptbt_taxonomy_rewrite_rules_flushed_v2', true);
+    }
+}
+add_action('init', 'wptbt_flush_rewrite_rules_taxonomies', 999);
 
 // Iniciar el tema
 new WPTBT_Theme_Init();

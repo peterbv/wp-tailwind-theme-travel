@@ -36,8 +36,8 @@ class WPTBT_Customizer
         $this->register_color_options($wp_customize);
         $this->register_multisite_options($wp_customize);
 
-        // Registrar opciones para archivo de servicios
-        $this->register_services_archive_options($wp_customize);
+        // Registrar opciones para archivo de tours
+        $this->register_tours_archive_options($wp_customize);
     }
 
     /**
@@ -1257,69 +1257,69 @@ class WPTBT_Customizer
     }
 
     /**
-     * Registrar opciones para la página de archivo de servicios
+     * Registrar opciones para la página de archivo de tours
      *
      * @param WP_Customize_Manager $wp_customize Objeto del personalizador.
      */
-    private function register_services_archive_options($wp_customize)
+    private function register_tours_archive_options($wp_customize)
     {
-        // Sección para la página de archivo de servicios
-        $wp_customize->add_section('wptbt_services_archive', array(
-            'title'       => esc_html__('Archivo de Servicios', 'wptbt-services'),
-            'description' => esc_html__('Configura la página de listado de servicios', 'wptbt-services'),
+        // Sección para la página de archivo de tours
+        $wp_customize->add_section('wptbt_tours_archive', array(
+            'title'       => esc_html__('Tours Archive', 'wptbt-tours'),
+            'description' => esc_html__('Configure the tours listing page', 'wptbt-tours'),
             'priority'    => 120,
         ));
 
         // Título de la página
-        $wp_customize->add_setting('services_archive_title', array(
-            'default'           => esc_html__('Our Services', 'wptbt-services'),
+        $wp_customize->add_setting('tours_archive_title', array(
+            'default'           => esc_html__('Our Tours', 'wptbt-tours'),
             'sanitize_callback' => 'sanitize_text_field',
             'transport'         => 'refresh',
         ));
 
-        $wp_customize->add_control('services_archive_title', array(
-            'label'    => esc_html__('Título de la página', 'wptbt-services'),
-            'section'  => 'wptbt_services_archive',
+        $wp_customize->add_control('tours_archive_title', array(
+            'label'    => esc_html__('Page Title', 'wptbt-tours'),
+            'section'  => 'wptbt_tours_archive',
             'type'     => 'text',
             'priority' => 10,
         ));
 
         // Subtítulo
-        $wp_customize->add_setting('services_archive_subtitle', array(
-            'default'           => esc_html__('Luxury treatments for your wellbeing', 'wptbt-services'),
+        $wp_customize->add_setting('tours_archive_subtitle', array(
+            'default'           => esc_html__('Discover amazing adventures and unforgettable experiences', 'wptbt-tours'),
             'sanitize_callback' => 'sanitize_text_field',
             'transport'         => 'refresh',
         ));
 
-        $wp_customize->add_control('services_archive_subtitle', array(
-            'label'    => esc_html__('Subtítulo', 'wptbt-services'),
-            'section'  => 'wptbt_services_archive',
+        $wp_customize->add_control('tours_archive_subtitle', array(
+            'label'    => esc_html__('Subtitle', 'wptbt-tours'),
+            'section'  => 'wptbt_tours_archive',
             'type'     => 'text',
             'priority' => 20,
         ));
 
         // Descripción
-        $wp_customize->add_setting('services_archive_description', array(
-            'default'           => esc_html__('Discover our complete range of services designed to provide you with an incomparable relaxation and wellness experience.', 'wptbt-services'),
+        $wp_customize->add_setting('tours_archive_description', array(
+            'default'           => esc_html__('Explore our amazing collection of tours and adventures designed to create unforgettable memories and unique travel experiences.', 'wptbt-tours'),
             'sanitize_callback' => 'sanitize_textarea_field',
             'transport'         => 'refresh',
         ));
 
-        $wp_customize->add_control('services_archive_description', array(
-            'label'    => esc_html__('Descripción', 'wptbt-services'),
-            'section'  => 'wptbt_services_archive',
+        $wp_customize->add_control('tours_archive_description', array(
+            'label'    => esc_html__('Description', 'wptbt-tours'),
+            'section'  => 'wptbt_tours_archive',
             'type'     => 'textarea',
             'priority' => 30,
         ));
 
         // Separador
-        $wp_customize->add_setting('services_archive_separator_1', array(
+        $wp_customize->add_setting('tours_archive_separator_1', array(
             'default'           => '',
             'sanitize_callback' => 'sanitize_text_field',
         ));
 
-        $wp_customize->add_control(new WPTBT_Separator_Control($wp_customize, 'services_archive_separator_1', array(
-            'section'  => 'wptbt_services_archive',
+        $wp_customize->add_control(new WPTBT_Separator_Control($wp_customize, 'tours_archive_separator_1', array(
+            'section'  => 'wptbt_tours_archive',
             'priority' => 40,
         )));
 
@@ -1331,9 +1331,9 @@ class WPTBT_Customizer
         ));
 
         $wp_customize->add_control('services_per_page', array(
-            'label'       => esc_html__('Servicios por página', 'wptbt-services'),
-            'description' => esc_html__('Número de servicios a mostrar por página', 'wptbt-services'),
-            'section'     => 'wptbt_services_archive',
+            'label'       => esc_html__('Servicios por página', 'wptbt-tours'),
+            'description' => esc_html__('Número de servicios a mostrar por página', 'wptbt-tours'),
+            'section'     => 'wptbt_tours_archive',
             'type'        => 'number',
             'input_attrs' => array(
                 'min'  => 3,
@@ -1351,20 +1351,20 @@ class WPTBT_Customizer
         ));
 
         $wp_customize->add_control('show_service_filters', array(
-            'label'    => esc_html__('Mostrar filtros de categoría', 'wptbt-services'),
-            'section'  => 'wptbt_services_archive',
+            'label'    => esc_html__('Mostrar filtros de categoría', 'wptbt-tours'),
+            'section'  => 'wptbt_tours_archive',
             'type'     => 'checkbox',
             'priority' => 60,
         ));
 
         // Separador
-        $wp_customize->add_setting('services_archive_separator_2', array(
+        $wp_customize->add_setting('tours_archive_separator_2', array(
             'default'           => '',
             'sanitize_callback' => 'sanitize_text_field',
         ));
 
-        $wp_customize->add_control(new WPTBT_Separator_Control($wp_customize, 'services_archive_separator_2', array(
-            'section'  => 'wptbt_services_archive',
+        $wp_customize->add_control(new WPTBT_Separator_Control($wp_customize, 'tours_archive_separator_2', array(
+            'section'  => 'wptbt_tours_archive',
             'priority' => 70,
         )));
 
@@ -1378,22 +1378,22 @@ class WPTBT_Customizer
         ));
 
         $wp_customize->add_control('show_services_cta', array(
-            'label'    => esc_html__('Mostrar banner CTA', 'wptbt-services'),
-            'section'  => 'wptbt_services_archive',
+            'label'    => esc_html__('Mostrar banner CTA', 'wptbt-tours'),
+            'section'  => 'wptbt_tours_archive',
             'type'     => 'checkbox',
             'priority' => 80,
         ));
 
         // CTA Banner - Título
-        $wp_customize->add_setting('services_archive_cta_title', array(
-            'default'           => esc_html__('Ready to renew your wellbeing?', 'wptbt-services'),
+        $wp_customize->add_setting('tours_archive_cta_title', array(
+            'default'           => esc_html__('Ready to renew your wellbeing?', 'wptbt-tours'),
             'sanitize_callback' => 'sanitize_text_field',
             'transport'         => 'refresh',
         ));
 
-        $wp_customize->add_control('services_archive_cta_title', array(
-            'label'    => esc_html__('Título del CTA', 'wptbt-services'),
-            'section'  => 'wptbt_services_archive',
+        $wp_customize->add_control('tours_archive_cta_title', array(
+            'label'    => esc_html__('Título del CTA', 'wptbt-tours'),
+            'section'  => 'wptbt_tours_archive',
             'type'     => 'text',
             'priority' => 90,
             'active_callback' => function () {
@@ -1402,15 +1402,15 @@ class WPTBT_Customizer
         ));
 
         // CTA Banner - Texto
-        $wp_customize->add_setting('services_archive_cta_text', array(
-            'default'           => esc_html__('Book now and enjoy our exclusive services designed for your relaxation and wellbeing.', 'wptbt-services'),
+        $wp_customize->add_setting('tours_archive_cta_text', array(
+            'default'           => esc_html__('Book now and enjoy our exclusive services designed for your relaxation and wellbeing.', 'wptbt-tours'),
             'sanitize_callback' => 'sanitize_text_field',
             'transport'         => 'refresh',
         ));
 
-        $wp_customize->add_control('services_archive_cta_text', array(
-            'label'    => esc_html__('Texto del CTA', 'wptbt-services'),
-            'section'  => 'wptbt_services_archive',
+        $wp_customize->add_control('tours_archive_cta_text', array(
+            'label'    => esc_html__('Texto del CTA', 'wptbt-tours'),
+            'section'  => 'wptbt_tours_archive',
             'type'     => 'text',
             'priority' => 100,
             'active_callback' => function () {
@@ -1419,15 +1419,15 @@ class WPTBT_Customizer
         ));
 
         // CTA Banner - Texto del botón
-        $wp_customize->add_setting('services_archive_cta_button_text', array(
-            'default'           => esc_html__('Book Now', 'wptbt-services'),
+        $wp_customize->add_setting('tours_archive_cta_button_text', array(
+            'default'           => esc_html__('Book Now', 'wptbt-tours'),
             'sanitize_callback' => 'sanitize_text_field',
             'transport'         => 'refresh',
         ));
 
-        $wp_customize->add_control('services_archive_cta_button_text', array(
-            'label'    => esc_html__('Texto del botón CTA', 'wptbt-services'),
-            'section'  => 'wptbt_services_archive',
+        $wp_customize->add_control('tours_archive_cta_button_text', array(
+            'label'    => esc_html__('Texto del botón CTA', 'wptbt-tours'),
+            'section'  => 'wptbt_tours_archive',
             'type'     => 'text',
             'priority' => 110,
             'active_callback' => function () {
@@ -1438,15 +1438,15 @@ class WPTBT_Customizer
         // ========= NUEVAS OPCIONES PARA IMAGEN DE FONDO Y FORMULARIO DE RESERVA =========
 
         // Imagen de fondo del CTA
-        $wp_customize->add_setting('services_archive_cta_bg_image', array(
+        $wp_customize->add_setting('tours_archive_cta_bg_image', array(
             'default'           => '',
             'sanitize_callback' => 'absint',
             'transport'         => 'refresh',
         ));
 
-        $wp_customize->add_control(new WP_Customize_Media_Control($wp_customize, 'services_archive_cta_bg_image', array(
-            'label'     => esc_html__('Imagen de fondo del CTA', 'wptbt-services'),
-            'section'   => 'wptbt_services_archive',
+        $wp_customize->add_control(new WP_Customize_Media_Control($wp_customize, 'tours_archive_cta_bg_image', array(
+            'label'     => esc_html__('Imagen de fondo del CTA', 'wptbt-tours'),
+            'section'   => 'wptbt_tours_archive',
             'mime_type' => 'image',
             'priority'  => 120,
             'active_callback' => function () {
@@ -1455,27 +1455,27 @@ class WPTBT_Customizer
         )));
 
         // Separador para formulario de reserva
-        $wp_customize->add_setting('services_archive_separator_3', array(
+        $wp_customize->add_setting('tours_archive_separator_3', array(
             'default'           => '',
             'sanitize_callback' => 'sanitize_text_field',
         ));
 
-        $wp_customize->add_control(new WPTBT_Separator_Control($wp_customize, 'services_archive_separator_3', array(
-            'section'  => 'wptbt_services_archive',
+        $wp_customize->add_control(new WPTBT_Separator_Control($wp_customize, 'tours_archive_separator_3', array(
+            'section'  => 'wptbt_tours_archive',
             'priority' => 130,
         )));
 
         // Título para la sección de formulario de reserva
-        $wp_customize->add_setting('services_archive_booking_section_title', array(
-            'default'           => esc_html__('Formulario de Reserva', 'wptbt-services'),
+        $wp_customize->add_setting('tours_archive_booking_section_title', array(
+            'default'           => esc_html__('Formulario de Reserva', 'wptbt-tours'),
             'sanitize_callback' => 'sanitize_text_field',
         ));
 
-        $wp_customize->add_control(new WPTBT_Separator_Control($wp_customize, 'services_archive_booking_section_title', array(
-            'label'       => esc_html__('FORMULARIO DE RESERVA', 'wptbt-services'),
-            'section'     => 'wptbt_services_archive',
+        $wp_customize->add_control(new WPTBT_Separator_Control($wp_customize, 'tours_archive_booking_section_title', array(
+            'label'       => esc_html__('FORMULARIO DE RESERVA', 'wptbt-tours'),
+            'section'     => 'wptbt_tours_archive',
             'priority'    => 140,
-            'description' => esc_html__('Configura el formulario de reserva en la página de servicios', 'wptbt-services'),
+            'description' => esc_html__('Configura el formulario de reserva en la página de servicios', 'wptbt-tours'),
         )));
 
         // Mostrar formulario de reserva
@@ -1486,22 +1486,22 @@ class WPTBT_Customizer
         ));
 
         $wp_customize->add_control('show_services_booking_form', array(
-            'label'    => esc_html__('Mostrar formulario de reserva', 'wptbt-services'),
-            'section'  => 'wptbt_services_archive',
+            'label'    => esc_html__('Mostrar formulario de reserva', 'wptbt-tours'),
+            'section'  => 'wptbt_tours_archive',
             'type'     => 'checkbox',
             'priority' => 150,
         ));
 
         // Título del formulario
         $wp_customize->add_setting('services_booking_form_title', array(
-            'default'           => esc_html__('Book Your Appointment', 'wptbt-services'),
+            'default'           => esc_html__('Book Your Appointment', 'wptbt-tours'),
             'sanitize_callback' => 'sanitize_text_field',
             'transport'         => 'refresh',
         ));
 
         $wp_customize->add_control('services_booking_form_title', array(
-            'label'    => esc_html__('Título del formulario', 'wptbt-services'),
-            'section'  => 'wptbt_services_archive',
+            'label'    => esc_html__('Título del formulario', 'wptbt-tours'),
+            'section'  => 'wptbt_tours_archive',
             'type'     => 'text',
             'priority' => 160,
             'active_callback' => function () {
@@ -1511,14 +1511,14 @@ class WPTBT_Customizer
 
         // Subtítulo del formulario
         $wp_customize->add_setting('services_booking_form_subtitle', array(
-            'default'           => esc_html__('Appointment', 'wptbt-services'),
+            'default'           => esc_html__('Appointment', 'wptbt-tours'),
             'sanitize_callback' => 'sanitize_text_field',
             'transport'         => 'refresh',
         ));
 
         $wp_customize->add_control('services_booking_form_subtitle', array(
-            'label'    => esc_html__('Subtítulo del formulario', 'wptbt-services'),
-            'section'  => 'wptbt_services_archive',
+            'label'    => esc_html__('Subtítulo del formulario', 'wptbt-tours'),
+            'section'  => 'wptbt_tours_archive',
             'type'     => 'text',
             'priority' => 170,
             'active_callback' => function () {
@@ -1528,14 +1528,14 @@ class WPTBT_Customizer
 
         // Descripción del formulario
         $wp_customize->add_setting('services_booking_form_description', array(
-            'default'           => esc_html__('Book your treatment now and enjoy a moment of relaxation.', 'wptbt-services'),
+            'default'           => esc_html__('Book your treatment now and enjoy a moment of relaxation.', 'wptbt-tours'),
             'sanitize_callback' => 'sanitize_textarea_field',
             'transport'         => 'refresh',
         ));
 
         $wp_customize->add_control('services_booking_form_description', array(
-            'label'    => esc_html__('Descripción del formulario', 'wptbt-services'),
-            'section'  => 'wptbt_services_archive',
+            'label'    => esc_html__('Descripción del formulario', 'wptbt-tours'),
+            'section'  => 'wptbt_tours_archive',
             'type'     => 'textarea',
             'priority' => 180,
             'active_callback' => function () {
@@ -1551,8 +1551,8 @@ class WPTBT_Customizer
         ));
 
         $wp_customize->add_control(new WP_Customize_Media_Control($wp_customize, 'services_booking_form_bg_image', array(
-            'label'     => esc_html__('Imagen de fondo del formulario', 'wptbt-services'),
-            'section'   => 'wptbt_services_archive',
+            'label'     => esc_html__('Imagen de fondo del formulario', 'wptbt-tours'),
+            'section'   => 'wptbt_tours_archive',
             'mime_type' => 'image',
             'priority'  => 190,
             'active_callback' => function () {
@@ -1562,14 +1562,14 @@ class WPTBT_Customizer
 
         // Texto del botón del formulario
         $wp_customize->add_setting('services_booking_form_button_text', array(
-            'default'           => esc_html__('BOOK NOW', 'wptbt-services'),
+            'default'           => esc_html__('BOOK NOW', 'wptbt-tours'),
             'sanitize_callback' => 'sanitize_text_field',
             'transport'         => 'refresh',
         ));
 
         $wp_customize->add_control('services_booking_form_button_text', array(
-            'label'    => esc_html__('Texto del botón del formulario', 'wptbt-services'),
-            'section'  => 'wptbt_services_archive',
+            'label'    => esc_html__('Texto del botón del formulario', 'wptbt-tours'),
+            'section'  => 'wptbt_tours_archive',
             'type'     => 'text',
             'priority' => 200,
             'active_callback' => function () {
@@ -1585,8 +1585,8 @@ class WPTBT_Customizer
         ));
 
         $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'services_booking_form_accent_color', array(
-            'label'    => esc_html__('Color de acento del formulario', 'wptbt-services'),
-            'section'  => 'wptbt_services_archive',
+            'label'    => esc_html__('Color de acento del formulario', 'wptbt-tours'),
+            'section'  => 'wptbt_tours_archive',
             'priority' => 210,
             'active_callback' => function () {
                 return get_theme_mod('show_services_booking_form', false);
@@ -1601,9 +1601,9 @@ class WPTBT_Customizer
         ));
 
         $wp_customize->add_control('services_booking_form_email', array(
-            'label'       => esc_html__('Email para recibir reservas', 'wptbt-services'),
-            'description' => esc_html__('Las solicitudes de reserva se enviarán a este correo', 'wptbt-services'),
-            'section'     => 'wptbt_services_archive',
+            'label'       => esc_html__('Email para recibir reservas', 'wptbt-tours'),
+            'description' => esc_html__('Las solicitudes de reserva se enviarán a este correo', 'wptbt-tours'),
+            'section'     => 'wptbt_tours_archive',
             'type'        => 'email',
             'priority'    => 220,
             'active_callback' => function () {
@@ -1616,10 +1616,10 @@ class WPTBT_Customizer
             'sanitize_callback' => 'sanitize_text_field',
         ));
         $wp_customize->add_control(new WPTBT_Separator_Control($wp_customize, 'services_booking_form_waves_separator', array(
-            'label'       => esc_html__('ONDAS DECORATIVAS', 'wptbt-services'),
-            'section'     => 'wptbt_services_archive',
+            'label'       => esc_html__('ONDAS DECORATIVAS', 'wptbt-tours'),
+            'section'     => 'wptbt_tours_archive',
             'priority'    => 230,
-            'description' => esc_html__('Configura las ondas decorativas del formulario de reserva', 'wptbt-services'),
+            'description' => esc_html__('Configura las ondas decorativas del formulario de reserva', 'wptbt-tours'),
             'active_callback' => function () {
                 return get_theme_mod('show_services_booking_form', false);
             },
@@ -1632,8 +1632,8 @@ class WPTBT_Customizer
             'transport'         => 'refresh',
         ));
         $wp_customize->add_control('services_booking_form_show_top_wave', array(
-            'label'    => esc_html__('Mostrar onda superior', 'wptbt-services'),
-            'section'  => 'wptbt_services_archive',
+            'label'    => esc_html__('Mostrar onda superior', 'wptbt-tours'),
+            'section'  => 'wptbt_tours_archive',
             'type'     => 'checkbox',
             'priority' => 240,
             'active_callback' => function () {
@@ -1647,8 +1647,8 @@ class WPTBT_Customizer
             'transport'         => 'refresh',
         ));
         $wp_customize->add_control('services_booking_form_show_bottom_wave', array(
-            'label'    => esc_html__('Mostrar onda inferior', 'wptbt-services'),
-            'section'  => 'wptbt_services_archive',
+            'label'    => esc_html__('Mostrar onda inferior', 'wptbt-tours'),
+            'section'  => 'wptbt_tours_archive',
             'type'     => 'checkbox',
             'priority' => 250,
             'active_callback' => function () {

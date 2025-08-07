@@ -329,8 +329,56 @@ async function buildSolidComponents() {
     });
     console.log("✓ tours-carousel-module.js construido correctamente!");
 
+    // Construir el módulo de destinations carousel
+    console.log("📦 Construyendo destinations-carousel-module.js...");
+    await build({
+      configFile: false,
+      plugins: [solidPlugin()],
+      build: {
+        outDir: "assets/public/js/components",
+        emptyOutDir: false,
+        minify: true,
+        lib: {
+          entry: resolve(
+            process.cwd(),
+            "src/public/js/components/destinations-carousel-module.js"
+          ),
+          formats: ["es"],
+          fileName: () => "destinations-carousel-module.js",
+        },
+        rollupOptions: {
+          external: [
+            /^@wordpress\/.+$/,
+            "../solid-core.js",
+            "../../solid-core.js",
+            "wp-i18n", // Añadir wp-i18n como dependencia externa
+          ],
+          output: {
+            globals: {
+              "solid-js": "solid",
+              "solid-js/web": "solidWeb",
+              "wp-i18n": "wp.i18n", // Añadir referencia global
+            },
+          },
+        },
+      },
+      optimizeDeps: {
+        include: ["solid-js", "solid-js/web"],
+      },
+      resolve: {
+        alias: {
+          "@": resolve(process.cwd(), "src"),
+          "../../solid-core": resolve(
+            process.cwd(),
+            "src/public/js/solid-core.js"
+          ),
+        },
+      },
+    });
+    console.log("✓ destinations-carousel-module.js construido correctamente!");
+
     // 3. Aquí puedes añadir otros módulos a construir
-    // Por ejemplo: google-reviews-module.js, etc.
+    // Por ejemplo: otros componentes futuros, etc.
 
     console.log(
       "✅ Todos los componentes Solid.js han sido construidos correctamente!"

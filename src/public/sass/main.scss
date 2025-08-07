@@ -1,18 +1,12 @@
-@use "tailwindcss" as *;
-
 @use "section-animations";
+@import "../css/theme.css";
+
 /* Importar solo las fuentes necesarias */
 /* @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap"); */
 /* Mejoras para el header de spa */
 
 /* Fuentes personalizadas */
-@font-face {
-  font-family: 'Delmon Delicate';
-  src: url('../fonts/DelmonDelicate-7B01R.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap; // Mejora el rendimiento de carga de fuentes
-}
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&display=swap');
 
 /* Variables profesionales para agencia de viajes */
 :root {
@@ -26,11 +20,11 @@
   --color-light-gray: #F3F4F6; /* Gris claro para fondos */
   --header-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --header-shadow: 0 4px 20px rgba(220, 38, 38, 0.08);
-  --font-delmon: 'Delmon Delicate', cursive;
+  --font-baloo: "Baloo 2", sans-serif;
 }
 
 .fancy-text {
-   font-family: var(--font-delmon);
+   font-family: var(--font-baloo);
    @apply tracking-wide;
 }
 
@@ -1484,19 +1478,6 @@ input[type="number"]::-webkit-outer-spin-button {
   }
 }
 
-/* Tarjetas de destino con hover profesional */
-.destination-card {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(220, 38, 38, 0.1);
-  
-  &:hover {
-    transform: translateY(-8px);
-    box-shadow: 
-      0 20px 25px -5px rgba(220, 38, 38, 0.1),
-      0 10px 10px -5px rgba(220, 38, 38, 0.04);
-    border-color: rgba(220, 38, 38, 0.2);
-  }
-}
 
 /* Iconografía para viajes */
 .travel-icon {

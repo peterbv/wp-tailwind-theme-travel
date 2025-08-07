@@ -1,0 +1,112 @@
+/* Estilos para el editor de bloques - Destinations Carousel */
+
+.wp-block-wptbt-destinations-carousel .destinations-carousel-block-editor {
+    border: 2px dashed #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #f8fafc;
+    min-height: 200px;
+}
+
+.wp-block-wptbt-destinations-carousel .block-header {
+    margin-bottom: 16px;
+}
+
+.wp-block-wptbt-destinations-carousel .block-header h3 {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0 0 8px 0;
+}
+
+.wp-block-wptbt-destinations-carousel .block-header p {
+    color: #6b7280;
+    font-size: 14px;
+    margin: 0;
+}
+
+.wp-block-wptbt-destinations-carousel .destinations-carousel-preview {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.wp-block-wptbt-destinations-carousel .destinations-carousel-header {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.wp-block-wptbt-destinations-carousel .destinations-carousel-items {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.wp-block-wptbt-destinations-carousel .destination-card-preview {
+    background-color: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.wp-block-wptbt-destinations-carousel .destination-card-preview:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+.wp-block-wptbt-destinations-carousel .destination-card-preview h4 {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: #1f2937;
+}
+
+.wp-block-wptbt-destinations-carousel .destination-card-preview p {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 0;
+}
+
+.wp-block-wptbt-destinations-carousel .carousel-controls-preview {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 16px;
+    gap: 8px;
+}
+
+.wp-block-wptbt-destinations-carousel .destinations-carousel-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b7280;
+    font-style: italic;
+}
+
+.wp-block-wptbt-destinations-carousel .destinations-carousel-loading {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b7280;
+}
+
+/* Responsive adjustments for editor */
+@media (max-width: 768px) {
+    .wp-block-wptbt-destinations-carousel .destinations-carousel-items {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 1024px) {
+    .wp-block-wptbt-destinations-carousel .destinations-carousel-items {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* Ensure proper spacing in Gutenberg editor */
+.wp-block-wptbt-destinations-carousel {
+    margin: 28px 0;
+}
+
+/* Inspector controls styling improvements */
+.components-panel__body .components-base-control__label {
+    font-weight: 600;
+    margin-bottom: 8px;
+}

@@ -1,4 +1,4 @@
-// src/public/js/components/solid/ToursCarousel.jsx
+// src/public/js/components/solid/DestinationsCarousel.jsx
 import {
   createSignal,
   createEffect,
@@ -10,13 +10,13 @@ import {
 import { __ } from "../../solid-core";
 
 /**
- * Componente de Carousel de Tours con Solid.js
+ * Componente de Carousel de Destinos con Solid.js
  * Carousel infinito con animación automática de derecha a izquierda
  */
-const ToursCarousel = (props) => {
+const DestinationsCarousel = (props) => {
   // Función para obtener traducciones específicas de este componente
-  const getTranslation = (text, domain = "wptbt-tours-carousel") => {
-    const componentTranslations = window.wptbtI18n_tours_carousel || {};
+  const getTranslation = (text, domain = "wptbt-destinations-carousel") => {
+    const componentTranslations = window.wptbtI18n_destinations_carousel || {};
     if (componentTranslations[text]) {
       return componentTranslations[text];
     }
@@ -28,13 +28,13 @@ const ToursCarousel = (props) => {
     title = "",
     subtitle = "",
     description = "",
-    tours = [],
+    destinations = [],
     autoplaySpeed = 3000, // Velocidad del autoplay en ms
     showDots = true,
     showArrows = true,
     pauseOnHover = true,
     infinite = true,
-    slidesToShow = 3, // Número de tours visibles a la vez
+    slidesToShow = 3, // Número de destinos visibles a la vez
     backgroundColor = "#F8FAFC",
     textColor = "#1F2937",
     accentColor = "#DC2626",
@@ -42,7 +42,7 @@ const ToursCarousel = (props) => {
     fullWidth = false,
     animationDirection = "left", // "left" | "right"
     // Nuevas props para SEO
-    carouselId = "tours-carousel",
+    carouselId = "destinations-carousel",
     baseUrl = window.location.origin + window.location.pathname,
   } = props;
 
@@ -52,26 +52,26 @@ const ToursCarousel = (props) => {
   const [autoplayInterval, setAutoplayInterval] = createSignal(null);
   const [isHovering, setIsHovering] = createSignal(false);
   const [isLoaded, setIsLoaded] = createSignal(false);
-  const [toursLoaded, setToursLoaded] = createSignal(0);
-  const [hoveredTour, setHoveredTour] = createSignal(null);
+  const [destinationsLoaded, setDestinationsLoaded] = createSignal(0);
+  const [hoveredDestination, setHoveredDestination] = createSignal(null);
   const [isTransitioning, setIsTransitioning] = createSignal(false);
 
   // Referencias
   let carouselRef;
 
-  // Lista circular de tours para efecto infinito
-  const [circularTours, setCircularTours] = createSignal([]);
+  // Lista circular de destinos para efecto infinito
+  const [circularDestinations, setCircularDestinations] = createSignal([]);
   
   // Inicializar lista circular
-  const initializeCircularTours = () => {
-    if (!infinite || tours.length === 0) return tours;
+  const initializeCircularDestinations = () => {
+    if (!infinite || destinations.length === 0) return destinations;
     // Duplicar la lista para tener suficientes elementos para el efecto circular
-    const multiplier = Math.max(3, Math.ceil((slidesToShow + 2) / tours.length));
+    const multiplier = Math.max(3, Math.ceil((slidesToShow + 2) / destinations.length));
     const result = [];
     for (let i = 0; i < multiplier; i++) {
-      result.push(...tours.map((tour, index) => ({
-        ...tour,
-        uniqueId: `${tour.id || index}-${i}` // ID único para evitar conflictos
+      result.push(...destinations.map((destination, index) => ({
+        ...destination,
+        uniqueId: `${destination.id || index}-${i}` // ID único para evitar conflictos
       })));
     }
     return result;
@@ -81,9 +81,9 @@ const ToursCarousel = (props) => {
   const totalSlides = () => {
     if (!infinite) {
       // En modo no infinito, cada card es un slide individual
-      return Math.max(0, tours.length - slidesToShow + 1);
+      return Math.max(0, destinations.length - slidesToShow + 1);
     }
-    return tours.length;
+    return destinations.length;
   };
 
   // Autoplay
@@ -123,20 +123,20 @@ const ToursCarousel = (props) => {
         // Verificar nuevamente el estado para evitar condiciones de carrera
         if (!isTransitioning()) return;
         
-        const current = circularTours();
+        const current = circularDestinations();
         const newList = [...current];
         // Mover el primer elemento al final
         const firstElement = newList.shift();
         if (firstElement) {
           newList.push(firstElement);
-          setCircularTours(newList);
+          setCircularDestinations(newList);
           // Reset la posición para mantener la continuidad visual sin doble movimiento
           setCurrentSlide(0);
         }
         setIsTransitioning(false);
       }, 500);
     } else {
-      setCurrentSlide((prev) => Math.min(prev + 1, tours.length - slidesToShow));
+      setCurrentSlide((prev) => Math.min(prev + 1, destinations.length - slidesToShow));
     }
   };
 
@@ -148,12 +148,12 @@ const ToursCarousel = (props) => {
       setIsTransitioning(true);
       
       // Para ir hacia atrás, mover el último elemento al principio
-      const current = circularTours();
+      const current = circularDestinations();
       const newList = [...current];
       const lastElement = newList.pop();
       if (lastElement) {
         newList.unshift(lastElement);
-        setCircularTours(newList);
+        setCircularDestinations(newList);
         setCurrentSlide(0); // Reset a posición inicial
       }
       
@@ -171,15 +171,15 @@ const ToursCarousel = (props) => {
 
   // Efectos
   onMount(() => {
-    // Inicializar tours circulares
-    if (infinite && tours.length > 0) {
-      setCircularTours(initializeCircularTours());
+    // Inicializar destinos circulares
+    if (infinite && destinations.length > 0) {
+      setCircularDestinations(initializeCircularDestinations());
       setCurrentSlide(0); // Empezar en posición 0 para el efecto infinito
     } else {
-      setCircularTours(tours);
+      setCircularDestinations(destinations);
     }
     
-    if (tours.length > slidesToShow) {
+    if (destinations.length > slidesToShow) {
       startAutoplay();
     }
     setIsLoaded(true);
@@ -205,63 +205,12 @@ const ToursCarousel = (props) => {
 
   // Manejar carga de imágenes
   const handleImageLoad = () => {
-    setToursLoaded(prev => prev + 1);
+    setDestinationsLoaded(prev => prev + 1);
   };
 
-  // Obtener precio formateado con lógica de promociones
-  const getFormattedPrice = (tour) => {
-    const symbol = tour.currency === 'USD' ? '$' : (tour.currency === 'PEN' ? 'S/' : (tour.currency === 'EUR' ? '€' : 'Bs'));
-    
-    // Si no hay ningún precio
-    if (!tour.price && !tour.price_promotion && !tour.price_international && !tour.price_national) {
-      return getTranslation("Price on request");
-    }
-    
-    // Si hay precio promocional y original, mostrar ambos
-    if (tour.price_promotion && tour.price_original) {
-      return {
-        hasPromotion: true,
-        promotional: `${symbol}${tour.price_promotion}`,
-        original: `${symbol}${tour.price_original}`
-      };
-    }
-    
-    // Prioridad: promocional > nacional > internacional > precio por defecto
-    let bestPrice = tour.price_promotion || tour.price_national || tour.price_international || tour.price;
-    
-    if (bestPrice) {
-      return {
-        hasPromotion: false,
-        promotional: `${symbol}${bestPrice}`
-      };
-    }
-    
-    return getTranslation("Price on request");
-  };
-
-  // Obtener componente de precio formateado
-  const getPriceComponent = (tour) => {
-    const priceData = getFormattedPrice(tour);
-    
-    if (typeof priceData === 'string') {
-      return <span>{priceData}</span>;
-    }
-    
-    if (priceData.hasPromotion) {
-      return (
-        <div class="flex items-center gap-2">
-          <span class="text-lg font-bold">{priceData.promotional}</span>
-          <span class="text-sm line-through opacity-75">{priceData.original}</span>
-        </div>
-      );
-    }
-    
-    return <span class="text-lg font-bold">{priceData.promotional}</span>;
-  };
-
-  // Obtener URL del tour
-  const getTourUrl = (tour) => {
-    return tour.permalink || `${baseUrl}tours/${tour.slug || tour.id}`;
+  // Obtener URL del destino
+  const getDestinationUrl = (destination) => {
+    return destination.link || destination.permalink || `${baseUrl}destinations/${destination.slug || destination.id}`;
   };
 
   // Estilo de transformación para el carousel
@@ -303,11 +252,38 @@ const ToursCarousel = (props) => {
 
   const responsive = getResponsiveSlidesToShow();
 
+  // Generar structured data para SEO
+  const generateStructuredData = () => {
+    if (destinations.length === 0) return null;
+
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": title || "Destinations Carousel",
+      "description": description || "Explore amazing travel destinations",
+      "numberOfItems": destinations.length,
+      "itemListElement": destinations.map((destination, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "item": {
+          "@type": "TouristDestination",
+          "name": destination.name || "",
+          "description": destination.description || "",
+          "image": destination.image || "",
+          "url": destination.link || `${baseUrl}#destination-${index}`,
+          "tourCount": destination.tourCount || 0
+        }
+      }))
+    };
+
+    return JSON.stringify(structuredData);
+  };
+
   return (
     <>
       <section
         id={carouselId}
-        class={`tours-carousel-component w-full py-8 md:py-12 relative ${
+        class={`destinations-carousel-component w-full py-8 md:py-12 relative ${
           fullWidth ? "vw-100" : ""
         }`}
         style={{
@@ -325,6 +301,13 @@ const ToursCarousel = (props) => {
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
       >
+        {/* Structured Data para SEO */}
+        <Show when={generateStructuredData()}>
+          <script type="application/ld+json">
+            {generateStructuredData()}
+          </script>
+        </Show>
+
         <div class="container mx-auto px-4 relative">
           {/* Encabezado */}
           <Show when={title || subtitle || description}>
@@ -365,15 +348,15 @@ const ToursCarousel = (props) => {
           </Show>
 
           {/* Carousel container */}
-          <div class="tours-carousel-wrapper relative">
+          <div class="destinations-carousel-wrapper relative">
             {/* Botones de navegación */}
-            <Show when={showArrows && tours.length > slidesToShow}>
+            <Show when={showArrows && destinations.length > slidesToShow}>
               <button
                 type="button"
                 class="carousel-prev absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center transition-all duration-300 hover:shadow-xl hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2"
                 style={{ "focus:ring-color": accentColor, border: `2px solid ${accentColor}20` }}
                 onClick={prevSlide}
-                aria-label={getTranslation("Previous tours")}
+                aria-label={getTranslation("Previous destinations")}
               >
                 <svg
                   class="w-5 h-5"
@@ -396,7 +379,7 @@ const ToursCarousel = (props) => {
                 class="carousel-next absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center transition-all duration-300 hover:shadow-xl hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2"
                 style={{ "focus:ring-color": accentColor, border: `2px solid ${accentColor}20` }}
                 onClick={nextSlide}
-                aria-label={getTranslation("Next tours")}
+                aria-label={getTranslation("Next destinations")}
               >
                 <svg
                   class="w-5 h-5"
@@ -422,111 +405,57 @@ const ToursCarousel = (props) => {
                 style={getCarouselTransform()}
                 ref={carouselRef}
               >
-                <For each={circularTours()}>
-                  {(tour, index) => (
+                <For each={circularDestinations()}>
+                  {(destination, index) => (
                     <article
-                      class={`tour-card flex-shrink-0 px-3 transition-all duration-500`}
+                      class={`destination-card flex-shrink-0 px-3 transition-all duration-300`}
                       style={{
                         width: `${100 / slidesToShow}%`,
                         "min-width": `${100 / slidesToShow}%`,
                         "flex-shrink": "0",
-                        transform: hoveredTour() === index() ? "translateY(-8px)" : "translateY(0)",
+                        transform: hoveredDestination() === index() ? "translateY(-4px)" : "translateY(0)",
                       }}
-                      onMouseEnter={() => setHoveredTour(index())}
-                      onMouseLeave={() => setHoveredTour(null)}
+                      onMouseEnter={() => setHoveredDestination(index())}
+                      onMouseLeave={() => setHoveredDestination(null)}
                     >
-                      <div class="tour-card-inner bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-500 hover:shadow-2xl relative h-96 md:h-[500px]">
-                        {/* Imagen del tour que ocupa todo el card */}
-                        <div class="tour-image absolute inset-0 overflow-hidden">
-                          <img
-                            src={tour.featured_image || tour.image}
-                            alt={tour.title}
-                            class="w-full h-full object-cover transition-transform duration-700"
-                            style={{
-                              transform: hoveredTour() === index() ? "scale(1.1)" : "scale(1)",
-                            }}
-                            loading="lazy"
-                            onLoad={handleImageLoad}
-                          />
-                        </div>
+                      {/* Diseño minimalista inspirado en la imagen de referencia */}
+                      <div class="destination-card-inner relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl aspect-[4/3] cursor-pointer group">
                         
-                        {/* Degradado de oscuro a transparente */}
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
-                        
-                        {/* Badge de precio especial */}
-                        <Show when={tour.price_promotion && tour.price_original}>
-                          <div
-                            class="absolute top-4 right-4 px-3 py-1 rounded-full text-white font-semibold text-sm shadow-md z-10"
-                            style={{ "background-color": accentColor }}
-                          >
-                            Special Price
-                          </div>
-                        </Show>
-
-                        
-
-                        {/* Contenido del card superpuesto */}
-                        <div class="tour-content absolute bottom-0 left-0 right-0 p-6 z-10">
-                          <h3 class="tour-title fancy-text text-lg font-bold mb-2 line-clamp-2 hover:text-opacity-80 transition-colors">
-                            <a 
-                              href={getTourUrl(tour)}
-                              class="text-white hover:text-gray-200 transition-colors"
-                            >
-                              {tour.title}
-                            </a>
-                          </h3>
-
-                          <Show when={tour.subtitle}>
-                            <p class="tour-subtitle text-white/90 text-sm mb-4 line-clamp-3">
-                              {tour.subtitle}
-                            </p>
-                          </Show>
-
-                          {/* Meta información */}
-                          <div class="tour-meta flex items-center justify-between text-sm text-white/80 mb-4">
-                            <Show when={tour.location}>
-                              <span class="flex items-center text-white/80">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                </svg>
-                                {tour.location}
-                              </span>
-                            </Show>
-
-                            <Show when={tour.difficulty}>
-                              <span class="flex items-center text-white/80">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                                </svg>
-                                {tour.difficulty}
-                              </span>
-                            </Show>
-                          </div>
-
-                          {/* Botón CTA y Precio */}
-                          <div class="flex items-center justify-between">
-                            <a
-                              href={getTourUrl(tour)}
-                              class="tour-cta-btn inline-flex items-center justify-center px-6 py-2 rounded-lg text-white font-medium transition-all duration-300 hover:shadow-lg hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2"
-                              style={{ 
-                                "background-color": accentColor,
-                                "focus:ring-color": accentColor 
-                              }}
-                            >
-                              {getTranslation("View Tour")}
-                              <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                              </svg>
-                            </a>
-                            
-                            <Show when={tour.price || tour.price_promotion || tour.price_international || tour.price_national}>
-                              <div class="text-white font-bold">
-                                {getPriceComponent(tour)}
+                        {/* Imagen de fondo completa */}
+                        <div class="absolute inset-0">
+                          <Show 
+                            when={destination.image}
+                            fallback={
+                              <div class="w-full h-full bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 flex items-center justify-center">
+                                <div class="text-center">
+                                  <svg class="w-12 h-12 text-gray-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                  </svg>
+                                  <p class="text-gray-600 text-sm font-medium">{destination.name || destination.title}</p>
+                                </div>
                               </div>
-                            </Show>
-                          </div>
+                            }
+                          >
+                            <img
+                              src={destination.image}
+                              alt={destination.name || destination.title}
+                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              loading="lazy"
+                              onLoad={handleImageLoad}
+                            />
+                          </Show>
+                          
+                          {/* Overlay con gradiente sutil desde abajo */}
+                          <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
                         </div>
+
+                        {/* Contenido minimalista centrado - solo nombre del destino */}
+                        <a href={getDestinationUrl(destination)} class="absolute inset-0 flex items-center justify-center text-center text-white z-10 group-hover:bg-black/10 transition-colors duration-300">
+                          <h3 class="text-2xl md:text-3xl font-bold tracking-tight drop-shadow-lg">
+                            {destination.name || destination.title}
+                          </h3>
+                        </a>
                       </div>
                     </article>
                   )}
@@ -535,7 +464,7 @@ const ToursCarousel = (props) => {
             </div>
 
             {/* Indicadores (dots) - Solo para modo no infinito */}
-            <Show when={showDots && !infinite && tours.length > slidesToShow}>
+            <Show when={showDots && !infinite && destinations.length > slidesToShow}>
               <div class="carousel-dots flex justify-center space-x-2 mt-6">
                 <For each={Array(totalSlides()).fill().map((_, i) => i)}>
                   {(dotIndex) => (
@@ -561,4 +490,4 @@ const ToursCarousel = (props) => {
   );
 };
 
-export default ToursCarousel;
+export default DestinationsCarousel;
