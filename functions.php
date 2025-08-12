@@ -75,7 +75,8 @@ class WPTBT_Theme_Init
             'inc/template-functions.php',
             'inc/template-tags.php',
             '/inc/tour-booking.php',
-            'inc/wptbt-get-language-switcher.php'
+            'inc/wptbt-get-language-switcher.php',
+            'inc/sample-data-generator.php'
         ];
 
         foreach ($core_files as $file) {
@@ -1042,47 +1043,57 @@ add_action('pre_get_posts', function($query) {
 
 /**
  * Remover '/blog' de los permalinks de posts
- * Funciona con la estructura /blog/%postname%/ configurada en WordPress
+ * COMENTADO: Causaba conflictos con páginas después de cambiar estructura de permalinks
  */
-function wptbt_remove_blog_prefix_from_posts() {
-    // Agregar reglas de rewrite para posts sin el prefijo /blog
-    add_rewrite_rule(
-        '^(?!blog|wp-admin|wp-content|wp-includes|tours|destino|destination)([^/]+)/?$',
-        'index.php?name=$matches[1]',
-        'top'
-    );
-}
-add_action('init', 'wptbt_remove_blog_prefix_from_posts');
+// function wptbt_remove_blog_prefix_from_posts() {
+//     // Agregar reglas de rewrite para posts sin el prefijo /blog
+//     add_rewrite_rule(
+//         '^(?!blog|wp-admin|wp-content|wp-includes|tours|destino|destination)([^/]+)/?$',
+//         'index.php?name=$matches[1]',
+//         'top'
+//     );
+// }
+// add_action('init', 'wptbt_remove_blog_prefix_from_posts');
 
 /**
  * Filtrar los permalinks de posts para remover '/blog'
+ * COMENTADO: Ya no es necesario después de cambiar estructura de permalinks
  */
-function wptbt_filter_post_permalink($post_link, $post) {
-    if (is_object($post) && $post->post_type === 'post') {
-        // Remover /blog/ del permalink
-        $post_link = str_replace('/blog/', '/', $post_link);
-    }
-    return $post_link;
-}
-add_filter('post_link', 'wptbt_filter_post_permalink', 10, 2);
+// function wptbt_filter_post_permalink($post_link, $post) {
+//     if (is_object($post) && $post->post_type === 'post') {
+//         // Remover /blog/ del permalink
+//         $post_link = str_replace('/blog/', '/', $post_link);
+//     }
+//     return $post_link;
+// }
+// add_filter('post_link', 'wptbt_filter_post_permalink', 10, 2);
 
 /**
  * Redireccionar URLs con /blog/ a URLs limpias
+ * COMENTADO: Causaba conflictos después de cambiar estructura de permalinks
  */
-function wptbt_redirect_blog_urls() {
-    $request_uri = $_SERVER['REQUEST_URI'];
-    
-    // Si la URL contiene /blog/ y no es admin
-    if (strpos($request_uri, '/blog/') !== false && !is_admin()) {
-        $new_url = str_replace('/blog/', '/', $request_uri);
-        $new_url = home_url($new_url);
-        
-        // Redireccionar con 301 (permanente)
-        wp_redirect($new_url, 301);
-        exit;
+// function wptbt_redirect_blog_urls() {
+//     $request_uri = $_SERVER['REQUEST_URI'];
+//     
+//     // Si la URL contiene /blog/ y no es admin
+//     if (strpos($request_uri, '/blog/') !== false && !is_admin()) {
+//         $new_url = str_replace('/blog/', '/', $request_uri);
+//         $new_url = home_url($new_url);
+//         
+//         // Redireccionar con 301 (permanente)
+//         wp_redirect($new_url, 301);
+//         exit;
+//     }
+// }
+// add_action('template_redirect', 'wptbt_redirect_blog_urls');
+
+// FLUSH ÚNICO - Solo se ejecuta una vez después de los cambios
+add_action('init', function() {
+    if (!get_option('wptbt_rewrite_rules_flushed_after_blog_fix')) {
+        flush_rewrite_rules(false);
+        update_option('wptbt_rewrite_rules_flushed_after_blog_fix', true);
     }
-}
-add_action('template_redirect', 'wptbt_redirect_blog_urls');
+}, 20);
 
 /**
  * Forzar flush de rewrite rules para taxonomías

@@ -38,6 +38,7 @@ Un tema WordPress moderno y completamente responsivo diseñado específicamente 
 - **Newsletter** con validación
 - **Breadcrumbs** automáticos
 - **Widgets personalizados** para sidebar
+- **Generador de datos de ejemplo** - Sistema completo para cargar contenido de demostración
 
 ## 📋 Requisitos
 

@@ -44,6 +44,7 @@ const adminEntries = {
   "tours-carousel-block": path.resolve(__dirname, "src/admin/js/tours-carousel-block.js"),
   "destinations-carousel-block": path.resolve(__dirname, "src/admin/js/destinations-carousel-block.js"),
   "interactive-map-block": path.resolve(__dirname, "src/admin/js/interactive-map-block.js"),
+  "sample-data-generator": path.resolve(__dirname, "src/admin/js/sample-data-generator.js"),
 
   // CSS/SASS
   editorStyle: path.resolve(__dirname, "src/admin/sass/editor.scss"),
