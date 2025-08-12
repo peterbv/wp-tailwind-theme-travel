@@ -36,6 +36,9 @@ class WPTBT_Tours
         add_filter('manage_edit-destinations_columns', [$this, 'add_destination_columns']);
         add_filter('manage_destinations_custom_column', [$this, 'add_destination_column_content'], 10, 3);
         
+        // Bloquear acceso a páginas de archivo de tour-categories
+        add_action('template_redirect', [$this, 'block_tour_categories_archive']);
+        
         
         $this->site_slugs = [
             1 => 'tours',     // Inglés
@@ -156,12 +159,11 @@ class WPTBT_Tours
             'labels'            => $labels,
             'show_ui'           => true,
             'show_admin_column' => true,
-            'query_var'         => true,
-            'rewrite'           => [
-                'slug' => 'categoria-tour',
-                'with_front' => false
-            ],
-            'show_in_rest'      => true,
+            'query_var'         => false, // Desactivar query_var para evitar páginas públicas
+            'publicly_queryable' => false, // Desactivar consultas públicas
+            'public'            => false, // No mostrar públicamente
+            'rewrite'           => false, // Desactivar rewrite para evitar URLs públicas
+            'show_in_rest'      => true, // Mantener para Gutenberg
         ]);
     }
 
@@ -722,52 +724,252 @@ class WPTBT_Tours
     public function render_booking_meta_box($post)
     {
         wp_nonce_field('wptbt_save_tour_booking', 'wptbt_tour_booking_nonce');
-
+        
+        // Existing booking fields
         $whatsapp = get_post_meta($post->ID, '_tour_whatsapp', true);
         $phone = get_post_meta($post->ID, '_tour_phone', true);
         $email = get_post_meta($post->ID, '_tour_email', true);
         $booking_url = get_post_meta($post->ID, '_tour_booking_url', true);
         $advance_payment = get_post_meta($post->ID, '_tour_advance_payment', true);
         $cancellation_policy = get_post_meta($post->ID, '_tour_cancellation_policy', true);
+        
+        // NEW: Booking form configuration fields
+        $duration_days = get_post_meta($post->ID, '_tour_duration_days', true) ?: 1;
+        $includes_accommodation = get_post_meta($post->ID, '_tour_includes_accommodation', true);
+        $requires_documents = get_post_meta($post->ID, '_tour_requires_documents', true);
+        $has_flexible_schedule = get_post_meta($post->ID, '_tour_has_flexible_schedule', true);
+        $languages_available = get_post_meta($post->ID, '_tour_languages_available', true) ?: [];
+        $required_traveler_fields = get_post_meta($post->ID, '_tour_required_traveler_fields', true) ?: [];
+        $pickup_required = get_post_meta($post->ID, '_tour_pickup_required', true);
+        $emergency_contact_required = get_post_meta($post->ID, '_tour_emergency_contact_required', true);
         ?>
         
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div>
-                <h4><?php _e('Contact Information', $this->translate); ?></h4>
-                <table class="form-table">
-                    <tr>
-                        <th><label for="tour_whatsapp"><?php _e('WhatsApp:', $this->translate); ?></label></th>
-                        <td><input type="text" id="tour_whatsapp" name="tour_whatsapp" value="<?php echo esc_attr($whatsapp); ?>" placeholder="+51 999 999 999" style="width: 100%;" /></td>
-                    </tr>
-                    <tr>
-                        <th><label for="tour_phone"><?php _e('Phone:', $this->translate); ?></label></th>
-                        <td><input type="text" id="tour_phone" name="tour_phone" value="<?php echo esc_attr($phone); ?>" placeholder="+51 84 123456" style="width: 100%;" /></td>
-                    </tr>
-                    <tr>
-                        <th><label for="tour_email"><?php _e('Email:', $this->translate); ?></label></th>
-                        <td><input type="email" id="tour_email" name="tour_email" value="<?php echo esc_attr($email); ?>" placeholder="info@agencia.com" style="width: 100%;" /></td>
-                    </tr>
-                    <tr>
-                        <th><label for="tour_booking_url"><?php _e('Booking URL:', $this->translate); ?></label></th>
-                        <td><input type="url" id="tour_booking_url" name="tour_booking_url" value="<?php echo esc_attr($booking_url); ?>" placeholder="https://..." style="width: 100%;" /></td>
-                    </tr>
-                </table>
-            </div>
-            
-            <div>
-                <h4><?php _e('Booking Policies', $this->translate); ?></h4>
-                <table class="form-table">
-                    <tr>
-                        <th><label for="tour_advance_payment"><?php _e('Advance Payment:', $this->translate); ?></label></th>
-                        <td><input type="text" id="tour_advance_payment" name="tour_advance_payment" value="<?php echo esc_attr($advance_payment); ?>" placeholder="50% advance required" style="width: 100%;" /></td>
-                    </tr>
-                    <tr>
-                        <th><label for="tour_cancellation_policy"><?php _e('Cancellation Policy:', $this->translate); ?></label></th>
-                        <td><textarea id="tour_cancellation_policy" name="tour_cancellation_policy" rows="4" style="width: 100%;"><?php echo esc_textarea($cancellation_policy); ?></textarea></td>
-                    </tr>
-                </table>
+        <!-- Form Configuration Notice -->
+        <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; margin-bottom: 20px; border-radius: 6px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px;">🎯</span>
+                <div>
+                    <strong style="color: #856404;"><?php _e('Booking Form Configuration Available!', $this->translate); ?></strong>
+                    <p style="margin: 5px 0 0 0; color: #856404; font-size: 13px;"><?php _e('Use the "Form Configuration" tab below to customize which fields appear in the booking form for this tour.', $this->translate); ?></p>
+                </div>
             </div>
         </div>
+        
+        <!-- Booking Configuration Tabs -->
+        <div class="booking-config-tabs">
+            <div class="tab-nav" style="display: flex; margin-bottom: 20px; border-bottom: 2px solid #ddd;">
+                <button type="button" class="tab-btn active" data-tab="contact" 
+                        style="padding: 12px 24px; border: none; background: #0073aa; color: white; cursor: pointer; margin-right: 2px; font-weight: 600;">
+                    📞 <?php _e('Contact & Policies', $this->translate); ?>
+                </button>
+                <button type="button" class="tab-btn" data-tab="form-config" 
+                        style="padding: 12px 24px; border: none; background: #f1f1f1; color: #333; cursor: pointer; font-weight: 600;">
+                    ⚙️ <?php _e('Form Configuration', $this->translate); ?>
+                </button>
+            </div>
+            
+            <!-- Tab 1: Contact & Policies -->
+            <div class="tab-content active" data-tab="contact">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+                    <div>
+                        <h4 style="color: #0073aa; border-bottom: 2px solid #0073aa; padding-bottom: 8px;"><?php _e('Contact Information', $this->translate); ?></h4>
+                        <table class="form-table">
+                            <tr>
+                                <th><label for="tour_whatsapp"><?php _e('WhatsApp:', $this->translate); ?></label></th>
+                                <td><input type="text" id="tour_whatsapp" name="tour_whatsapp" value="<?php echo esc_attr($whatsapp); ?>" placeholder="+51 999 999 999" style="width: 100%;" /></td>
+                            </tr>
+                            <tr>
+                                <th><label for="tour_phone"><?php _e('Phone:', $this->translate); ?></label></th>
+                                <td><input type="text" id="tour_phone" name="tour_phone" value="<?php echo esc_attr($phone); ?>" placeholder="+51 84 123456" style="width: 100%;" /></td>
+                            </tr>
+                            <tr>
+                                <th><label for="tour_email"><?php _e('Email:', $this->translate); ?></label></th>
+                                <td><input type="email" id="tour_email" name="tour_email" value="<?php echo esc_attr($email); ?>" placeholder="info@agencia.com" style="width: 100%;" /></td>
+                            </tr>
+                            <tr>
+                                <th><label for="tour_booking_url"><?php _e('External Booking URL:', $this->translate); ?></label></th>
+                                <td><input type="url" id="tour_booking_url" name="tour_booking_url" value="<?php echo esc_attr($booking_url); ?>" placeholder="https://..." style="width: 100%;" /></td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div>
+                        <h4 style="color: #d63384; border-bottom: 2px solid #d63384; padding-bottom: 8px;"><?php _e('Booking Policies', $this->translate); ?></h4>
+                        <table class="form-table">
+                            <tr>
+                                <th><label for="tour_advance_payment"><?php _e('Advance Payment:', $this->translate); ?></label></th>
+                                <td><input type="text" id="tour_advance_payment" name="tour_advance_payment" value="<?php echo esc_attr($advance_payment); ?>" placeholder="e.g., 50% advance required" style="width: 100%;" /></td>
+                            </tr>
+                            <tr>
+                                <th><label for="tour_cancellation_policy"><?php _e('Cancellation Policy:', $this->translate); ?></label></th>
+                                <td><textarea id="tour_cancellation_policy" name="tour_cancellation_policy" rows="4" style="width: 100%;" placeholder="e.g., Free cancellation up to 24 hours before departure..."><?php echo esc_textarea($cancellation_policy); ?></textarea></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 2: Form Configuration -->
+            <div class="tab-content" data-tab="form-config" style="display: none;">
+                <div style="background: linear-gradient(135deg, #e8f5e8 0%, #f0f8ff 100%); padding: 20px; border-radius: 10px; margin-bottom: 25px; border: 2px solid #28a745;">
+                    <h3 style="margin: 0 0 10px 0; color: #155724; display: flex; align-items: center; gap: 10px;">
+                        🤖 <?php _e('Smart Booking Form Configuration', $this->translate); ?>
+                    </h3>
+                    <p style="color: #155724; margin: 0; font-size: 14px; line-height: 1.5;">
+                        <?php _e('Configure exactly what fields and options appear in the booking form for this tour. The form will automatically adapt based on your selections - no coding required!', $this->translate); ?>
+                    </p>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <!-- Tour Characteristics -->
+                    <div style="background: #f8f9fa; padding: 25px; border-radius: 10px; border-left: 5px solid #6f42c1;">
+                        <h4 style="color: #6f42c1; margin: 0 0 20px 0; font-size: 18px;">
+                            🏷️ <?php _e('Tour Characteristics', $this->translate); ?>
+                        </h4>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="font-weight: 600; color: #495057; margin-bottom: 5px; display: block;">
+                                <?php _e('Duration (Days):', $this->translate); ?>
+                            </label>
+                            <input type="number" name="tour_duration_days" value="<?php echo esc_attr($duration_days); ?>" 
+                                   min="1" max="30" style="width: 100px; padding: 8px; border: 2px solid #ced4da; border-radius: 5px;" />
+                            <p style="color: #6c757d; font-size: 12px; margin: 5px 0 0 0;">
+                                <?php _e('Affects accommodation and pickup fields visibility', $this->translate); ?>
+                            </p>
+                        </div>
+                        
+                        <div class="feature-checkboxes">
+                            <label style="display: block; padding: 10px; background: white; border-radius: 8px; margin-bottom: 8px; border: 1px solid #dee2e6; cursor: pointer;">
+                                <input type="checkbox" name="tour_includes_accommodation" value="1" 
+                                       <?php checked($includes_accommodation, '1'); ?> style="margin-right: 10px; transform: scale(1.2);" />
+                                <strong>🏨 <?php _e('Includes Accommodation', $this->translate); ?></strong>
+                                <br><small style="color: #6c757d; margin-left: 25px;"><?php _e('Shows hotel type and room configuration fields', $this->translate); ?></small>
+                            </label>
+                            
+                            <label style="display: block; padding: 10px; background: white; border-radius: 8px; margin-bottom: 8px; border: 1px solid #dee2e6; cursor: pointer;">
+                                <input type="checkbox" name="tour_pickup_required" value="1" 
+                                       <?php checked($pickup_required, '1'); ?> style="margin-right: 10px; transform: scale(1.2);" />
+                                <strong>🚗 <?php _e('Pickup Service', $this->translate); ?></strong>
+                                <br><small style="color: #6c757d; margin-left: 25px;"><?php _e('Shows pickup location field', $this->translate); ?></small>
+                            </label>
+                            
+                            <label style="display: block; padding: 10px; background: white; border-radius: 8px; margin-bottom: 8px; border: 1px solid #dee2e6; cursor: pointer;">
+                                <input type="checkbox" name="tour_has_flexible_schedule" value="1" 
+                                       <?php checked($has_flexible_schedule, '1'); ?> style="margin-right: 10px; transform: scale(1.2);" />
+                                <strong>⏰ <?php _e('Flexible Schedule', $this->translate); ?></strong>
+                                <br><small style="color: #6c757d; margin-left: 25px;"><?php _e('Shows departure time selector with multiple options', $this->translate); ?></small>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Traveler Requirements -->
+                    <div style="background: #f8f9fa; padding: 25px; border-radius: 10px; border-left: 5px solid #dc3545;">
+                        <h4 style="color: #dc3545; margin: 0 0 20px 0; font-size: 18px;">
+                            👥 <?php _e('Traveler Information Requirements', $this->translate); ?>
+                        </h4>
+                        
+                        <div style="background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #dee2e6;">
+                            <h5 style="color: #495057; margin: 0 0 15px 0;"><?php _e('Document Requirements:', $this->translate); ?></h5>
+                            
+                            <label style="display: block; margin-bottom: 10px; cursor: pointer;">
+                                <input type="checkbox" name="tour_requires_documents" value="1" 
+                                       <?php checked($requires_documents, '1'); ?> style="margin-right: 8px; transform: scale(1.2);" />
+                                <strong>📋 <?php _e('Require Identity Documents', $this->translate); ?></strong>
+                                <br><small style="color: #6c757d; margin-left: 20px;"><?php _e('Passport/ID number for each traveler', $this->translate); ?></small>
+                            </label>
+                            
+                            <label style="display: block; margin-bottom: 10px; cursor: pointer;">
+                                <input type="checkbox" name="tour_emergency_contact_required" value="1" 
+                                       <?php checked($emergency_contact_required, '1'); ?> style="margin-right: 8px; transform: scale(1.2);" />
+                                <strong>🚨 <?php _e('Emergency Contact Required', $this->translate); ?></strong>
+                                <br><small style="color: #6c757d; margin-left: 20px;"><?php _e('For adventure tours and multi-day trips', $this->translate); ?></small>
+                            </label>
+                        </div>
+                        
+                        <div style="background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6;">
+                            <h5 style="color: #495057; margin: 0 0 15px 0;"><?php _e('Additional Fields per Traveler:', $this->translate); ?></h5>
+                            <?php 
+                            $available_fields = [
+                                'birth_date' => __('Birth Date', $this->translate),
+                                'document_type' => __('Document Type (Passport/DNI)', $this->translate),
+                                'document_number' => __('Document Number', $this->translate),
+                                'nationality' => __('Nationality', $this->translate),
+                                'gender' => __('Gender/Sex', $this->translate),
+                                'is_student' => __('Student Status', $this->translate),
+                                'dietary_restrictions' => __('Dietary Restrictions/Allergies', $this->translate),
+                                'medical_conditions' => __('Medical Conditions', $this->translate)
+                            ];
+                            
+                            foreach ($available_fields as $field_key => $field_label): ?>
+                                <label style="display: block; margin-bottom: 8px; cursor: pointer; font-size: 13px;">
+                                    <input type="checkbox" name="tour_required_traveler_fields[]" 
+                                           value="<?php echo esc_attr($field_key); ?>"
+                                           <?php checked(in_array($field_key, $required_traveler_fields)); ?> 
+                                           style="margin-right: 8px;" />
+                                    <?php echo esc_html($field_label); ?>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Languages Section -->
+                <div style="background: #e7f3ff; padding: 20px; border-radius: 10px; margin-top: 25px; border: 1px solid #b3d9ff;">
+                    <h4 style="color: #0066cc; margin: 0 0 15px 0;">
+                        🌍 <?php _e('Available Tour Languages', $this->translate); ?>
+                    </h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                        <?php 
+                        $available_languages = [
+                            'es' => __('🇪🇸 Spanish', $this->translate),
+                            'en' => __('🇺🇸 English', $this->translate), 
+                            'pt' => __('🇵🇹 Portuguese', $this->translate),
+                            'fr' => __('🇫🇷 French', $this->translate)
+                        ];
+                        
+                        foreach ($available_languages as $lang_code => $lang_name): ?>
+                            <label style="display: block; padding: 8px; background: white; border-radius: 6px; cursor: pointer; text-align: center; border: 1px solid #ccc;">
+                                <input type="checkbox" name="tour_languages_available[]" 
+                                       value="<?php echo esc_attr($lang_code); ?>"
+                                       <?php checked(in_array($lang_code, $languages_available)); ?> 
+                                       style="margin-right: 5px;" />
+                                <small><?php echo esc_html($lang_name); ?></small>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                    <p style="color: #0066cc; font-size: 13px; margin: 15px 0 0 0; text-align: center;">
+                        <?php _e('Select languages available for tour guides. Customers can choose their preferred language.', $this->translate); ?>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching
+            const tabBtns = document.querySelectorAll('.booking-config-tabs .tab-btn');
+            const tabContents = document.querySelectorAll('.booking-config-tabs .tab-content');
+            
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const targetTab = this.dataset.tab;
+                    
+                    // Update buttons
+                    tabBtns.forEach(b => {
+                        b.style.background = '#f1f1f1';
+                        b.style.color = '#333';
+                    });
+                    this.style.background = '#0073aa';
+                    this.style.color = 'white';
+                    
+                    // Update content
+                    tabContents.forEach(content => {
+                        content.style.display = content.dataset.tab === targetTab ? 'block' : 'none';
+                    });
+                });
+            });
+        });
+        </script>
         <?php
     }
 
@@ -2018,6 +2220,42 @@ class WPTBT_Tours
             if (isset($_POST['tour_cancellation_policy'])) {
                 update_post_meta($post_id, '_tour_cancellation_policy', sanitize_textarea_field($_POST['tour_cancellation_policy']));
             }
+            
+            // NEW: Save booking form configuration fields
+            $form_config_fields = [
+                'tour_duration_days' => 'intval',
+                'tour_includes_accommodation' => 'checkbox',
+                'tour_requires_documents' => 'checkbox', 
+                'tour_has_flexible_schedule' => 'checkbox',
+                'tour_pickup_required' => 'checkbox',
+                'tour_emergency_contact_required' => 'checkbox'
+            ];
+            
+            foreach ($form_config_fields as $field => $sanitize_type) {
+                if ($sanitize_type === 'checkbox') {
+                    $value = isset($_POST[$field]) ? '1' : '0';
+                } elseif ($sanitize_type === 'intval') {
+                    $value = isset($_POST[$field]) ? intval($_POST[$field]) : 1;
+                } else {
+                    $value = isset($_POST[$field]) ? sanitize_text_field($_POST[$field]) : '';
+                }
+                update_post_meta($post_id, '_' . $field, $value);
+            }
+            
+            // Save array fields
+            if (isset($_POST['tour_required_traveler_fields']) && is_array($_POST['tour_required_traveler_fields'])) {
+                $traveler_fields = array_map('sanitize_text_field', $_POST['tour_required_traveler_fields']);
+                update_post_meta($post_id, '_tour_required_traveler_fields', $traveler_fields);
+            } else {
+                update_post_meta($post_id, '_tour_required_traveler_fields', []);
+            }
+            
+            if (isset($_POST['tour_languages_available']) && is_array($_POST['tour_languages_available'])) {
+                $languages = array_map('sanitize_text_field', $_POST['tour_languages_available']);
+                update_post_meta($post_id, '_tour_languages_available', $languages);
+            } else {
+                update_post_meta($post_id, '_tour_languages_available', []);
+            }
         }
 
         // Guardar itinerario
@@ -2406,6 +2644,23 @@ class WPTBT_Tours
         $tour_title = get_the_title($tour_id);
         $tour_subtitle = get_post_meta($tour_id, '_wptbt_tour_subtitle', true) ?: '';
 
+        // ENHANCED DEBUG: Log what we're actually getting from database
+        if (current_user_can('manage_options')) {
+            error_log("=== ENHANCED DEBUG - get_tour_booking_form_data($tour_id) ===");
+            error_log("Tour hours from DB: " . print_r($tour_hours, true));
+            error_log("Is tour_hours empty? " . (empty($tour_hours) ? 'YES' : 'NO'));
+            error_log("Tour hours count: " . count($tour_hours));
+            error_log("Booking prices from DB: " . print_r($booking_prices, true));
+        }
+
+        // FALLBACK: If no hours configured, provide reasonable defaults
+        if (empty($tour_hours)) {
+            $tour_hours = ['09:00', '14:00']; // Default departure times
+            if (current_user_can('manage_options')) {
+                error_log("Using fallback hours: " . print_r($tour_hours, true));
+            }
+        }
+
         // Formatear precios para compatibilidad con el formulario existente
         $durations = [];
         foreach ($booking_prices as $price_data) {
@@ -2437,13 +2692,18 @@ class WPTBT_Tours
 
     /**
      * NUEVA: Verificar si un tour tiene configuración completa para reservas
+     * ACTUALIZADA: Menos restrictiva para permitir reservas básicas
      */
     public static function is_tour_bookable($tour_id)
     {
         $tour_hours = get_post_meta($tour_id, '_wptbt_tour_hours', true) ?: [];
         $booking_prices = get_post_meta($tour_id, '_wptbt_tour_prices', true) ?: [];
         
-        return !empty($tour_hours) && !empty($booking_prices);
+        // Permitir booking si tiene al menos horarios O precios
+        // También permitir si tiene precio básico del tour
+        $basic_price = get_post_meta($tour_id, '_tour_price', true);
+        
+        return !empty($tour_hours) || !empty($booking_prices) || !empty($basic_price);
     }
 
     /**
@@ -2680,6 +2940,91 @@ class WPTBT_Tours
             return wp_get_attachment_image_src($image_id, $size);
         }
         return false;
+    }
+    
+    /**
+     * NEW: Get tour booking form configuration
+     * Static method to get tour configuration for the booking form
+     */
+    public static function get_tour_booking_config($tour_id)
+    {
+        return [
+            'duration_days' => get_post_meta($tour_id, '_tour_duration_days', true) ?: 1,
+            'includes_accommodation' => get_post_meta($tour_id, '_tour_includes_accommodation', true) === '1',
+            'requires_documents' => get_post_meta($tour_id, '_tour_requires_documents', true) === '1',
+            'has_flexible_schedule' => get_post_meta($tour_id, '_tour_has_flexible_schedule', true) === '1',
+            'pickup_required' => get_post_meta($tour_id, '_tour_pickup_required', true) === '1',
+            'emergency_contact_required' => get_post_meta($tour_id, '_tour_emergency_contact_required', true) === '1',
+            'languages_available' => get_post_meta($tour_id, '_tour_languages_available', true) ?: [],
+            'required_traveler_fields' => get_post_meta($tour_id, '_tour_required_traveler_fields', true) ?: []
+        ];
+    }
+    
+    /**
+     * NEW: Check if field is required for this tour
+     */
+    public static function is_field_required($tour_id, $field_name)
+    {
+        $config = self::get_tour_booking_config($tour_id);
+        
+        switch ($field_name) {
+            case 'accommodation':
+            case 'room_config':
+                return $config['includes_accommodation'];
+            
+            case 'pickup_location':
+                return $config['pickup_required'];
+            
+            case 'time_selector':
+                return $config['has_flexible_schedule'];
+                
+            case 'documents':
+                return $config['requires_documents'];
+                
+            case 'emergency_contact':
+                return $config['emergency_contact_required'];
+                
+            case 'birth_date':
+            case 'document_type':
+            case 'document_number':
+            case 'dietary_restrictions':
+            case 'medical_conditions':
+                return in_array($field_name, $config['required_traveler_fields']);
+                
+            default:
+                return false;
+        }
+    }
+    
+    /**
+     * NEW: Get tour type classification
+     */
+    public static function get_tour_type($tour_id)
+    {
+        $config = self::get_tour_booking_config($tour_id);
+        
+        if ($config['duration_days'] === 1) {
+            return $config['includes_accommodation'] ? 'day_tour_with_hotel' : 'day_tour';
+        } elseif ($config['duration_days'] <= 3) {
+            return 'short_tour';
+        } elseif ($config['duration_days'] <= 7) {
+            return 'week_tour';
+        } else {
+            return 'extended_tour';
+        }
+    }
+    
+    /**
+     * Bloquear acceso a páginas de archivo de tour-categories
+     * Esta taxonomía solo debe usarse para categorización, no para páginas públicas
+     */
+    public function block_tour_categories_archive()
+    {
+        if (is_tax('tour-categories')) {
+            // Redirigir a página de tours o 404
+            wp_redirect(home_url('/tours'), 301);
+            exit;
+        }
     }
 
 }

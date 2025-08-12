@@ -44,6 +44,9 @@ function wptbt_render_tour_booking_form($tour_id_or_post)
     $durations = $tour_booking_data['durations'];
     $tour_hours = $tour_booking_data['hours'];
     $tour_subtitle = $tour_booking_data['subtitle'];
+    
+    // Obtener configuración del formulario
+    $tour_config = WPTBT_Tours::get_tour_booking_config($tour_id);
 
     // VERIFICACIÓN: Log de debug
     if (defined('WP_DEBUG') && WP_DEBUG) {
@@ -51,9 +54,27 @@ function wptbt_render_tour_booking_form($tour_id_or_post)
         error_log("Hours: " . print_r($tour_hours, true));
         error_log("Durations: " . print_r($durations, true));
     }
-
+    
     // Preparar la información de tour para JSON usando el nuevo método
-    $tour_data = [$tour_booking_data];
+    $tour_data_with_config = $tour_booking_data;
+    $tour_data_with_config['booking_config'] = $tour_config;
+    $tour_data = [$tour_data_with_config];
+
+    // NUEVO: Debug visible para administradores
+    if (current_user_can('manage_options')) {
+        echo '<div style="background: #f0f0f0; padding: 10px; margin: 10px 0; border: 1px solid #ccc; font-family: monospace; font-size: 12px;">';
+        echo '<strong>DEBUG - Tour Booking Data (Tour ID: ' . $tour_id . '):</strong><br>';
+        echo 'Title: ' . $tour_title . '<br>';
+        echo 'Hours configured: ' . count($tour_hours) . '<br>';
+        echo 'Hours: ' . print_r($tour_hours, true) . '<br>';
+        echo 'Durations configured: ' . count($durations) . '<br>';
+        echo 'Durations: ' . print_r($durations, true) . '<br>';
+        echo 'Tour Config: <pre>' . print_r($tour_config, true) . '</pre>';
+        echo 'Final tour data with config: <pre>' . print_r($tour_data_with_config, true) . '</pre>';
+        echo 'JSON data sent to form: <pre>' . print_r($tour_data, true) . '</pre>';
+        echo 'Raw tour booking data: <pre>' . print_r($tour_booking_data, true) . '</pre>';
+        echo '</div>';
+    }
 
     $json_data = wp_json_encode($tour_data);
     $form_email = get_theme_mod('tours_booking_form_email', get_option('admin_email'));
@@ -130,10 +151,10 @@ function wptbt_render_tour_booking_form($tour_id_or_post)
                     <?php
                     echo wptbt_booking_form_component(
                         [
-                            'tours' => $tour_data,
+                            'services' => $tour_data,
                             'darkMode' => false,
                             'accentColor' => get_theme_mod('tours_booking_form_accent_color', '#DC2626'),
-                            'useSingletour' => true,
+                            'useSingleService' => true,
                             'emailRecipient' => $form_email 
                         ],
                         [
@@ -279,10 +300,10 @@ function wptbt_render_tour_booking_form_legacy($tour_title, $tour_duration1 = ''
             <?php
             echo wptbt_booking_form_component(
                 [
-                    'tours' => $tour_data,
+                    'services' => $tour_data,
                     'darkMode' => false,
                     'accentColor' => '#DC2626',
-                    'useSingletour' => true,
+                    'useSingleService' => true,
                     'emailRecipient' => $form_email 
                 ],
                 [
@@ -296,6 +317,41 @@ function wptbt_render_tour_booking_form_legacy($tour_title, $tour_duration1 = ''
 <?php
     return ob_get_clean();
 }
+
+/**
+ * NUEVA FUNCIÓN DE DEBUG: Verificar horarios de un tour específico
+ * Úsala agregando ?debug_tour_hours=ID_DEL_TOUR a la URL
+ */
+function wptbt_debug_tour_hours() {
+    if (!current_user_can('manage_options')) return;
+    
+    if (isset($_GET['debug_tour_hours'])) {
+        $tour_id = intval($_GET['debug_tour_hours']);
+        
+        echo '<div style="background: #fff; border: 2px solid #007cba; padding: 20px; margin: 20px 0; font-family: monospace;">';
+        echo '<h3>🔍 DEBUG: Tour Hours for Tour ID: ' . $tour_id . '</h3>';
+        
+        // Obtener directamente de la base de datos
+        $tour_hours_raw = get_post_meta($tour_id, '_wptbt_tour_hours', true);
+        $booking_prices_raw = get_post_meta($tour_id, '_wptbt_tour_prices', true);
+        
+        echo '<h4>📊 Raw Database Data:</h4>';
+        echo '<strong>_wptbt_tour_hours:</strong> <pre>' . print_r($tour_hours_raw, true) . '</pre>';
+        echo '<strong>_wptbt_tour_prices:</strong> <pre>' . print_r($booking_prices_raw, true) . '</pre>';
+        
+        // Usar la función del sistema
+        $tour_booking_data = WPTBT_Tours::get_tour_booking_form_data($tour_id);
+        echo '<h4>🔧 Processed by get_tour_booking_form_data():</h4>';
+        echo '<pre>' . print_r($tour_booking_data, true) . '</pre>';
+        
+        // Verificar si es bookable
+        $is_bookable = WPTBT_Tours::is_tour_bookable($tour_id);
+        echo '<h4>✅ Is Bookable:</h4> ' . ($is_bookable ? 'YES' : 'NO');
+        
+        echo '</div>';
+    }
+}
+add_action('wp_head', 'wptbt_debug_tour_hours');
 
 /**
  * NUEVA FUNCIÓN: Mostrar badge de precio mínimo para listados de tours

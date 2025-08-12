@@ -1073,7 +1073,7 @@ $categories = get_the_terms($tour_id, 'tour-categories');
         <!-- Booking Section -->
         <section id="book-tour" class="py-20 bg-gradient-to-br from-blue-50 to-teal-50">
             <div class="container mx-auto px-4">
-                <div class="max-w-4xl">
+                <div class="max-w-4xl mx-auto">
                     <div class="text-center mb-12">
                         <h2 class="text-4xl font-bold text-gray-900 mb-4">
                             <?php _e('Book Your Adventure', 'wptbt-tours'); ?>

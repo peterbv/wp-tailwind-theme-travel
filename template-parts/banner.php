@@ -24,6 +24,10 @@ if ($show_banner) {
     $global_button_url = get_post_meta(get_the_ID(), 'wptbt_banner_button_url', true);
     $global_rating_text = get_post_meta(get_the_ID(), 'wptbt_banner_rating_text', true);
     $global_show_rating = get_post_meta(get_the_ID(), 'wptbt_banner_show_rating', true);
+    
+    // Obtener configuración del formulario de reserva
+    $show_booking = get_post_meta(get_the_ID(), 'wptbt_banner_show_booking', true);
+    $booking_button_text = get_post_meta(get_the_ID(), 'wptbt_banner_booking_text', true) ?: '🎯 Reservar Ahora';
     // Obtener slides configurados
     $slides = get_post_meta(get_the_ID(), 'wptbt_banner_slides', true);
 
@@ -130,11 +134,19 @@ if ($show_banner) {
                                     </div>
                                 <?php endif; ?>
 
-                                <?php if (!empty($slide_button_text) && !empty($slide_button_url)) : ?>
-                                    <a href="<?php echo esc_url($slide_button_url); ?>" class="banner-button inline-block px-10 py-4 bg-spa-accent hover:bg-[#c4a346] text-white font-medium uppercase tracking-wider text-lg rounded-sm transition-all duration-300 transform hover:translate-y-[-2px] hover:shadow-xl shadow-md min-w-[200px] text-center animate-slide-up animation-delay-600 opacity-0">
-                                        <?php echo esc_html($slide_button_text); ?>
-                                    </a>
-                                <?php endif; ?>
+                                <div class="flex flex-col sm:flex-row gap-4 items-center justify-center">
+                                    <?php if (!empty($slide_button_text) && !empty($slide_button_url)) : ?>
+                                        <a href="<?php echo esc_url($slide_button_url); ?>" class="banner-button inline-block px-10 py-4 bg-spa-accent hover:bg-[#c4a346] text-white font-medium uppercase tracking-wider text-lg rounded-sm transition-all duration-300 transform hover:translate-y-[-2px] hover:shadow-xl shadow-md min-w-[200px] text-center animate-slide-up animation-delay-600 opacity-0">
+                                            <?php echo esc_html($slide_button_text); ?>
+                                        </a>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($show_booking == '1') : ?>
+                                        <button type="button" onclick="openBookingModal()" class="booking-button-minimal animate-slide-up animation-delay-700">
+                                            <?php echo esc_html($booking_button_text); ?>
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
 
                                 <?php if ($slide_show_rating == '1') : ?>
                                     <div class="rating-block mt-8 animate-slide-up animation-delay-900 opacity-0">
@@ -236,11 +248,19 @@ if ($show_banner) {
                                     </div>
                                 <?php endif; ?>
 
-                                <?php if (!empty($slide_button_text) && !empty($slide_button_url)) : ?>
-                                    <a href="<?php echo esc_url($slide_button_url); ?>" class="banner-button inline-block px-10 py-4 bg-spa-accent hover:bg-[#c4a346] text-white font-medium uppercase tracking-wider text-lg rounded-sm transition-all duration-300 transform hover:translate-y-[-2px] hover:shadow-xl shadow-md min-w-[200px] text-center animate-slide-up animation-delay-600 opacity-0">
-                                        <?php echo esc_html($slide_button_text); ?>
-                                    </a>
-                                <?php endif; ?>
+                                <div class="flex flex-col sm:flex-row gap-4 items-center justify-center">
+                                    <?php if (!empty($slide_button_text) && !empty($slide_button_url)) : ?>
+                                        <a href="<?php echo esc_url($slide_button_url); ?>" class="banner-button inline-block px-10 py-4 bg-spa-accent hover:bg-[#c4a346] text-white font-medium uppercase tracking-wider text-lg rounded-sm transition-all duration-300 transform hover:translate-y-[-2px] hover:shadow-xl shadow-md min-w-[200px] text-center animate-slide-up animation-delay-600 opacity-0">
+                                            <?php echo esc_html($slide_button_text); ?>
+                                        </a>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($show_booking == '1') : ?>
+                                        <button type="button" onclick="openBookingModal()" class="booking-button-minimal animate-slide-up animation-delay-700">
+                                            <?php echo esc_html($booking_button_text); ?>
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
 
                                 <?php if ($slide_show_rating == '1') : ?>
                                     <div class="rating-block mt-8 animate-slide-up animation-delay-900 opacity-0">
@@ -278,6 +298,185 @@ if ($show_banner) {
         <!-- Borde ondulado optimizado para todos los dispositivos -->
 
     </div>
+
+    <!-- Estilos CSS para el botón de reserva minimalista pero visible -->
+    <style>
+        .booking-button-minimal {
+            display: inline-block;
+            padding: 18px 36px;
+            background: #D4B254;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border: 2px solid #D4B254;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 220px;
+            text-align: center;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(212, 178, 84, 0.3);
+        }
+
+        .booking-button-minimal:hover {
+            background: transparent;
+            color: #D4B254;
+            border-color: #D4B254;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(212, 178, 84, 0.4);
+        }
+
+        /* Efecto sutil de pulso cada 5 segundos */
+        .booking-button-minimal {
+            animation: gentle-attention 8s ease-in-out infinite;
+        }
+
+        @keyframes gentle-attention {
+            0%, 95%, 100% { 
+                transform: translateY(0) scale(1);
+                box-shadow: 0 4px 15px rgba(212, 178, 84, 0.3);
+            }
+            97.5% { 
+                transform: translateY(-1px) scale(1.02);
+                box-shadow: 0 6px 20px rgba(212, 178, 84, 0.4);
+            }
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .booking-button-minimal {
+                min-width: 200px;
+                padding: 16px 28px;
+                font-size: 16px;
+                letter-spacing: 1px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .booking-button-minimal {
+                min-width: 180px;
+                padding: 14px 24px;
+                font-size: 15px;
+            }
+        }
+    </style>
+
+    <?php if ($show_booking == '1') : ?>
+        <?php 
+        // Cargar el componente de formulario de reserva
+        if (function_exists('wptbt_load_solid_component')) {
+            wptbt_load_solid_component('booking-form');
+        }
+        ?>
+        <!-- Modal de reserva -->
+        <div id="booking-modal" class="booking-modal-overlay fixed inset-0 bg-black bg-opacity-75 z-[9999] hidden items-center justify-center p-4">
+            <div class="booking-modal-content bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden relative transform scale-95 transition-all duration-300">
+                <!-- Botón de cerrar -->
+                <button type="button" onclick="closeBookingModal()" class="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+                
+                <!-- Contenido del modal -->
+                <div class="booking-modal-body overflow-y-auto max-h-[90vh] p-6">
+                    <div id="solid-booking-form-modal" class="w-full"></div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        // Asegurar que las variables AJAX estén disponibles
+        if (typeof window.wptbt_ajax === 'undefined') {
+            window.wptbt_ajax = {
+                url: '<?php echo esc_url(admin_url('admin-ajax.php')); ?>',
+                nonce: '<?php echo wp_create_nonce('wptbt_booking_nonce'); ?>'
+            };
+        }
+
+        function openBookingModal() {
+            const modal = document.getElementById('booking-modal');
+            const modalContent = modal.querySelector('.booking-modal-content');
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Animar la apertura
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+            
+            // Cargar el formulario de reserva si no está cargado
+            loadBookingFormInModal();
+            
+            // Prevenir scroll del body
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeBookingModal() {
+            const modal = document.getElementById('booking-modal');
+            const modalContent = modal.querySelector('.booking-modal-content');
+            
+            // Animar el cierre
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                // Restaurar scroll del body
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        function loadBookingFormInModal() {
+            const container = document.getElementById('solid-booking-form-modal');
+            
+            // Si ya está cargado, no hacer nada
+            if (container.children.length > 0) {
+                return;
+            }
+            
+            // Cargar el componente de reserva
+            if (typeof window.initializeSolidBookingForm === 'function') {
+                window.initializeSolidBookingForm(container, {
+                    modalMode: true,
+                    onComplete: function() {
+                        closeBookingModal();
+                        // Mostrar mensaje de éxito
+                        if (typeof showBookingSuccessMessage === 'function') {
+                            showBookingSuccessMessage();
+                        }
+                    }
+                });
+            } else {
+                container.innerHTML = '<div class="text-center p-8"><p class="text-gray-600">Cargando formulario de reserva...</p></div>';
+                console.warn('SolidBookingForm not available');
+            }
+        }
+
+        // Cerrar modal con tecla Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('booking-modal');
+                if (modal && !modal.classList.contains('hidden')) {
+                    closeBookingModal();
+                }
+            }
+        });
+
+        // Cerrar modal haciendo clic fuera
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('booking-modal');
+            if (e.target === modal) {
+                closeBookingModal();
+            }
+        });
+        </script>
+    <?php endif; ?>
 
 <?php
 } // fin del if show_banner

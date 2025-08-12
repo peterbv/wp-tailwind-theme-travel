@@ -26,16 +26,32 @@ const SolidBookingForm = (props) => {
     serviceType = "Service", // SEO: Para schema markup
   } = props;
 
-  // Form states - CORRECT SOLID.JS SYNTAX
+  // Form states - CORRECT SOLID.JS SYNTAX - TOUR SPECIFIC
   const [getName, setName] = createSignal("");
   const [getEmail, setEmail] = createSignal("");
-  const [getService, setService] = createSignal("");
-  const [getDate, setDate] = createSignal("");
-  const [getTime, setTime] = createSignal("");
+  const [getPhone, setPhone] = createSignal("");
+  const [getService, setService] = createSignal(""); // Tour selection
+  const [getDate, setDate] = createSignal(""); // Departure date
+  const [getTime, setTime] = createSignal(""); // Departure time
   const [getMessage, setMessage] = createSignal("");
-  const [getDuration, setDuration] = createSignal("");
+  const [getDuration, setDuration] = createSignal(""); // Tour package duration
   const [getVisitors, setVisitors] = createSignal(1);
   const [getRecipientEmail, setRecipientEmail] = createSignal(emailRecipient);
+  
+  // New tour-specific fields
+  const [getAccommodation, setAccommodation] = createSignal("");
+  const [getRoomConfig, setRoomConfig] = createSignal("");
+  const [getPickupLocation, setPickupLocation] = createSignal("");
+  const [getEmergencyContact, setEmergencyContact] = createSignal("");
+  const [getDietaryRestrictions, setDietaryRestrictions] = createSignal([]);
+  const [getSpecialRequests, setSpecialRequests] = createSignal("");
+  const [getGuideLanguage, setGuideLanguage] = createSignal("");
+  
+  // Multiple travelers data storage
+  const [getTravelersData, setTravelersData] = createSignal([]);
+  
+  // Countries data for nationality selector
+  const [getCountries, setCountries] = createSignal([]);
 
   // Step flow states - CORRECT SYNTAX
   const [getCurrentStep, setCurrentStep] = createSignal(1);
@@ -49,6 +65,9 @@ const SolidBookingForm = (props) => {
   const [getAvailableDurations, setAvailableDurations] = createSignal([]);
   const [getSelectedService, setSelectedService] = createSignal(null);
   const [getCurrentNonce, setCurrentNonce] = createSignal("");
+  
+  // NEW: Tour configuration state
+  const [getCurrentTourConfig, setCurrentTourConfig] = createSignal(null);
 
   const [getShowServiceSelector, setShowServiceSelector] = createSignal(!useSingleService);
 
@@ -61,27 +80,28 @@ const SolidBookingForm = (props) => {
   const getStepConfig = () => {
     if (useSingleService || !shouldShowServiceSelector()) {
       return [
-        { step: 1, title: "Date & Time", icon: "calendar", description: "Choose your preferred appointment time" },
-        { step: 2, title: "Personal Details", icon: "user", description: "Provide your contact information" },
-        { step: 3, title: "Confirmation", icon: "check", description: "Review and confirm your booking" }
+        { step: 1, title: "Fecha y Salida", icon: "calendar", description: "Selecciona fecha y hora de partida" },
+        { step: 2, title: "Detalles de Viajeros", icon: "travelers", description: "Información personal y preferencias" },
+        { step: 3, title: "Confirmación de Tour", icon: "luggage", description: "Revisa tu reserva de viaje" }
       ];
     } else {
       return [
-        { step: 1, title: "Service & Schedule", icon: "calendar", description: "Select service and schedule" },
-        { step: 2, title: "Personal Details", icon: "user", description: "Provide your contact information" },
-        { step: 3, title: "Confirmation", icon: "check", description: "Review and confirm your booking" }
+        { step: 1, title: "Selección de Tour", icon: "map", description: "Elige tu aventura perfecta" },
+        { step: 2, title: "Detalles de Viajeros", icon: "travelers", description: "Información personal y preferencias" },
+        { step: 3, title: "Confirmación de Tour", icon: "luggage", description: "Revisa tu reserva de viaje" }
       ];
     }
   };
 
-  // Theme colors
+  // Theme colors - Minimal design focused
   const colors = {
-    primary: "#4F8A8B",
-    secondary: "#F7EDE2",
-    accent: accentColor,
-    sage: "#8BAB8D",
-    rose: "#D9ADB7",
-    dark: "#424242",
+    primary: "#6B7280",      // Gray-500 - neutral and clean
+    secondary: "#F9FAFB",    // Gray-50 - very light background
+    accent: accentColor,     // Keep user's accent color
+    light: "#F3F4F6",       // Gray-100 - subtle backgrounds
+    border: "#E5E7EB",       // Gray-200 - clean borders
+    text: "#374151",         // Gray-700 - readable text
+    dark: "#1F2937",         // Gray-800 - strong contrast
   };
 
   // SEO: Generate structured data for booking
@@ -168,13 +188,78 @@ const SolidBookingForm = (props) => {
         if (isToday(getDate())) {
           return false;
         }
+        // Check if time is required based on tour configuration
+        const timeRequired = shouldShowTimeSelector();
+        
+        // Auto-set time for non-flexible schedules
+        if (!timeRequired && getAvailableTimes().length > 0 && !getTime()) {
+          setTime(getAvailableTimes()[0]);
+        }
+        
         if (useSingleService || !shouldShowServiceSelector()) {
-          return getDate() && getTime();
+          return getDate() && (timeRequired ? getTime() : true);
         } else {
-          return getService() && getDate() && getTime();
+          return getService() && getDate() && (timeRequired ? getTime() : true);
         }
       case 2:
-        return getName() && getEmail() && getVisitors() > 0;
+        // Dynamic validation based on tour configuration
+        const config = getCurrentTourConfig();
+        let isValid = getName() && getEmail() && getPhone() && getVisitors() > 0;
+        
+        // Add pickup validation if required
+        if (config && config.pickup_required && !getPickupLocation()) {
+          isValid = false;
+        }
+        
+        // Add accommodation validation if required
+        if (config && config.includes_accommodation && (!getAccommodation() || !getRoomConfig())) {
+          isValid = false;
+        }
+        
+        // Validate travelers data if required by configuration
+        const travelersData = getTravelersData();
+        const expectedTravelers = getVisitors();
+        
+        if (config && (config.require_traveler_details || config.require_documents)) {
+          // Check if we have the right number of travelers
+          if (travelersData.length !== expectedTravelers) {
+            isValid = false;
+          }
+          
+          // Check if each traveler has required fields
+          for (const traveler of travelersData) {
+            if (config.require_traveler_details) {
+              if (!traveler.name || !traveler.age) {
+                isValid = false;
+                break;
+              }
+            }
+            
+            if (config.require_documents) {
+              if (!traveler.documentType || !traveler.documentNumber) {
+                isValid = false;
+                break;
+              }
+            }
+
+            // Check new required fields
+            if (config.required_traveler_fields && config.required_traveler_fields.includes('nationality')) {
+              if (!traveler.nationality) {
+                isValid = false;
+                break;
+              }
+            }
+
+            if (config.required_traveler_fields && config.required_traveler_fields.includes('gender')) {
+              if (!traveler.gender) {
+                isValid = false;
+                break;
+              }
+            }
+          }
+        }
+        
+        return isValid;
       case 3:
         return true;
       default:
@@ -182,8 +267,11 @@ const SolidBookingForm = (props) => {
     }
   };
 
+  // Validation effect - be specific about dependencies to avoid loops
   createEffect(() => {
-    setIsStepValid(validateStep(getCurrentStep()));
+    const step = getCurrentStep();
+    const isValid = validateStep(step);
+    setIsStepValid(isValid);
   });
 
   createEffect(() => {
@@ -215,9 +303,27 @@ const SolidBookingForm = (props) => {
     }
   });
 
+  // Function to load countries data
+  const loadCountriesData = async () => {
+    try {
+      const response = await fetch('/wp-content/themes/wp-tailwind-theme-travel/src/public/js/json/paises-del-mundo.json');
+      if (response.ok) {
+        const countries = await response.json();
+        setCountries(countries);
+        console.log("[DEBUG] Loaded countries:", countries.length);
+      } else {
+        console.warn("[DEBUG] Failed to load countries data");
+      }
+    } catch (error) {
+      console.error("[DEBUG] Error loading countries:", error);
+    }
+  };
+
   onMount(async () => {
     try {
       await getFreshNonce();
+      // Load countries data for nationality selector
+      await loadCountriesData();
     } catch (error) {
       console.error("[DEBUG] Failed to load initial nonce:", error);
       setResponse({
@@ -227,6 +333,7 @@ const SolidBookingForm = (props) => {
     }
 
     console.log("[DEBUG] Services data:", services);
+    console.log("[DEBUG] useSingleService:", useSingleService);
 
     if (Array.isArray(services) && services.length > 0) {
       const initialServiceId = services[0].id;
@@ -234,6 +341,19 @@ const SolidBookingForm = (props) => {
 
       const serviceIdString = String(initialServiceId);
       setService(serviceIdString);
+
+      // Para single service (single-tours), establecer configuración inmediatamente
+      if (useSingleService) {
+        const serviceObj = services[0];
+        console.log("[DEBUG] Single service - serviceObj:", serviceObj);
+        if (serviceObj && serviceObj.booking_config) {
+          console.log("[DEBUG] Single service - setting tour configuration immediately:", serviceObj.booking_config);
+          setCurrentTourConfig(serviceObj.booking_config);
+          console.log("[DEBUG] Single service - current config after set:", getCurrentTourConfig());
+        } else {
+          console.log("[DEBUG] Single service - no booking_config found in serviceObj");
+        }
+      }
 
       setTimeout(() => {
         updateServiceDetails(serviceIdString);
@@ -263,12 +383,34 @@ const SolidBookingForm = (props) => {
     if (serviceObj) {
       console.log("[DEBUG] Found service object:", serviceObj);
       setSelectedService(serviceObj);
+      
+      // NEW: Set tour configuration
+      if (serviceObj.booking_config) {
+        console.log("[DEBUG] updateServiceDetails - Setting tour configuration:", serviceObj.booking_config);
+        setCurrentTourConfig(serviceObj.booking_config);
+        console.log("[DEBUG] updateServiceDetails - current config after set:", getCurrentTourConfig());
+      } else {
+        console.log("[DEBUG] updateServiceDetails - no booking_config, using fallback");
+        // Fallback configuration for older tours
+        setCurrentTourConfig({
+          duration_days: 1,
+          includes_accommodation: false,
+          requires_documents: false,
+          has_flexible_schedule: true,
+          pickup_required: false,
+          emergency_contact_required: false,
+          languages_available: ['es'],
+          required_traveler_fields: []
+        });
+      }
 
       if (Array.isArray(serviceObj.hours) && serviceObj.hours.length > 0) {
         console.log("[DEBUG] Setting available times:", serviceObj.hours);
+        console.log("[DEBUG] Tour ID:", serviceObj.id, "- Available Times:", serviceObj.hours, "- Hours from Service:", serviceObj.hours);
         setAvailableTimes([...serviceObj.hours]);
       } else {
-        console.log("[DEBUG] No hours found for service");
+        console.log("[DEBUG] No hours found for service - serviceObj.hours:", serviceObj.hours);
+        console.log("[DEBUG] Tour ID:", serviceObj.id, "- Full service object:", serviceObj);
         setAvailableTimes([]);
       }
 
@@ -397,6 +539,112 @@ const SolidBookingForm = (props) => {
     const availableServices = getServiceOptions();
     return availableServices.length > 1;
   });
+  
+  // NEW: Helper functions to check if fields should be displayed based on tour configuration
+  const shouldShowAccommodationFields = createMemo(() => {
+    const config = getCurrentTourConfig();
+    // Mostrar siempre como opcional, pero marcar como requerido si está configurado
+    return true;
+  });
+  
+  const shouldShowPickupField = createMemo(() => {
+    const config = getCurrentTourConfig();
+    // Mostrar siempre como opcional, pero marcar como requerido si está configurado
+    return true;
+  });
+  
+  const shouldShowTimeSelector = createMemo(() => {
+    const availableTimes = getAvailableTimes();
+    // Mostrar selector si hay más de una hora disponible, sin importar la configuración
+    return Array.isArray(availableTimes) && availableTimes.length > 1;
+  });
+  
+  const shouldShowDocumentFields = createMemo(() => {
+    const config = getCurrentTourConfig();
+    console.log("[DEBUG] shouldShowDocumentFields - config:", config);
+    const result = config && config.requires_documents;
+    console.log("[DEBUG] shouldShowDocumentFields - result:", result);
+    return result;
+  });
+  
+  const isFieldRequired = (fieldName) => {
+    const config = getCurrentTourConfig();
+    console.log(`[DEBUG] isFieldRequired('${fieldName}') - config:`, config);
+    if (!config) {
+      console.log(`[DEBUG] isFieldRequired('${fieldName}') - no config, returning false`);
+      return false;
+    }
+    const result = config.required_traveler_fields && config.required_traveler_fields.includes(fieldName);
+    console.log(`[DEBUG] isFieldRequired('${fieldName}') - result:`, result);
+    return result;
+  };
+  
+  const getTourDurationDays = createMemo(() => {
+    const config = getCurrentTourConfig();
+    return config ? config.duration_days : 1;
+  });
+
+  // Initialize travelers data when visitor count changes (no circular dependency)
+  createEffect(() => {
+    const visitorCount = getVisitors();
+    const currentData = getTravelersData();
+    
+    // Only update if visitor count actually changed the array length
+    if (currentData.length !== visitorCount) {
+      const newTravelersData = [];
+      for (let i = 0; i < visitorCount; i++) {
+        const existingData = currentData[i] || {};
+        newTravelersData.push({
+          id: i,
+          name: i === 0 ? getName() : (existingData.name || ''),
+          email: i === 0 ? getEmail() : (existingData.email || ''),
+          phone: i === 0 ? getPhone() : (existingData.phone || ''),
+          birthDate: existingData.birthDate || '',
+          documentType: existingData.documentType || '',
+          documentNumber: existingData.documentNumber || '',
+          nationality: existingData.nationality || '',
+          gender: existingData.gender || '',
+          isStudent: existingData.isStudent || false,
+          dietaryRestrictions: existingData.dietaryRestrictions || '',
+          medicalConditions: existingData.medicalConditions || ''
+        });
+      }
+      
+      setTravelersData(newTravelersData);
+    }
+  });
+
+  // Auto-select duration when only one option is available
+  createEffect(() => {
+    const options = getDurationOptions();
+    if (options.length === 1 && !getDuration()) {
+      setDuration(options[0].value);
+    }
+  });
+
+  // Function to update traveler data
+  const updateTravelerData = (index, field, value) => {
+    const travelers = getTravelersData();
+    const updatedTravelers = [...travelers];
+    if (updatedTravelers[index]) {
+      // Only update if the value actually changed
+      if (updatedTravelers[index][field] !== value) {
+        updatedTravelers[index] = {
+          ...updatedTravelers[index],
+          [field]: value
+        };
+        
+        // If updating the main traveler (index 0), also update main form fields
+        if (index === 0) {
+          if (field === 'name' && getName() !== value) setName(value);
+          if (field === 'email' && getEmail() !== value) setEmail(value);
+          if (field === 'phone' && getPhone() !== value) setPhone(value);
+        }
+        
+        setTravelersData(updatedTravelers);
+      }
+    }
+  };
 
   const getDurationOptions = createMemo(() => {
     const durations = getAvailableDurations();
@@ -456,6 +704,17 @@ const SolidBookingForm = (props) => {
       formData.append("time", getTime());
       formData.append("message", getMessage());
       formData.append("visitors", getVisitors());
+      formData.append("phone", getPhone());
+      formData.append("accommodation", getAccommodation());
+      formData.append("room_config", getRoomConfig());
+      formData.append("pickup_location", getPickupLocation());
+      formData.append("emergency_contact", getEmergencyContact());
+      formData.append("special_requests", getSpecialRequests());
+      formData.append("guide_language", getGuideLanguage());
+
+      // Add travelers data
+      const travelersData = getTravelersData();
+      formData.append("travelers_data", JSON.stringify(travelersData));
 
       if (getDuration()) {
         formData.append("duration", getDuration());
@@ -494,6 +753,12 @@ const SolidBookingForm = (props) => {
           setDate("");
           setTime("");
           setVisitors(1);
+          setPhone("");
+          setAccommodation("");
+          setRoomConfig("");
+          setPickupLocation("");
+          setEmergencyContact("");
+          setSpecialRequests("");
 
           if (services.length > 0) {
             setService(services[0].id);
@@ -522,28 +787,28 @@ const SolidBookingForm = (props) => {
     const iconClass = `w-6 h-6 ${isActive ? 'text-white' : isCompleted ? 'text-white' : isDarkMode ? 'text-gray-400' : 'text-gray-500'}`;
     if (!isCompleted) {
       switch (iconType) {
-        case 'service':
+        case 'map':
           return (
-            <svg class={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="Service selection">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            <svg class={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="Tour selection">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
             </svg>
           );
         case 'calendar':
           return (
-            <svg class={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="Date and time selection">
+            <svg class={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="Fecha de partida">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           );
-        case 'user':
+        case 'travelers':
           return (
-            <svg class={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="Personal information">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            <svg class={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="Información de viajeros">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
             </svg>
           );
-        case 'check':
+        case 'luggage':
           return (
-            <svg class={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="Confirmation">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg class={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="Confirmación de viaje">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           );
         default:
@@ -661,8 +926,8 @@ const SolidBookingForm = (props) => {
                   <CustomSelect
                     id={`${formId}-service`}
                     name="service"
-                    options={() => getServiceOptions()}
-                    value={() => getService()}
+                    options={getServiceOptions}
+                    value={getService}
                     onChange={handleServiceChange}
                     placeholder={getTranslation("Select a service")}
                     labelText={getTranslation("Select Service")}
@@ -682,7 +947,7 @@ const SolidBookingForm = (props) => {
                 <div class="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                   <div class="flex items-center space-x-3">
                     <div class="flex-shrink-0">
-                      <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                       </svg>
@@ -701,24 +966,24 @@ const SolidBookingForm = (props) => {
                 </div>
               </Show>
 
-              {/* Duration selector */}
-              <Show when={getDurationOptions().length > 0}>
+              {/* Duration selector - Only show if more than 1 option */}
+              <Show when={getDurationOptions().length > 1}>
                 <div class="mb-6">
                   <CustomSelect
                     id={`${formId}-duration`}
                     name="duration"
-                    options={() => getDurationOptions()}
-                    value={() => getDuration()}
+                    options={getDurationOptions}
+                    value={getDuration}
                     onChange={setDuration}
-                    placeholder={getTranslation("Select duration")}
-                    labelText={getTranslation("Select Duration")}
+                    placeholder="Select tour package"
+                    labelText="Tour Package"
                     required={true}
                     darkMode={isDarkMode}
                     colors={colors}
                     aria-describedby="duration-help"
                   />
                   <div id="duration-help" class="sr-only">
-                    Select the duration for your appointment. Price varies by duration.
+                    Selecciona el paquete de tour que prefieras. El precio varía según la duración del viaje.
                   </div>
                 </div>
               </Show>
@@ -731,14 +996,14 @@ const SolidBookingForm = (props) => {
                   value={getDate()}
                   onChange={handleDateChange}
                   required={true}
-                  labelText={getTranslation("Select Date")}
-                  placeholder={getTranslation("Select date")}
+                  labelText="Departure Date"
+                  placeholder="Select your departure date"
                   darkMode={isDarkMode}
                   colors={colors}
                   aria-describedby="date-help"
                 />
                 <div id="date-help" class="sr-only">
-                  Choose your preferred date for the appointment. Same-day bookings require WhatsApp contact.
+                  Elige tu fecha de partida preferida para el tour. Las salidas del mismo día requieren contacto por WhatsApp.
                 </div>
               </div>
 
@@ -750,54 +1015,92 @@ const SolidBookingForm = (props) => {
                     </svg>
                     <div>
                       <p class="text-sm text-green-700">
-                        <strong class="block">Reserve for TODAY ({formatDateForDisplay(getDate())}):</strong>
-                        Only via WhatsApp for same-day appointments.
+                        <strong class="block">¡Tour para HOY ({formatDateForDisplay(getDate())})!</strong>
+                        Las salidas del mismo día solo se confirman por WhatsApp.
                       </p>
                       <a 
                         href="https://api.whatsapp.com/send/?phone=51906597850&amp;text&amp;type=phone_number&amp;app_absent=0" 
                         target="_blank" 
                         rel="noopener noreferrer"
                         class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 block mt-2 inline-flex items-center"
-                        aria-label="Contact us via WhatsApp for same-day booking"
+                        aria-label="Contactarnos vía WhatsApp para tour del mismo día"
                       >
-                        Contact by WhatsApp
+                        Contactar por WhatsApp
                       </a>
                     </div>
                   </div>
                 </aside>
               </Show>
 
-              {/* Time selector */}
-              <div>
-                <CustomSelect
-                  id={`${formId}-time`}
-                  name="time"
-                  options={() => getTimeOptions()}
-                  value={() => getTime()}
-                  onChange={setTime}
-                  placeholder={getTranslation("Select available time")}
-                  labelText={getTranslation("Select Time")}
-                  required={true}
-                  darkMode={isDarkMode}
-                  colors={colors}
-                  aria-describedby="time-help"
-                />
-                <div id="time-help" class="sr-only">
-                  Select your preferred appointment time from available slots
-                </div>
+              {/* Time selector - Dynamic based on tour configuration */}
+              <Show when={shouldShowTimeSelector()}>
+                <div>
+                  <CustomSelect
+                    id={`${formId}-time`}
+                    name="time"
+                    options={getTimeOptions}
+                    value={getTime}
+                    onChange={setTime}
+                    placeholder="Select departure time"
+                    labelText="Departure Time"
+                    required={true}
+                    darkMode={isDarkMode}
+                    colors={colors}
+                    aria-describedby="time-help"
+                  />
+                  <div id="time-help" class="sr-only">
+                    Selecciona tu hora de salida preferida para el tour
+                  </div>
 
-                <Show when={getTimeOptions().length === 0}>
-                  <p class={`text-center py-4 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} role="status" aria-live="polite">
-                    {getTranslation("No available times")}
-                    <br />
-                    <span class="text-xs">
-                      {getSelectedService()
-                        ? `Service: ${getSelectedService().title}, Hours configured: ${getAvailableTimes().length}`
-                        : 'Please select a service first'}
-                    </span>
-                  </p>
-                </Show>
-              </div>
+                  <Show when={getTimeOptions().length === 0}>
+                    <div class={`text-center py-4 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} role="status" aria-live="polite">
+                      <p>No departure times available</p>
+                      <div class="text-xs mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        {getSelectedService()
+                          ? (
+                            <div>
+                              <p><strong>Tour:</strong> {getSelectedService().title}</p>
+                              <p><strong>Tour ID:</strong> {getSelectedService().id}</p>
+                              <p><strong>Hours configured:</strong> {getAvailableTimes().length}</p>
+                              <p><strong>Hours from service:</strong> {JSON.stringify(getSelectedService().hours || [])}</p>
+                              <p><strong>useSingleService:</strong> {props.useSingleService ? "true" : "false"}</p>
+                              <p class="mt-2 text-yellow-700">
+                                <strong>⚠️ To configure departure times:</strong><br/>
+                                1. Go to WordPress Admin → Tours → Edit this tour<br/>
+                                2. Click on <strong>"Availability"</strong> tab<br/>
+                                3. In <strong>"Departure Times"</strong> section, add times (e.g., 09:00, 14:00)<br/>
+                                4. Click <strong>"Update"</strong> to save
+                              </p>
+                            </div>
+                          )
+                          : 'Please select a tour first'
+                        }
+                      </div>
+                    </div>
+                  </Show>
+                </div>
+              </Show>
+              
+              {/* Fixed departure time for single-time tours */}
+              <Show when={!shouldShowTimeSelector() && getSelectedService() && getAvailableTimes().length > 0}>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div class="flex items-center space-x-3">
+                    <div class="flex-shrink-0">
+                      <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 class="text-sm font-medium text-gray-700">
+                        Hora de Salida
+                      </h3>
+                      <p class="text-sm text-gray-600">
+                        Este tour sale a las <strong>{getAvailableTimes()[0]}</strong>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </Show>
             </article>
           </Show>
 
@@ -806,10 +1109,10 @@ const SolidBookingForm = (props) => {
             <article class="space-y-6" role="tabpanel" aria-labelledby="step2-heading">
               <header class="text-center mb-8">
                 <h1 id="step2-heading" class={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                  Personal Details
+                  Detalles del Viajero
                 </h1>
                 <p class={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  Information to confirm your booking
+                  Información necesaria para confirmar tu reserva de tour
                 </p>
               </header>
 
@@ -817,7 +1120,7 @@ const SolidBookingForm = (props) => {
                 {/* Name field */}
                 <div>
                   <label for={`${formId}-name`} class={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>
-                    {getTranslation("Name")} *
+                    Nombre Completo *
                   </label>
                   <input
                     id={`${formId}-name`}
@@ -832,17 +1135,17 @@ const SolidBookingForm = (props) => {
                       : "bg-gray-50 border-gray-300 text-gray-900"
                       } border rounded-lg focus:ring-2 focus:outline-none transition-colors duration-200`}
                     style={{ "border-color": colors.accent }}
-                    placeholder={getTranslation("Full name")}
+                    placeholder="Nombre completo del viajero principal"
                   />
                   <div id={`${formId}-name-help`} class="sr-only">
-                    Enter your full name as it should appear on the booking
+                    Ingrese el nombre completo tal como aparecerá en la reserva del tour
                   </div>
                 </div>
 
                 {/* Email field */}
                 <div>
                   <label for={`${formId}-email`} class={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>
-                    {getTranslation("Email")} *
+                    Email de Contacto *
                   </label>
                   <input
                     id={`${formId}-email`}
@@ -857,42 +1160,195 @@ const SolidBookingForm = (props) => {
                       : "bg-gray-50 border-gray-300 text-gray-900"
                       } border rounded-lg focus:ring-2 focus:outline-none transition-colors duration-200`}
                     style={{ "border-color": colors.accent }}
-                    placeholder="you@email.com"
+                    placeholder="tu@email.com"
                   />
                   <div id={`${formId}-email-help`} class="sr-only">
-                    Enter a valid email address to receive booking confirmation
+                    Ingresa una dirección de email válida para recibir la confirmación del tour
                   </div>
                 </div>
+
+                {/* Phone field - CRUCIAL for tours */}
+                <div class="md:col-span-2">
+                  <label for={`${formId}-phone`} class={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>
+                    Teléfono / WhatsApp *
+                  </label>
+                  <input
+                    id={`${formId}-phone`}
+                    type="tel"
+                    value={getPhone()}
+                    onInput={(e) => setPhone(e.target.value)}
+                    required
+                    autocomplete="tel"
+                    aria-describedby={`${formId}-phone-help`}
+                    class={`w-full px-4 py-3 ${isDarkMode
+                      ? "bg-gray-800/80 border-gray-700 text-white"
+                      : "bg-gray-50 border-gray-300 text-gray-900"
+                      } border rounded-lg focus:ring-2 focus:outline-none transition-colors duration-200`}
+                    style={{ "border-color": colors.accent }}
+                    placeholder="+51 999 888 777"
+                  />
+                  <div id={`${formId}-phone-help`} class="sr-only">
+                    Número de teléfono para contactarte sobre el tour y en caso de emergencias
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">
+                    <svg class="w-4 h-4 inline mr-1 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    </svg>
+                    Preferimos WhatsApp para comunicación durante el tour y actualizaciones
+                  </p>
+                </div>
+
+                {/* Accommodation fields - Always show but mark as optional */}
+                <Show when={true}>
+                  {/* Accommodation type */}
+                  <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <div class="flex items-center mb-3">
+                      <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                      <label for={`${formId}-accommodation`} class="text-sm font-semibold text-gray-700">
+                        Tipo de Alojamiento {(() => {
+                          const config = getCurrentTourConfig();
+                          return config && config.includes_accommodation ? '*' : '(opcional)';
+                        })()}
+                      </label>
+                    </div>
+                    <select
+                      id={`${formId}-accommodation`}
+                      value={getAccommodation()}
+                      onInput={(e) => setAccommodation(e.target.value)}
+                      aria-describedby={`${formId}-accommodation-help`}
+                      class="w-full px-4 py-3 bg-white border-amber-300 text-gray-900 border rounded-lg focus:ring-2 focus:ring-amber-300 focus:outline-none transition-colors duration-200"
+                    >
+                      <option value="">Select accommodation type...</option>
+                      <option value="hotel-3star">3-Star Hotel</option>
+                      <option value="hotel-4star">4-Star Hotel</option>
+                      <option value="hotel-5star">5-Star Hotel (Luxury)</option>
+                      <option value="hostel">Hostel/Backpacker</option>
+                      <option value="airbnb">Airbnb/Apartment</option>
+                      <option value="camping">Camping</option>
+                      <option value="lodge">Lodge/Refuge</option>
+                    </select>
+                    <div id={`${formId}-accommodation-help`} class="sr-only">
+                      Selecciona el tipo de alojamiento incluido en tu tour de {getTourDurationDays()} días
+                    </div>
+                    <p class="text-xs text-amber-700 mt-2 flex items-center">
+                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Alojamiento incluido para tour de {getTourDurationDays()} {getTourDurationDays() === 1 ? 'día' : 'días'}
+                    </p>
+                  </div>
+
+                  {/* Room configuration */}
+                  <Show when={getAccommodation() && getAccommodation() !== 'camping' && getAccommodation() !== 'none'}>
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                      <div class="flex items-center mb-3">
+                        <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        <label for={`${formId}-room-config`} class="text-sm font-semibold text-gray-700">
+                          Room Configuration *
+                        </label>
+                      </div>
+                      <select
+                        id={`${formId}-room-config`}
+                        value={getRoomConfig()}
+                        onInput={(e) => setRoomConfig(e.target.value)}
+                        aria-describedby={`${formId}-room-config-help`}
+                        class="w-full px-4 py-3 bg-white border-gray-300 text-gray-900 border rounded-lg focus:ring-2 focus:ring-gray-300 focus:outline-none transition-colors duration-200"
+                      >
+                        <option value="">Select room configuration...</option>
+                        <option value="single">Single Room</option>
+                        <option value="double">Double Room (2 beds)</option>
+                        <option value="matrimonial">Double Room (1 bed)</option>
+                        <option value="triple">Triple Room</option>
+                        <option value="family">Family Room</option>
+                        <option value="shared">Shared Room</option>
+                      </select>
+                      <div id={`${formId}-room-config-help`} class="sr-only">
+                        Selecciona la configuración de habitación que necesitas para {getVisitors()} viajero{getVisitors() > 1 ? 's' : ''}
+                      </div>
+                      <p class="text-xs text-blue-700 mt-2">
+                        Para {getVisitors()} viajero{getVisitors() > 1 ? 's' : ''} - elige la opción que mejor se adapte a tu grupo
+                      </p>
+                    </div>
+                  </Show>
+                </Show>
+
+                {/* Pickup location - Always show as optional */}
+                <Show when={true}>
+                  <div class="md:col-span-2">
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                      <div class="flex items-center mb-3">
+                        <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <label for={`${formId}-pickup`} class="text-sm font-semibold text-gray-700">
+                          Lugar de Recojo {(() => {
+                            const config = getCurrentTourConfig();
+                            return config && config.pickup_required ? '*' : '(opcional)';
+                          })()}
+                        </label>
+                      </div>
+                      <input
+                        id={`${formId}-pickup`}
+                        type="text"
+                        value={getPickupLocation()}
+                        onInput={(e) => setPickupLocation(e.target.value)}
+                        aria-describedby={`${formId}-pickup-help`}
+                        class="w-full px-4 py-3 bg-white border-gray-300 text-gray-900 border rounded-lg focus:ring-2 focus:ring-gray-300 focus:outline-none transition-colors duration-200"
+                        placeholder="Hotel, dirección o punto de referencia donde te recogeremos"
+                      />
+                      <div id={`${formId}-pickup-help`} class="sr-only">
+                        Indica dónde prefieres que te recojamos para el inicio del tour
+                      </div>
+                      <p class="text-xs text-green-700 mt-2 flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Te contactaremos 1 hora antes para confirmar la ubicación exacta
+                      </p>
+                    </div>
+                  </div>
+                </Show>
               </div>
 
-              {/* Number of visitors */}
-              <div role="group" aria-labelledby={`${formId}-visitors-label`}>
-                <h3 id={`${formId}-visitors-label`} class={`block text-sm font-medium mb-4 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>
-                  {getTranslation("Number of Visitors")} *
-                </h3>
-                <div class="flex items-center justify-center space-x-6" aria-describedby={`${formId}-visitors-help`}>
+              {/* Number of travelers */}
+              <div role="group" aria-labelledby={`${formId}-travelers-label`} class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                <div class="flex items-center mb-4">
+                  <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  <h3 id={`${formId}-travelers-label`} class={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                    Número de Viajeros *
+                  </h3>
+                </div>
+                <div class="flex items-center justify-center space-x-8" aria-describedby={`${formId}-travelers-help`}>
                   <button
                     type="button"
                     onClick={() => getVisitors() > 1 && setVisitors((prev) => prev - 1)}
                     disabled={getVisitors() <= 1}
-                    aria-label="Decrease number of visitors"
-                    class={`p-3 rounded-lg transition-all duration-200 ${getVisitors() <= 1
-                      ? 'opacity-50 cursor-not-allowed'
-                      : 'hover:bg-gray-200/20 transform hover:scale-105'
+                    aria-label="Disminuir número de viajeros"
+                    class={`p-4 rounded-full transition-all duration-300 shadow-md ${getVisitors() <= 1
+                      ? 'opacity-50 cursor-not-allowed bg-gray-200'
+                      : 'bg-white hover:bg-teal-50 transform hover:scale-110 hover:shadow-lg border-2 border-teal-200'
                       }`}
-                    style={{ backgroundColor: `${colors.accent}20` }}
                   >
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                    <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M20 12H4" />
                     </svg>
                   </button>
 
-                  <div class={`text-center min-w-24 ${isDarkMode ? 'text-white' : 'text-gray-800'}`} aria-live="polite">
-                    <span class="text-4xl font-bold" aria-label={`${getVisitors()} ${getVisitors() === 1 ? 'person' : 'people'}`}>
-                      {getVisitors()}
-                    </span>
-                    <p class="text-sm text-gray-500 mt-1" aria-hidden="true">
-                      {getVisitors() === 1 ? 'person' : 'people'}
+                  <div class={`text-center min-w-32 ${isDarkMode ? 'text-white' : 'text-gray-800'}`} aria-live="polite">
+                    <div class="bg-white rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-2 shadow-lg border-4 border-teal-100">
+                      <span class="text-3xl font-bold text-gray-500" aria-label={`${getVisitors()} ${getVisitors() === 1 ? 'viajero' : 'viajeros'}`}>
+                        {getVisitors()}
+                      </span>
+                    </div>
+                    <p class="text-sm font-medium text-teal-700" aria-hidden="true">
+                      {getVisitors() === 1 ? 'Viajero' : 'Viajeros'}
                     </p>
                   </div>
 
@@ -900,43 +1356,412 @@ const SolidBookingForm = (props) => {
                     type="button"
                     onClick={() => getVisitors() < 20 && setVisitors((prev) => prev + 1)}
                     disabled={getVisitors() >= 20}
-                    aria-label="Increase number of visitors"
-                    class={`p-3 rounded-lg transition-all duration-200 ${getVisitors() >= 20
-                      ? 'opacity-50 cursor-not-allowed'
-                      : 'hover:bg-gray-200/20 transform hover:scale-105'
+                    aria-label="Aumentar número de viajeros"
+                    class={`p-4 rounded-full transition-all duration-300 shadow-md ${getVisitors() >= 20
+                      ? 'opacity-50 cursor-not-allowed bg-gray-200'
+                      : 'bg-white hover:bg-teal-50 transform hover:scale-110 hover:shadow-lg border-2 border-teal-200'
                       }`}
-                    style={{ backgroundColor: `${colors.accent}20` }}
                   >
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
                     </svg>
                   </button>
                 </div>
-                <div id={`${formId}-visitors-help`} class="sr-only">
-                  Use the minus and plus buttons to adjust the number of visitors (1-20)
+                <div id={`${formId}-travelers-help`} class="sr-only">
+                  Usa los botones para ajustar el número de viajeros (1-20 personas)
+                </div>
+                <div class="flex items-center justify-center text-xs text-gray-500 mt-3 font-medium">
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Máximo 20 viajeros por reserva
                 </div>
               </div>
 
-              {/* Additional information */}
-              <div>
-                <label for={`${formId}-message`} class={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>
-                  {getTranslation("Additional Information (Optional)")}
-                </label>
-                <textarea
-                  id={`${formId}-message`}
-                  value={getMessage()}
-                  onInput={(e) => setMessage(e.target.value)}
-                  rows="4"
-                  aria-describedby={`${formId}-message-help`}
-                  class={`w-full px-4 py-3 ${isDarkMode
-                    ? "bg-gray-800/80 border-gray-700 text-white"
-                    : "bg-gray-50 border-gray-300 text-gray-900"
-                    } border rounded-lg focus:ring-2 focus:outline-none transition-colors duration-200 resize-none`}
-                  style={{ "border-color": colors.accent }}
-                  placeholder="Any special requests or additional information..."
+              {/* Individual Traveler Information Forms */}
+              <div class="space-y-6">
+                <For each={Array.from({length: getVisitors()}, (_, i) => i)}>
+                  {(travelerIndex) => {
+                    const travelerNumber = travelerIndex + 1;
+                    const isMainTraveler = travelerIndex === 0;
+                    
+                    return (
+                      <div class={`p-6 rounded-xl border-2 transition-all duration-300 ${
+                        isMainTraveler 
+                          ? (isDarkMode ? 'border-teal-500 bg-gray-800/70' : 'border-teal-400 bg-teal-50/50')
+                          : (isDarkMode ? 'border-gray-600 bg-gray-800/40' : 'border-gray-200 bg-gray-50/50')
+                      }`}>
+                        <div class="flex items-center mb-4">
+                          {isMainTraveler ? (
+                            <>
+                              <svg class="w-6 h-6 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                              </svg>
+                              <h3 class={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                                Viajero Principal (Contacto)
+                              </h3>
+                            </>
+                          ) : (
+                            <>
+                              <svg class="w-6 h-6 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m3 5.197H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              <h3 class={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                                Viajero {travelerNumber}
+                              </h3>
+                            </>
+                          )}
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Full Name */}
+                          <div>
+                            <label class={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                              Nombre Completo *
+                            </label>
+                            <input
+                              type="text"
+                              value={getTravelersData()[travelerIndex]?.name || ''}
+                              onInput={(e) => {
+                                updateTravelerData(travelerIndex, 'name', e.target.value);
+                              }}
+                              required={true}
+                              class={`w-full px-4 py-3 ${isDarkMode
+                                ? "bg-gray-800/80 border-gray-700 text-white placeholder-gray-400"
+                                : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                              } border rounded-lg focus:ring-2 focus:ring-teal-300 focus:border-teal-400 focus:outline-none transition-all duration-200`}
+                              placeholder="Ingresa el nombre completo"
+                            />
+                          </div>
+                          
+                          {/* Email (only for main traveler) */}
+                          <Show when={isMainTraveler}>
+                            <div>
+                              <label class={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                Email de Contacto *
+                              </label>
+                              <input
+                                type="email"
+                                value={getEmail()}
+                                onInput={(e) => setEmail(e.target.value)}
+                                required={true}
+                                class={`w-full px-4 py-3 ${isDarkMode
+                                  ? "bg-gray-800/80 border-gray-700 text-white placeholder-gray-400"
+                                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                                } border rounded-lg focus:ring-2 focus:ring-teal-300 focus:border-teal-400 focus:outline-none transition-all duration-200`}
+                                placeholder="ejemplo@email.com"
+                              />
+                            </div>
+                          </Show>
+                          
+                          {/* Phone/WhatsApp (only for main traveler) */}
+                          <Show when={isMainTraveler}>
+                            <div>
+                              <label class={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                Teléfono/WhatsApp *
+                              </label>
+                              <input
+                                type="tel"
+                                value={getPhone()}
+                                onInput={(e) => setPhone(e.target.value)}
+                                required={true}
+                                class={`w-full px-4 py-3 ${isDarkMode
+                                  ? "bg-gray-800/80 border-gray-700 text-white placeholder-gray-400"
+                                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                                } border rounded-lg focus:ring-2 focus:ring-teal-300 focus:border-teal-400 focus:outline-none transition-all duration-200`}
+                                placeholder="+51 999 999 999"
+                              />
+                            </div>
+                          </Show>
+                          
+                          {/* Birth Date - Show for all travelers if required */}
+                          <Show when={isFieldRequired('birth_date')}>
+                            <div>
+                              <label class={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                Birth Date *
+                              </label>
+                              <input
+                                type="date"
+                                value={getTravelersData()[travelerIndex]?.birthDate || ''}
+                                onInput={(e) => updateTravelerData(travelerIndex, 'birthDate', e.target.value)}
+                                class={`w-full px-4 py-3 ${isDarkMode
+                                  ? "bg-gray-800/80 border-gray-700 text-white"
+                                  : "bg-white border-gray-300 text-gray-900"
+                                } border rounded-lg focus:ring-2 focus:ring-teal-300 focus:border-teal-400 focus:outline-none transition-all duration-200`}
+                              />
+                            </div>
+                          </Show>
+                          
+                          {/* Document fields - Show if documents required */}
+                          <Show when={shouldShowDocumentFields()}>
+                            <div>
+                              <label class={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                Tipo de Documento *
+                              </label>
+                              <select
+                                value={getTravelersData()[travelerIndex]?.documentType || ''}
+                                onInput={(e) => updateTravelerData(travelerIndex, 'documentType', e.target.value)}
+                                class={`w-full px-4 py-3 ${isDarkMode
+                                  ? "bg-gray-800/80 border-gray-700 text-white"
+                                  : "bg-white border-gray-300 text-gray-900"
+                                } border rounded-lg focus:ring-2 focus:ring-teal-300 focus:border-teal-400 focus:outline-none transition-all duration-200`}
+                              >
+                                <option value="">Seleccionar tipo</option>
+                                <option value="dni">DNI</option>
+                                <option value="passport">Pasaporte</option>
+                                <option value="ce">Carnet de Extranjería</option>
+                              </select>
+                            </div>
+                            
+                            <div>
+                              <label class={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                Número de Documento *
+                              </label>
+                              <input
+                                type="text"
+                                value={getTravelersData()[travelerIndex]?.documentNumber || ''}
+                                onInput={(e) => updateTravelerData(travelerIndex, 'documentNumber', e.target.value)}
+                                class={`w-full px-4 py-3 ${isDarkMode
+                                  ? "bg-gray-800/80 border-gray-700 text-white placeholder-gray-400"
+                                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                                } border rounded-lg focus:ring-2 focus:ring-teal-300 focus:border-teal-400 focus:outline-none transition-all duration-200`}
+                                placeholder="Número del documento"
+                              />
+                            </div>
+                          </Show>
+                          
+                          {/* Nationality field - Show if required */}
+                          <Show when={isFieldRequired('nationality')}>
+                            <div>
+                              <label class={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                Nationality *
+                              </label>
+                              <select
+                                value={getTravelersData()[travelerIndex]?.nationality || ''}
+                                onInput={(e) => updateTravelerData(travelerIndex, 'nationality', e.target.value)}
+                                class={`w-full px-4 py-3 ${isDarkMode
+                                  ? "bg-gray-800/80 border-gray-700 text-white"
+                                  : "bg-white border-gray-300 text-gray-900"
+                                } border rounded-lg focus:ring-2 focus:ring-teal-300 focus:border-teal-400 focus:outline-none transition-all duration-200`}
+                              >
+                                <option value="">Select nationality</option>
+                                <For each={getCountries()}>
+                                  {(country) => (
+                                    <option value={country.shortName}>
+                                      {country.shortName}
+                                    </option>
+                                  )}
+                                </For>
+                              </select>
+                            </div>
+                          </Show>
+                          
+                          {/* Gender field - Show if required */}
+                          <Show when={isFieldRequired('gender')}>
+                            <div>
+                              <label class={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                Gender *
+                              </label>
+                              <select
+                                value={getTravelersData()[travelerIndex]?.gender || ''}
+                                onInput={(e) => updateTravelerData(travelerIndex, 'gender', e.target.value)}
+                                class={`w-full px-4 py-3 ${isDarkMode
+                                  ? "bg-gray-800/80 border-gray-700 text-white"
+                                  : "bg-white border-gray-300 text-gray-900"
+                                } border rounded-lg focus:ring-2 focus:ring-teal-300 focus:border-teal-400 focus:outline-none transition-all duration-200`}
+                              >
+                                <option value="">Select gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                                <option value="prefer-not-to-say">Prefer not to say</option>
+                              </select>
+                            </div>
+                          </Show>
+                          
+                          {/* Student status field - Show if required */}
+                          <Show when={isFieldRequired('is_student')}>
+                            <div>
+                              <label class={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                Student Status
+                              </label>
+                              <div class="flex items-center space-x-3">
+                                <label class="flex items-center">
+                                  <input
+                                    type="checkbox"
+                                    checked={getTravelersData()[travelerIndex]?.isStudent || false}
+                                    onInput={(e) => updateTravelerData(travelerIndex, 'isStudent', e.target.checked)}
+                                    class="w-4 h-4 text-gray-500 bg-gray-100 border-gray-300 rounded focus:ring-teal-500 focus:ring-2"
+                                  />
+                                  <span class={`ml-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                    I am a student (discount may apply)
+                                  </span>
+                                </label>
+                              </div>
+                            </div>
+                          </Show>
+                        </div>
+                        
+                        {/* Dietary restrictions and medical conditions for all travelers */}
+                        <div class="mt-4 space-y-4">
+                          <Show when={isFieldRequired('dietary_restrictions')}>
+                            <div>
+                              <label class={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                Restricciones Alimentarias
+                              </label>
+                              <textarea
+                                rows="2"
+                                value={getTravelersData()[travelerIndex]?.dietaryRestrictions || ''}
+                                onInput={(e) => updateTravelerData(travelerIndex, 'dietaryRestrictions', e.target.value)}
+                                class={`w-full px-4 py-3 ${isDarkMode
+                                  ? "bg-gray-800/80 border-gray-700 text-white placeholder-gray-400"
+                                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                                } border rounded-lg focus:ring-2 focus:ring-teal-300 focus:border-teal-400 focus:outline-none transition-all duration-200 resize-none`}
+                                placeholder="Vegetariano, vegano, alergias, etc..."
+                              />
+                            </div>
+                          </Show>
+                          
+                          <Show when={isFieldRequired('medical_conditions')}>
+                            <div>
+                              <label class={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                Condiciones Médicas Relevantes
+                              </label>
+                              <textarea
+                                rows="2"
+                                value={getTravelersData()[travelerIndex]?.medicalConditions || ''}
+                                onInput={(e) => updateTravelerData(travelerIndex, 'medicalConditions', e.target.value)}
+                                class={`w-full px-4 py-3 ${isDarkMode
+                                  ? "bg-gray-800/80 border-gray-700 text-white placeholder-gray-400"
+                                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                                } border rounded-lg focus:ring-2 focus:ring-teal-300 focus:border-teal-400 focus:outline-none transition-all duration-200 resize-none`}
+                                placeholder="Diabetes, hipertensión, movilidad reducida, etc..."
+                              />
+                            </div>
+                          </Show>
+                        </div>
+                      </div>
+                    );
+                  }}
+                </For>
+              </div>
+              
+              {/* Additional Tour Configuration Sections */}
+              
+              {/* Pickup Location field - Dynamic based on tour configuration */}
+              <Show when={shouldShowPickupField()}>
+                <div class="p-6 rounded-lg bg-gray-50 border border-gray-200">
+                  <div class="flex items-center mb-4">
+                    <svg class="w-6 h-6 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <label class="text-lg font-semibold text-green-900">
+                      Lugar de Recojo
+                    </label>
+                  </div>
+                  <input
+                    type="text"
+                    value={getPickupLocation()}
+                    onInput={(e) => setPickupLocation(e.target.value)}
+                    class="w-full px-4 py-3 bg-white border-green-300 text-green-900 placeholder-green-600 border rounded-lg focus:ring-2 focus:ring-green-300 focus:border-green-400 focus:outline-none transition-all duration-200"
+                    placeholder="Hotel, aeropuerto, dirección específica..."
+                  />
+                  <p class="text-sm text-green-700 mt-2">
+                    Indica dónde te gustaría que te recojan para iniciar el tour
+                  </p>
+                </div>
+              </Show>
+
+              {/* Tour Guide Language Preference */}
+              <Show when={isFieldRequired('guide_language')}>
+                <div class="p-6 rounded-lg bg-gray-50 border border-gray-200">
+                  <div class="flex items-center mb-4">
+                    <svg class="w-6 h-6 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                    </svg>
+                    <label class="text-lg font-semibold text-indigo-900">
+                      Idioma del Guía Preferido
+                    </label>
+                  </div>
+                  <select
+                    value={getGuideLanguage()}
+                    onInput={(e) => setGuideLanguage(e.target.value)}
+                    class="w-full px-4 py-3 bg-white border-indigo-300 text-indigo-900 border rounded-lg focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 focus:outline-none transition-all duration-200"
+                  >
+                    <option value="">Selecciona idioma preferido</option>
+                    <option value="spanish">Español</option>
+                    <option value="english">Inglés</option>
+                    <option value="portuguese">Portugués</option>
+                    <option value="french">Francés</option>
+                    <option value="german">Alemán</option>
+                    <option value="italian">Italiano</option>
+                  </select>
+                  <p class="text-sm text-indigo-700 mt-2">
+                    Indicamos tu preferencia al asignar el guía turístico
+                  </p>
+                </div>
+              </Show>
+
+              {/* Emergency Contact */}
+              <div class="p-6 rounded-lg bg-gray-50 border border-gray-200">
+                <div class="flex items-center mb-4">
+                  <svg class="w-6 h-6 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2zM12 6v6" />
+                  </svg>
+                  <label class="text-lg font-semibold text-red-900">
+                    Contacto de Emergencia (Opcional)
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={getEmergencyContact()}
+                  onInput={(e) => setEmergencyContact(e.target.value)}
+                  class="w-full px-4 py-3 bg-white border-red-300 text-red-900 placeholder-red-600 border rounded-lg focus:ring-2 focus:ring-red-300 focus:border-red-400 focus:outline-none transition-all duration-200"
+                  placeholder="Nombre y teléfono de familiar/amigo"
                 />
-                <div id={`${formId}-message-help`} class="sr-only">
-                  Optional field for any special requests or additional information about your booking
+                <p class="text-sm text-red-700 mt-2">
+                  Persona a contactar en caso de emergencia durante el tour
+                </p>
+              </div>
+
+              {/* General Special Requests */}
+              <div class="p-6 rounded-lg bg-gray-50 border border-gray-200">
+                <div class="flex items-center mb-4">
+                  <svg class="w-6 h-6 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                  <label class="text-lg font-semibold text-orange-900">
+                    Solicitudes Especiales (Opcional)
+                  </label>
+                </div>
+                <textarea
+                  value={getSpecialRequests()}
+                  onInput={(e) => setSpecialRequests(e.target.value)}
+                  rows="4"
+                  class="w-full px-4 py-3 bg-white border-orange-300 text-orange-900 placeholder-orange-600 border rounded-lg focus:ring-2 focus:ring-orange-300 focus:border-orange-400 focus:outline-none transition-all duration-200 resize-none"
+                  placeholder="Menciona cualquier solicitud especial para tu viaje: celebraciones, actividades específicas, necesidades especiales..."
+                />
+                <div class="flex flex-wrap gap-2 mt-3">
+                  <div class="flex items-center text-xs bg-orange-200 text-orange-800 px-2 py-1 rounded-full">
+                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                    </svg>
+                    Celebración especial
+                  </div>
+                  <div class="flex items-center text-xs bg-orange-200 text-orange-800 px-2 py-1 rounded-full">
+                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Sesión fotográfica
+                  </div>
+                  <div class="flex items-center text-xs bg-orange-200 text-orange-800 px-2 py-1 rounded-full">
+                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Actividad especial
+                  </div>
                 </div>
               </div>
             </article>
@@ -947,10 +1772,10 @@ const SolidBookingForm = (props) => {
             <article class="space-y-6" role="tabpanel" aria-labelledby="step3-heading">
               <header class="text-center mb-8">
                 <h1 id="step3-heading" class={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                  Confirm Booking
+                  Confirmar Reserva de Tour
                 </h1>
                 <p class={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  Review all details before confirming
+                  Revisa todos los detalles de tu viaje antes de confirmar
                 </p>
               </header>
 
@@ -965,7 +1790,10 @@ const SolidBookingForm = (props) => {
                 <Show when={getSelectedService()}>
                   <div class="mb-4 pb-4 border-b border-gray-300">
                     <h3 class={`font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                      📋 Service Details
+                      <svg class="w-5 h-5 inline mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                      </svg>
+                      Detalles del Tour
                     </h3>
                     <p class={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       {getSelectedService()?.title}
@@ -981,7 +1809,10 @@ const SolidBookingForm = (props) => {
                 {/* Date and time */}
                 <div class="mb-4 pb-4 border-b border-gray-300">
                   <h3 class={`font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                    📅 Appointment Date & Time
+                    <svg class="w-5 h-5 inline mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Fecha y Hora de Partida
                   </h3>
                   <div class="flex items-center space-x-2">
                     <p class={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
@@ -994,18 +1825,24 @@ const SolidBookingForm = (props) => {
                     </Show>
                   </div>
                   <p class={`text-lg font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-                    🕐 {formatTime(getTime())}
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  {formatTime(getTime())}
                   </p>
                 </div>
 
                 {/* Contact details */}
                 <div class="mb-4 pb-4 border-b border-gray-300">
                   <h3 class={`font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                    👤 Contact Information
+                    <svg class="w-5 h-5 inline mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Información del Viajero
                   </h3>
-                  <dl class={`space-y-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <dl class={`space-y-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                     <div>
-                      <dt class="inline font-medium">Name:</dt>
+                      <dt class="inline font-medium">Nombre:</dt>
                       <dd class="inline ml-1">{getName()}</dd>
                     </div>
                     <div>
@@ -1013,9 +1850,31 @@ const SolidBookingForm = (props) => {
                       <dd class="inline ml-1">{getEmail()}</dd>
                     </div>
                     <div>
-                      <dt class="inline font-medium">Visitors:</dt>
-                      <dd class="inline ml-1">{getVisitors()} {getVisitors() === 1 ? 'person' : 'people'}</dd>
+                      <dt class="inline font-medium">Teléfono:</dt>
+                      <dd class="inline ml-1">{getPhone()}</dd>
                     </div>
+                    <div>
+                      <dt class="inline font-medium">Viajeros:</dt>
+                      <dd class="inline ml-1">{getVisitors()} {getVisitors() === 1 ? 'viajero' : 'viajeros'}</dd>
+                    </div>
+                    <Show when={getAccommodation()}>
+                      <div>
+                        <dt class="inline font-medium">Alojamiento:</dt>
+                        <dd class="inline ml-1 capitalize">{getAccommodation().replace('-', ' ')}</dd>
+                      </div>
+                    </Show>
+                    <Show when={getRoomConfig()}>
+                      <div>
+                        <dt class="inline font-medium">Habitación:</dt>
+                        <dd class="inline ml-1 capitalize">{getRoomConfig()}</dd>
+                      </div>
+                    </Show>
+                    <Show when={getPickupLocation()}>
+                      <div>
+                        <dt class="inline font-medium">Lugar de recojo:</dt>
+                        <dd class="inline ml-1">{getPickupLocation()}</dd>
+                      </div>
+                    </Show>
                   </dl>
                 </div>
 
@@ -1023,7 +1882,10 @@ const SolidBookingForm = (props) => {
                 <Show when={getMessage()}>
                   <div>
                     <h3 class={`font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                      💬 Additional Information
+                      <svg class="w-5 h-5 inline mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10m0 0V6a2 2 0 00-2-2H9a2 2 0 00-2 2v2m0 0v10a2 2 0 002 2h8a2 2 0 002-2V8M9 12h6m-6 4h6" />
+                      </svg>
+                      Preferencias Especiales
                     </h3>
                     <p class={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       {getMessage()}
@@ -1032,69 +1894,90 @@ const SolidBookingForm = (props) => {
                 </Show>
               </section>
 
-              {/* Confirm button */}
+              {/* Confirm reservation button */}
               <button
                 type="submit"
                 onClick={handleSubmit}
                 disabled={getIsSubmitting()}
                 aria-describedby="submit-help"
-                class="w-full py-4 font-medium tracking-wider rounded-lg transition-all duration-300 relative overflow-hidden flex items-center justify-center group"
+                class="w-full py-4 font-semibold text-lg rounded-lg transition-all duration-200 flex items-center justify-center hover:opacity-90"
                 style={{
-                  "background-color": colors.accent,
+                  background: colors.accent,
                   color: "white",
-                  "text-shadow": "0px 1px 2px rgba(0, 0, 0, 0.3)",
                 }}
               >
-                <span class="absolute inset-0 w-1/4 h-full transition-all duration-700 ease-out transform translate-x-[-100%] bg-white opacity-20 group-hover:translate-x-[400%] skew-x-12" aria-hidden="true"></span>
-                <span class="relative flex items-center z-10">
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span class="font-semibold">
-                    {getIsSubmitting() ? getTranslation("Processing...") : getTranslation("CONFIRM BOOKING")}
-                  </span>
-                </span>
+                {getIsSubmitting() ? (
+                    <>
+                      <svg class="w-6 h-6 mr-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      <span>Procesando Reserva...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                      </svg>
+                      <span>CONFIRMAR RESERVA DE VIAJE</span>
+                    </>
+                  )}
               </button>
               <div id="submit-help" class="sr-only">
-                Click to submit your booking request. You will receive a confirmation email.
+                Haz clic para enviar tu solicitud de reserva. Recibirás un email de confirmación del tour.
               </div>
             </article>
           </Show>
         </section>
 
-        {/* SEO: Navigation with semantic structure */}
-        <nav class="flex justify-between pt-6" aria-label="Form navigation">
+        {/* Travel-themed Navigation */}
+        <nav class="flex justify-between items-center pt-8" aria-label="Navegación del formulario">
           <button
             type="button"
             onClick={prevStep}
             disabled={getCurrentStep() === 1}
-            aria-label="Go to previous step"
-            class={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${getCurrentStep() === 1
-              ? 'opacity-50 cursor-not-allowed'
-              : isDarkMode
-                ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+            aria-label="Volver al paso anterior"
+            class={`flex items-center px-4 py-2 rounded-lg font-medium transition-all duration-200 ${getCurrentStep() === 1
+              ? 'opacity-50 cursor-not-allowed text-gray-400'
+              : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
               }`}
           >
-            ← Previous
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Anterior
           </button>
+
+          <div class="flex items-center space-x-2">
+            <span class={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              Paso {getCurrentStep()} de {totalSteps}
+            </span>
+            <div class="flex space-x-1">
+              {Array.from({length: totalSteps}, (_, i) => (
+                <div 
+                  class={`w-2 h-2 rounded-full transition-all duration-200 ${
+                    i + 1 <= getCurrentStep() ? 'bg-gray-600' : 'bg-gray-300'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
 
           <Show when={getCurrentStep() < totalSteps}>
             <button
               type="button"
               onClick={nextStep}
               disabled={!getIsStepValid()}
-              aria-label="Go to next step"
-              class={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${!getIsStepValid()
-                ? 'opacity-50 cursor-not-allowed'
-                : 'hover:shadow-lg transform hover:scale-105 bg-teal-500'
+              aria-label="Continuar al siguiente paso"
+              class={`flex items-center px-4 py-2 rounded-lg font-medium transition-all duration-200 ${!getIsStepValid()
+                ? 'opacity-50 cursor-not-allowed bg-gray-200 text-gray-400'
+                : 'text-white hover:opacity-90'
                 }`}
-              style={{
-                backgroundColor: getIsStepValid() ? colors.accent : undefined,
-                color: getIsStepValid() ? 'white' : undefined
-              }}
+              style={!getIsStepValid() ? {} : { background: colors.accent }}
             >
-              Next →
+              Continuar
+              <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
             </button>
           </Show>
         </nav>

@@ -192,6 +192,26 @@ class WPTBT_Banner_Metabox
                                 style="width: 100%;" />
                         </p>
                     </div>
+
+                    <div class="banner-booking-section" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
+                        <h4 style="margin-bottom: 10px; font-weight: bold;"><?php _e('Formulario de Reserva:', 'wp-tailwind-theme'); ?></h4>
+
+                        <p>
+                            <label>
+                                <input type="checkbox" name="wptbt_banner_show_booking" value="1" <?php checked(get_post_meta($post->ID, 'wptbt_banner_show_booking', true), '1'); ?> />
+                                <?php _e('Mostrar botón "Reservar Ahora" en el banner', 'wp-tailwind-theme'); ?>
+                            </label>
+                        </p>
+
+                        <p style="margin-top: 10px;">
+                            <label for="wptbt_banner_booking_text" style="display: block; font-weight: bold; margin-bottom: 5px;">
+                                <?php _e('Texto del botón de reserva:', 'wp-tailwind-theme'); ?>
+                            </label>
+                            <input type="text" id="wptbt_banner_booking_text" name="wptbt_banner_booking_text"
+                                value="<?php echo esc_attr(get_post_meta($post->ID, 'wptbt_banner_booking_text', true) ?: '🎯 Reservar Ahora'); ?>"
+                                style="width: 100%;" />
+                        </p>
+                    </div>
                 </div>
 
 
@@ -587,6 +607,14 @@ class WPTBT_Banner_Metabox
 
             if (isset($_POST['wptbt_banner_rating_text'])) {
                 update_post_meta($post_id, 'wptbt_banner_rating_text', sanitize_text_field($_POST['wptbt_banner_rating_text']));
+            }
+
+            // Guardar configuración de formulario de reserva
+            $show_booking = isset($_POST['wptbt_banner_show_booking']) ? '1' : '';
+            update_post_meta($post_id, 'wptbt_banner_show_booking', $show_booking);
+
+            if (isset($_POST['wptbt_banner_booking_text'])) {
+                update_post_meta($post_id, 'wptbt_banner_booking_text', sanitize_text_field($_POST['wptbt_banner_booking_text']));
             }
 
             // Guardar slides individuales

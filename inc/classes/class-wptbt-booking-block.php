@@ -37,6 +37,10 @@ class WPTBT_Booking_Block
         // NUEVO: Endpoint para obtener nonce fresco
         add_action('wp_ajax_wptbt_get_fresh_nonce', [$this, 'get_fresh_nonce']);
         add_action('wp_ajax_nopriv_wptbt_get_fresh_nonce', [$this, 'get_fresh_nonce']);
+        
+        // NUEVO: Endpoint para obtener tours disponibles para booking
+        add_action('wp_ajax_get_tours_for_booking', [$this, 'get_tours_for_booking']);
+        add_action('wp_ajax_nopriv_get_tours_for_booking', [$this, 'get_tours_for_booking']);
     }
 
     /**
@@ -52,6 +56,134 @@ class WPTBT_Booking_Block
             'nonce' => $fresh_nonce,
             'timestamp' => time()
         ]);
+    }
+
+    /**
+     * NUEVO MÉTODO: Obtener todos los tours disponibles para booking via AJAX
+     */
+    public function get_tours_for_booking()
+    {
+        // Verificar nonce si está presente
+        if (isset($_POST['nonce']) && !wp_verify_nonce($_POST['nonce'], 'wptbt_booking_nonce')) {
+            wp_send_json_error(['message' => 'Nonce verification failed']);
+            return;
+        }
+
+        try {
+            // Obtener todos los tours publicados
+            $tours_query = new WP_Query([
+                'post_type' => 'tours',
+                'post_status' => 'publish',
+                'posts_per_page' => -1,
+                'orderby' => 'menu_order title',
+                'order' => 'ASC'
+            ]);
+
+            $tours_data = [];
+
+            if ($tours_query->have_posts()) {
+                while ($tours_query->have_posts()) {
+                    $tours_query->the_post();
+                    $tour_id = get_the_ID();
+                    
+                    // Usar las funciones existentes de la clase WPTBT_Tours
+                    $pricing_data = WPTBT_Tours::get_tour_pricing_data($tour_id);
+                    $booking_info = WPTBT_Tours::get_tour_booking_info($tour_id);
+                    
+                    // NEW: Obtener configuración del formulario de reservas
+                    $booking_config = WPTBT_Tours::get_tour_booking_config($tour_id);
+                    
+                    // Formatear datos para el componente Solid.js
+                    $tour_data = [
+                        'id' => (string)$tour_id,
+                        'title' => get_the_title(),
+                        'subtitle' => get_post_meta($tour_id, '_wptbt_tour_subtitle', true) ?: '',
+                        'hours' => [],
+                        'durations' => [],
+                        // NEW: Configuración del formulario
+                        'booking_config' => $booking_config
+                    ];
+
+                    // Procesar horarios según configuración
+                    if ($booking_config['has_flexible_schedule']) {
+                        // Solo mostrar horarios si el tour tiene horario flexible
+                        if (!empty($booking_info['available_times']) && is_array($booking_info['available_times'])) {
+                            $tour_data['hours'] = $booking_info['available_times'];
+                        } else {
+                            // Horarios por defecto para tours flexibles
+                            $tour_data['hours'] = ["07:00", "08:00", "09:00", "14:00", "15:00"];
+                        }
+                    } else {
+                        // Tour con horario fijo - usar los horarios configurados en Departure Times
+                        $departure_times = get_post_meta($tour_id, '_wptbt_tour_hours', true);
+                        if (!empty($departure_times) && is_array($departure_times)) {
+                            $tour_data['hours'] = $departure_times;
+                        } else {
+                            // Horario fijo por defecto si no hay configuración
+                            $tour_data['hours'] = ["08:00"];
+                        }
+                    }
+
+                    // Procesar precios y duraciones
+                    if (!empty($pricing_data['durations']) && is_array($pricing_data['durations'])) {
+                        foreach ($pricing_data['durations'] as $duration_data) {
+                            if (is_array($duration_data) && !empty($duration_data['days']) && !empty($duration_data['price'])) {
+                                $days = (int)$duration_data['days'];
+                                $price = $duration_data['price'];
+                                
+                                $tour_data['durations'][] = [
+                                    'minutes' => $days * 24 * 60, // Convertir días a minutos
+                                    'price' => $price,
+                                    'text' => $days . ' día' . ($days > 1 ? 's' : '') . ' - ' . $price,
+                                    'duration' => (string)$days,
+                                    'value' => $days . 'days-' . str_replace(['$', ' '], '', $price)
+                                ];
+                            }
+                        }
+                    }
+                    
+                    // Si no hay duraciones, agregar una por defecto
+                    if (empty($tour_data['durations'])) {
+                        $default_price = get_post_meta($tour_id, '_tour_price', true) ?: 'Consultar precio';
+                        $tour_data['durations'][] = [
+                            'minutes' => 480, // 8 horas por defecto
+                            'price' => $default_price,
+                            'text' => '1 día - ' . $default_price,
+                            'duration' => '1',
+                            'value' => '1day-' . str_replace(['$', ' '], '', $default_price)
+                        ];
+                    }
+
+                    $tours_data[] = $tour_data;
+                }
+            }
+            
+            wp_reset_postdata();
+
+            // Si no hay tours, devolver datos de ejemplo
+            if (empty($tours_data)) {
+                $tours_data[] = [
+                    'id' => 'sample',
+                    'title' => 'Consulta Personalizada',
+                    'subtitle' => 'Contacta para más información',
+                    'hours' => ["09:00", "10:00", "14:00", "15:00"],
+                    'durations' => [
+                        [
+                            'minutes' => 480,
+                            'price' => 'Consultar precio',
+                            'text' => 'Consulta personalizada - Precio a consultar',
+                            'duration' => '1',
+                            'value' => 'custom-inquiry'
+                        ]
+                    ]
+                ];
+            }
+
+            wp_send_json_success($tours_data);
+            
+        } catch (Exception $e) {
+            wp_send_json_error(['message' => 'Error al obtener tours: ' . $e->getMessage()]);
+        }
     }
 
     /**
@@ -589,20 +721,39 @@ class WPTBT_Booking_Block
         $date = sanitize_text_field($_POST['date']);
         $time = sanitize_text_field($_POST['time']);
         $message = isset($_POST['message']) ? sanitize_textarea_field($_POST['message']) : '';
+        
+        // Sanitizar campos específicos de tours
+        $phone = isset($_POST['phone']) ? sanitize_text_field($_POST['phone']) : '';
+        $accommodation = isset($_POST['accommodation']) ? sanitize_text_field($_POST['accommodation']) : '';
+        $room_config = isset($_POST['room_config']) ? sanitize_text_field($_POST['room_config']) : '';
+        $pickup_location = isset($_POST['pickup_location']) ? sanitize_textarea_field($_POST['pickup_location']) : '';
+        $emergency_contact = isset($_POST['emergency_contact']) ? sanitize_text_field($_POST['emergency_contact']) : '';
+        $special_requests = isset($_POST['special_requests']) ? sanitize_textarea_field($_POST['special_requests']) : '';
+        $guide_language = isset($_POST['guide_language']) ? sanitize_text_field($_POST['guide_language']) : '';
+        
+        // Handle travelers data JSON
+        $travelers_data = [];
+        if (isset($_POST['travelers_data']) && !empty($_POST['travelers_data'])) {
+            $travelers_json = wp_unslash($_POST['travelers_data']);
+            $decoded_travelers = json_decode($travelers_json, true);
+            if (is_array($decoded_travelers)) {
+                $travelers_data = $decoded_travelers;
+            }
+        }
 
         // Destinatario del email - Prioridad:
         // 1. Valor enviado en el formulario 
-        // 2. Valor del customizer
+        // 2. Valor del customizer para tours
         // 3. Email del administrador del sitio
         $recipient = isset($_POST['recipient_email']) && !empty($_POST['recipient_email'])
             ? sanitize_email($_POST['recipient_email'])
             : get_theme_mod('tours_booking_form_email', get_theme_mod('services_booking_form_email', get_option('admin_email')));
 
-        // Asunto del email
-        $subject = sprintf(__('New Booking from %s', $this->translate), $name);
+        // Asunto del email específico para tours
+        $subject = sprintf(__('Nueva Reserva de Tour - %s', $this->translate), $name);
 
-        // Crear un email HTML atractivo
-        $email_html = $this->create_html_email_template($name, $email, $service, $duration, $date, $time, $message, $visitors);
+        // Crear un email HTML específico para tours
+        $email_html = $this->create_tour_email_template($name, $email, $phone, $service, $duration, $date, $time, $message, $visitors, $accommodation, $room_config, $pickup_location, $special_requests, $guide_language, $travelers_data);
 
         // Cabeceras del email
         $headers = array(
@@ -615,13 +766,13 @@ class WPTBT_Booking_Block
         $mail_sent = wp_mail($recipient, $subject, $email_html, $headers);
 
         if ($mail_sent) {
-            // Guardar la reserva en la base de datos
-            $this->save_booking_to_database($name, $email, $service, $date, $time, $message, $duration, $visitors);
+            // Guardar la reserva de tour en la base de datos
+            $this->save_tour_booking_to_database($name, $email, $phone, $service, $date, $time, $message, $duration, $visitors, $accommodation, $room_config, $pickup_location, $special_requests, $guide_language, $travelers_data);
 
-            // Opcional: Enviar confirmación al cliente
-            $this->send_confirmation_email($name, $email, $service, $duration, $date, $time, $recipient, $visitors);
+            // Enviar confirmación al cliente para tour
+            $this->send_tour_confirmation_email($name, $email, $service, $duration, $date, $time, $recipient, $visitors, $phone, $pickup_location);
 
-            wp_send_json_success(__('Your booking has been received. We will contact you soon to confirm.', $this->translate));
+            wp_send_json_success(__('Tu reserva de tour ha sido recibida. Te contactaremos pronto para confirmar los detalles del viaje.', $this->translate));
         } else {
             wp_send_json_error(__('There was a problem submitting your booking. Please try again later or contact us directly.', $this->translate));
         }
@@ -630,20 +781,21 @@ class WPTBT_Booking_Block
     }
 
     /**
-     * Crear plantilla HTML atractiva para el correo
+     * Crear plantilla HTML específica para correos de reserva de tours
      */
-    private function create_html_email_template($name, $email, $service, $duration, $date, $time, $message, $visitors = 1)
+    private function create_tour_email_template($name, $email, $phone, $service, $duration, $date, $time, $message, $visitors, $accommodation, $room_config, $pickup_location, $special_requests, $guide_language = '', $travelers_data = [])
     {
         // Obtener colores del tema
-        $accent_color = get_theme_mod('services_booking_form_accent_color', '#D4B254');
-        $dark_color = '#333333';
-        $light_color = '#f7f7f7';
+        $accent_color = get_theme_mod('tours_booking_form_accent_color', '#4F8A8B');
+        $dark_color = '#2C3E50';
+        $light_color = '#F7EDE2';
+        $adventure_color = '#2D5016';
 
         // Formatear la duración para mostrarla bonita
         $formatted_duration = '';
         if (!empty($duration)) {
-            // Formatear la duración para el email (ejemplo: "60min-$90" a "60 minutos - $90")
-            $formatted_duration = str_replace('min-', ' minutos - ', $duration);
+            // Formatear la duración para el email (ejemplo: "3days-$450" a "3 días - $450")
+            $formatted_duration = str_replace('days-', ' días - $', $duration);
         }
 
         // Obtener el logo del sitio
@@ -659,101 +811,150 @@ class WPTBT_Booking_Block
         // Encabezado del sitio si no hay logo
         $site_name = get_bloginfo('name');
 
-        // Construir el HTML del correo
+        // Construir el HTML del correo específico para tours
         $html = '
     <!DOCTYPE html>
     <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>' . __('New Booking', $this->translate) . '</title>
+        <title>' . __('Nueva Reserva de Tour', $this->translate) . '</title>
         <style>
             body {
-                font-family: Arial, sans-serif;
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
                 line-height: 1.6;
                 color: #333;
-                background-color: #f9f9f9;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 margin: 0;
-                padding: 0;
+                padding: 20px;
             }
             .email-container {
-                max-width: 600px;
+                max-width: 650px;
                 margin: 0 auto;
                 background-color: #fff;
-                border-radius: 8px;
+                border-radius: 15px;
                 overflow: hidden;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+                box-shadow: 0 15px 35px rgba(0,0,0,0.15);
             }
             .email-header {
-                background-color: ' . $accent_color . ';
+                background: linear-gradient(135deg, ' . $accent_color . ' 0%, ' . $adventure_color . ' 100%);
                 color: white;
-                padding: 24px;
+                padding: 30px 24px;
                 text-align: center;
+                position: relative;
+            }
+            .email-header::after {
+                content: "";
+                position: absolute;
+                bottom: -10px;
+                left: 0;
+                right: 0;
+                height: 20px;
+                background: url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 1200 120\' fill=\'white\'%3E%3Cpath d=\'M0,60 Q300,120 600,60 T1200,60 L1200,120 L0,120 Z\'/%3E%3C/svg%3E") no-repeat center bottom;
+                background-size: cover;
             }
             .email-body {
-                padding: 24px;
+                padding: 30px 24px;
             }
             .email-footer {
-                background-color: ' . $light_color . ';
-                padding: 15px 24px;
+                background: linear-gradient(135deg, ' . $light_color . ' 0%, #E8D5C4 100%);
+                padding: 20px 24px;
                 text-align: center;
                 color: #666;
                 font-size: 14px;
             }
             .logo {
-                max-width: 200px;
+                max-width: 180px;
                 height: auto;
                 margin-bottom: 15px;
+                filter: brightness(0) invert(1);
             }
             h1 {
                 margin: 0;
-                font-size: 24px;
-                font-weight: normal;
+                font-size: 28px;
+                font-weight: 600;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
             }
             h2 {
-                margin: 0 0 20px 0;
-                font-size: 20px;
+                margin: 0 0 25px 0;
+                font-size: 22px;
                 color: ' . $accent_color . ';
-                border-bottom: 1px solid #eee;
-                padding-bottom: 10px;
-            }
-            .booking-details {
-                background-color: ' . $light_color . ';
-                border-radius: 6px;
-                padding: 20px;
-                margin-bottom: 20px;
-            }
-            .booking-row {
-                margin-bottom: 12px;
+                border-bottom: 2px solid ' . $accent_color . ';
                 padding-bottom: 12px;
-                border-bottom: 1px solid #e8e8e8;
+                display: flex;
+                align-items: center;
             }
-            .booking-row:last-child {
+            h2 svg {
+                margin-right: 10px;
+                width: 24px;
+                height: 24px;
+            }
+            .tour-details {
+                background: linear-gradient(135deg, ' . $light_color . ' 0%, #F0F8FF 100%);
+                border-radius: 12px;
+                padding: 25px;
+                margin-bottom: 25px;
+                border-left: 5px solid ' . $accent_color . ';
+            }
+            .detail-row {
+                margin-bottom: 15px;
+                padding-bottom: 15px;
+                border-bottom: 1px solid #e8e8e8;
+                display: flex;
+                align-items: center;
+            }
+            .detail-row:last-child {
                 margin-bottom: 0;
                 padding-bottom: 0;
                 border-bottom: none;
             }
+            .detail-icon {
+                width: 24px;
+                height: 24px;
+                margin-right: 12px;
+                color: ' . $accent_color . ';
+                flex-shrink: 0;
+            }
             .label {
-                font-weight: bold;
+                font-weight: 600;
                 color: ' . $dark_color . ';
-                padding-right: 10px;
+                min-width: 140px;
+                margin-right: 15px;
             }
             .value {
                 color: #555;
+                flex-grow: 1;
             }
-            .message-section {
-                margin-top: 20px;
-                background-color: #fff;
-                border-left: 4px solid ' . $accent_color . ';
-                padding: 15px;
+            .accommodation-section, .travel-section, .special-section {
+                background: #fff;
+                border-radius: 10px;
+                padding: 20px;
+                margin-bottom: 20px;
+                border: 1px solid #e0e0e0;
             }
-            .button {
-                display: inline-block;
-                background-color: ' . $accent_color . ';
+            .accommodation-section {
+                border-left: 5px solid #FFA500;
+            }
+            .travel-section {
+                border-left: 5px solid #228B22;
+            }
+            .special-section {
+                border-left: 5px solid #FF6347;
+            }
+            .traveler-count {
+                background: linear-gradient(135deg, #4CAF50, #45a049);
                 color: white;
-                padding: 12px 24px;
-                text-decoration: none;
-                border-radius: 4px;
-                margin-top: 20px;
+                padding: 8px 16px;
+                border-radius: 20px;
+                font-weight: bold;
+                display: inline-block;
+                margin-left: 10px;
+            }
+            .highlight-box {
+                background: linear-gradient(135deg, #FFE4B5, #F0E68C);
+                border-radius: 8px;
+                padding: 15px;
+                margin: 15px 0;
+                border-left: 4px solid #DAA520;
             }
         </style>
     </head>
@@ -761,394 +962,263 @@ class WPTBT_Booking_Block
         <div class="email-container">
             <div class="email-header">
                 ' . ($logo_url ? '<img src="' . esc_url($logo_url) . '" alt="' . esc_attr($site_name) . '" class="logo">' : '<h1>' . esc_html($site_name) . '</h1>') . '
-                <h1>' . __('New Booking Reservation', $this->translate) . '</h1>
+                <h1>🎯 Nueva Reserva de Tour</h1>
+                <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Solicitud de viaje recibida</p>
             </div>
             <div class="email-body">
-                <p>' . __('A new booking has been submitted with the following details:', $this->translate) . '</p>
+                <p style="font-size: 16px; margin-bottom: 25px;">Se ha recibido una nueva solicitud de reserva de tour con los siguientes detalles:</p>
                 
-                <div class="booking-details">
-                    <div class="booking-row">
-                        <span class="label">' . __('Name:', $this->translate) . '</span>
-                        <span class="value">' . esc_html($name) . '</span>
-                    </div>
-                    <div class="booking-row">
-                        <span class="label">' . __('Email:', $this->translate) . '</span>
-                        <span class="value">' . esc_html($email) . '</span>
-                    </div>
-                    <div class="booking-row">
-                        <span class="label">' . __('Service:', $this->translate) . '</span>
-                        <span class="value">' . esc_html($service) . '</span>
+                <div class="tour-details">
+                    <h2>
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
+                        Información del Tour
+                    </h2>
+                    
+                    <div class="detail-row">
+                        <svg class="detail-icon" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                        <span class="label">Tour Seleccionado:</span>
+                        <span class="value"><strong>' . esc_html($service) . '</strong></span>
                     </div>';
 
         // Añadir duración si está disponible
         if (!empty($formatted_duration)) {
             $html .= '
-                    <div class="booking-row">
-                        <span class="label">' . __('Duration/Price:', $this->translate) . '</span>
-                        <span class="value">' . esc_html($formatted_duration) . '</span>
+                    <div class="detail-row">
+                        <svg class="detail-icon" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M16.2,16.2L11,13V7H12.5V12.2L17,14.9L16.2,16.2Z"/>
+                        </svg>
+                        <span class="label">Duración/Precio:</span>
+                        <span class="value"><strong>' . esc_html($formatted_duration) . '</strong></span>
                     </div>';
         }
 
         $html .= '
-                    <div class="booking-row">
-                        <span class="label">' . __('Date:', $this->translate) . '</span>
+                    <div class="detail-row">
+                        <svg class="detail-icon" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                        </svg>
+                        <span class="label">Fecha de Salida:</span>
                         <span class="value">' . esc_html($date) . '</span>
                     </div>
-                    <div class="booking-row">
-                        <span class="label">' . __('Time:', $this->translate) . '</span>
+                    <div class="detail-row">
+                        <svg class="detail-icon" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M16.2,16.2L11,13V7H12.5V12.2L17,14.9L16.2,16.2Z"/>
+                        </svg>
+                        <span class="label">Hora de Salida:</span>
                         <span class="value">' . esc_html($time) . '</span>
                     </div>
-                    <div class="booking-row">
-                        <span class="label">' . __('Number of Visitors:', $this->translate) . '</span>
-                        <span class="value">' . esc_html($visitors) . '</span>
+                    <div class="detail-row">
+                        <svg class="detail-icon" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zM4 18v-6h13v-2.5c0-1.1-.9-2-2-2h-2V4h6.3c.42 0 .8.15 1.1.44l1.6 1.6c.3.3.45.68.45 1.1V17c0 .55-.45 1-1 1s-1-.45-1-1v-2H4v2c0 .55-.45 1-1 1s-1-.45-1-1z"/>
+                        </svg>
+                        <span class="label">Número de Viajeros:</span>
+                        <span class="value">' . esc_html($visitors) . ' ' . ($visitors == 1 ? 'viajero' : 'viajeros') . '<span class="traveler-count">' . $visitors . '</span></span>
+                    </div>
+                </div>
+
+                <h2>
+                    <svg fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2c-4 0-8 .5-8 4v9.5C4 17.43 5.57 19 7.5 19L6 20.5v.5h2.23l2-2H14l2 2h2.23v-.5L17 19c1.93 0 3.5-1.57 3.5-3.5V6c0-3.5-4-4-8-4zM7.5 17c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+                    </svg>
+                    Información de Contacto
+                </h2>
+                
+                <div class="tour-details">
+                    <div class="detail-row">
+                        <svg class="detail-icon" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                        <span class="label">Nombre Completo:</span>
+                        <span class="value"><strong>' . esc_html($name) . '</strong></span>
+                    </div>
+                    <div class="detail-row">
+                        <svg class="detail-icon" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                        </svg>
+                        <span class="label">Email:</span>
+                        <span class="value">' . esc_html($email) . '</span>
+                    </div>
+                    <div class="detail-row">
+                        <svg class="detail-icon" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                        </svg>
+                        <span class="label">Teléfono/WhatsApp:</span>
+                        <span class="value">' . esc_html($phone) . '</span>
                     </div>
                 </div>';
 
-        // Añadir mensaje si está disponible
-        if (!empty($message)) {
+        // Añadir sección de alojamiento si está disponible
+        if (!empty($accommodation) || !empty($room_config)) {
             $html .= '
-                <div class="message-section">
-                    <p class="label">' . __('Message from customer:', $this->translate) . '</p>
-                    <p class="value">' . nl2br(esc_html($message)) . '</p>
+                <div class="accommodation-section">
+                    <h2>
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M7 13c1.66 0 3-1.34 3-3S8.66 7 7 7s-3 1.34-3 3 1.34 3 3 3zm12-6h-8v7H3V6H1v15h2v-3h18v3h2v-9c0-2.21-1.79-4-4-4z"/>
+                        </svg>
+                        Detalles de Alojamiento
+                    </h2>';
+            
+            if (!empty($accommodation)) {
+                $accommodation_formatted = str_replace('-', ' ', $accommodation);
+                $accommodation_formatted = ucwords(str_replace(['hotel', 'stars'], ['Hotel', 'Estrellas'], $accommodation_formatted));
+                $html .= '
+                    <div class="detail-row">
+                        <svg class="detail-icon" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M7 13c1.66 0 3-1.34 3-3S8.66 7 7 7s-3 1.34-3 3 1.34 3 3 3zm12-6h-8v7H3V6H1v15h2v-3h18v3h2v-9c0-2.21-1.79-4-4-4z"/>
+                        </svg>
+                        <span class="label">Tipo de Alojamiento:</span>
+                        <span class="value">' . esc_html($accommodation_formatted) . '</span>
+                    </div>';
+            }
+            
+            if (!empty($room_config)) {
+                $room_formatted = ucwords(str_replace('-', ' ', $room_config));
+                $html .= '
+                    <div class="detail-row">
+                        <svg class="detail-icon" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M7 13c1.66 0 3-1.34 3-3S8.66 7 7 7s-3 1.34-3 3 1.34 3 3 3zm12-6h-8v7H3V6H1v15h2v-3h18v3h2v-9c0-2.21-1.79-4-4-4z"/>
+                        </svg>
+                        <span class="label">Configuración de Habitación:</span>
+                        <span class="value">' . esc_html($room_formatted) . '</span>
+                    </div>';
+            }
+            
+            $html .= '</div>';
+        }
+
+        // Añadir sección de recojo si está disponible
+        if (!empty($pickup_location)) {
+            $html .= '
+                <div class="travel-section">
+                    <h2>
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
+                        Detalles de Recojo
+                    </h2>
+                    <div class="detail-row">
+                        <svg class="detail-icon" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
+                        <span class="label">Lugar de Recojo:</span>
+                        <span class="value">' . esc_html($pickup_location) . '</span>
+                    </div>
+                </div>';
+        }
+
+        // Añadir sección de mensajes/solicitudes especiales si está disponible
+        if (!empty($message) || !empty($special_requests)) {
+            $html .= '
+                <div class="special-section">
+                    <h2>
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                        </svg>
+                        Solicitudes y Comentarios
+                    </h2>';
+            
+            if (!empty($message)) {
+                $html .= '
+                    <div class="highlight-box">
+                        <p style="margin: 0 0 10px 0; font-weight: bold; color: #8B4513;">Preferencias de Viaje:</p>
+                        <p style="margin: 0; color: #654321;">' . nl2br(esc_html($message)) . '</p>
+                    </div>';
+            }
+            
+            if (!empty($special_requests)) {
+                $html .= '
+                    <div class="highlight-box" style="background: linear-gradient(135deg, #FFE4E1, #FFF8DC);">
+                        <p style="margin: 0 0 10px 0; font-weight: bold; color: #B8860B;">Solicitudes Especiales:</p>
+                        <p style="margin: 0; color: #8B7355;">' . nl2br(esc_html($special_requests)) . '</p>
+                    </div>';
+            }
+            
+            $html .= '</div>';
+        }
+        
+        // Add guide language section if provided
+        if (!empty($guide_language)) {
+            $language_names = [
+                'spanish' => 'Español',
+                'english' => 'Inglés', 
+                'portuguese' => 'Portugués',
+                'french' => 'Francés',
+                'german' => 'Alemán',
+                'italian' => 'Italiano'
+            ];
+            $language_display = isset($language_names[$guide_language]) ? $language_names[$guide_language] : ucfirst($guide_language);
+            
+            $html .= '
+                <div class="special-section">
+                    <h2>
+                        <svg style="width: 24px; height: 24px; margin-right: 8px; vertical-align: middle;" fill="' . $accent_color . '" viewBox="0 0 24 24">
+                            <path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.01-4.65.75-6.78l-.46-.67c-.14-.2-.42-.2-.56 0l-.46.68c-1.26 2.13-.99 4.84.75 6.78l.03.03-2.54 2.51c-.42.42-.42 1.1 0 1.52s1.1.42 1.52 0L12 14.59l2.35 2.36c.42.42 1.1.42 1.52 0s.42-1.1 0-1.52z"/>
+                        </svg>
+                        Idioma del Guía Solicitado
+                    </h2>
+                    <div class="highlight-box" style="background: linear-gradient(135deg, #E6F3FF, #F0F8FF);">
+                        <p style="margin: 0; font-size: 16px; color: #2C5282; font-weight: 600;">' . esc_html($language_display) . '</p>
+                    </div>
+                </div>';
+        }
+        
+        // Add travelers data section if provided
+        if (!empty($travelers_data) && is_array($travelers_data)) {
+            $html .= '
+                <div class="special-section">
+                    <h2>
+                        <svg style="width: 24px; height: 24px; margin-right: 8px; vertical-align: middle;" fill="' . $accent_color . '" viewBox="0 0 24 24">
+                            <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zM4 18v-4.8c0-1.45.98-2.69 2.4-3.05l3.6-.93V8.45c0-.8.65-1.45 1.45-1.45h4.1c.8 0 1.45.65 1.45 1.45V10l3.6.93c1.42.36 2.4 1.6 2.4 3.05V18h-19z"/>
+                        </svg>
+                        Información de Viajeros
+                    </h2>
+                    <div class="highlight-box" style="background: linear-gradient(135deg, #FFF5EE, #FFFAF0);">';
+            
+            foreach ($travelers_data as $index => $traveler) {
+                $traveler_num = $index + 1;
+                $html .= '<div style="margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.7); border-radius: 8px;">';
+                $html .= '<h4 style="margin: 0 0 8px 0; color: #8B4513; font-size: 14px;">Viajero ' . $traveler_num . '</h4>';
+                
+                if (!empty($traveler['name'])) {
+                    $html .= '<p style="margin: 2px 0; font-size: 13px;"><strong>Nombre:</strong> ' . esc_html($traveler['name']) . '</p>';
+                }
+                if (!empty($traveler['age'])) {
+                    $html .= '<p style="margin: 2px 0; font-size: 13px;"><strong>Edad:</strong> ' . esc_html($traveler['age']) . ' años</p>';
+                }
+                if (!empty($traveler['documentType']) && !empty($traveler['documentNumber'])) {
+                    $doc_types = ['dni' => 'DNI', 'passport' => 'Pasaporte', 'ce' => 'Carnet de Extranjería'];
+                    $doc_type_display = isset($doc_types[$traveler['documentType']]) ? $doc_types[$traveler['documentType']] : ucfirst($traveler['documentType']);
+                    $html .= '<p style="margin: 2px 0; font-size: 13px;"><strong>Documento:</strong> ' . esc_html($doc_type_display) . ' - ' . esc_html($traveler['documentNumber']) . '</p>';
+                }
+                if (!empty($traveler['dietaryRestrictions'])) {
+                    $html .= '<p style="margin: 2px 0; font-size: 13px;"><strong>Restricciones Alimentarias:</strong> ' . esc_html($traveler['dietaryRestrictions']) . '</p>';
+                }
+                if (!empty($traveler['medicalConditions'])) {
+                    $html .= '<p style="margin: 2px 0; font-size: 13px;"><strong>Condiciones Médicas:</strong> ' . esc_html($traveler['medicalConditions']) . '</p>';
+                }
+                
+                $html .= '</div>';
+            }
+            
+            $html .= '</div>
                 </div>';
         }
 
         $html .= '
-                <p>' . __('Please contact the customer to confirm their appointment.', $this->translate) . '</p>
-                
-                <a href="mailto:' . esc_attr($email) . '" class="button">' . __('Reply to Customer', $this->translate) . '</a>
             </div>
             <div class="email-footer">
-                <p>' . sprintf(__('This booking was submitted from %s on %s', $this->translate), get_bloginfo('name'), date_i18n(get_option('date_format') . ' ' . get_option('time_format'))) . '</p>
+                <p style="margin: 0 0 10px 0;"><strong>📧 Responder a este email:</strong> ' . esc_html($email) . '</p>
+                <p style="margin: 0; font-size: 12px; color: #999;">Esta reserva fue enviada desde ' . esc_html($site_name) . ' el ' . date('d/m/Y') . ' a las ' . date('H:i') . '</p>
             </div>
         </div>
     </body>
     </html>';
 
         return $html;
-    }
-
-    /**
-     * Enviar correo de confirmación al cliente
-     */
-    private function send_confirmation_email($name, $email, $service, $duration, $date, $time, $recipient, $visitors = 1)
-    {
-        // Asunto del email de confirmación
-        $subject = sprintf(__('Your booking at %s - Confirmation', $this->translate), get_bloginfo('name'));
-
-        // Obtener colores del tema
-        $accent_color = get_theme_mod('services_booking_form_accent_color', '#D4B254');
-        $dark_color = '#333333';
-        $light_color = '#f7f7f7';
-
-        // Formatear la duración para mostrarla bonita
-        $formatted_duration = '';
-        if (!empty($duration)) {
-            $formatted_duration = str_replace('min-', ' minutos - ', $duration);
-        }
-
-        // Obtener el logo del sitio
-        $logo_url = '';
-        $custom_logo_id = get_theme_mod('custom_logo');
-        if ($custom_logo_id) {
-            $logo_info = wp_get_attachment_image_src($custom_logo_id, 'full');
-            if ($logo_info) {
-                $logo_url = $logo_info[0];
-            }
-        }
-
-        // Encabezado del sitio si no hay logo
-        $site_name = get_bloginfo('name');
-
-        // Construir el HTML del correo de confirmación
-        $html = '
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>' . __('Booking Confirmation', $this->translate) . '</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                line-height: 1.6;
-                color: #333;
-                background-color: #f9f9f9;
-                margin: 0;
-                padding: 0;
-            }
-            .email-container {
-                max-width: 600px;
-                margin: 0 auto;
-                background-color: #fff;
-                border-radius: 8px;
-                overflow: hidden;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            }
-            .email-header {
-                background-color: ' . $accent_color . ';
-                color: white;
-                padding: 24px;
-                text-align: center;
-            }
-            .email-body {
-                padding: 24px;
-            }
-            .email-footer {
-                background-color: ' . $light_color . ';
-                padding: 15px 24px;
-                text-align: center;
-                color: #666;
-                font-size: 14px;
-            }
-            .logo {
-                max-width: 200px;
-                height: auto;
-                margin-bottom: 15px;
-            }
-            h1 {
-                margin: 0;
-                font-size: 24px;
-                font-weight: normal;
-            }
-            h2 {
-                margin: 0 0 20px 0;
-                font-size: 20px;
-                color: ' . $accent_color . ';
-                border-bottom: 1px solid #eee;
-                padding-bottom: 10px;
-            }
-            .booking-details {
-                background-color: ' . $light_color . ';
-                border-radius: 6px;
-                padding: 20px;
-                margin-bottom: 20px;
-            }
-            .booking-row {
-                margin-bottom: 12px;
-                padding-bottom: 12px;
-                border-bottom: 1px solid #e8e8e8;
-            }
-            .booking-row:last-child {
-                margin-bottom: 0;
-                padding-bottom: 0;
-                border-bottom: none;
-            }
-            .label {
-                font-weight: bold;
-                color: ' . $dark_color . ';
-                padding-right: 10px;
-            }
-            .value {
-                color: #555;
-            }
-            .message-box {
-                background-color: #f8f9fa;
-                border-left: 4px solid ' . $accent_color . ';
-                padding: 15px;
-                margin: 20px 0;
-            }
-            .button {
-                display: inline-block;
-                background-color: ' . $accent_color . ';
-                color: white;
-                padding: 12px 24px;
-                text-decoration: none;
-                border-radius: 4px;
-                margin-top: 20px;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="email-container">
-            <div class="email-header">
-                ' . ($logo_url ? '<img src="' . esc_url($logo_url) . '" alt="' . esc_attr($site_name) . '" class="logo">' : '<h1>' . esc_html($site_name) . '</h1>') . '
-                <h1>' . __('Booking Confirmation', $this->translate) . '</h1>
-            </div>
-            <div class="email-body">
-                <p>' . sprintf(__('Dear %s,', $this->translate), esc_html($name)) . '</p>
-                
-                <p>' . __('Thank you for your booking. We have received your reservation request and our team will contact you shortly to confirm it.', $this->translate) . '</p>
-                
-                <h2>' . __('Your Booking Details', $this->translate) . '</h2>
-                
-                <div class="booking-details">
-                    <div class="booking-row">
-                        <span class="label">' . __('Service:', $this->translate) . '</span>
-                        <span class="value">' . esc_html($service) . '</span>
-                    </div>';
-
-        // Añadir duración si está disponible
-        if (!empty($formatted_duration)) {
-            $html .= '
-                    <div class="booking-row">
-                        <span class="label">' . __('Duration/Price:', $this->translate) . '</span>
-                        <span class="value">' . esc_html($formatted_duration) . '</span>
-                    </div>';
-        }
-
-        $html .= '
-                    <div class="booking-row">
-                        <span class="label">' . __('Date:', $this->translate) . '</span>
-                        <span class="value">' . esc_html($date) . '</span>
-                    </div>
-                    <div class="booking-row">
-                        <span class="label">' . __('Time:', $this->translate) . '</span>
-                        <span class="value">' . esc_html($time) . '</span>
-                    </div>
-                    <div class="booking-row">
-                        <span class="label">' . __('Number of Visitors:', $this->translate) . '</span>
-                        <span class="value">' . esc_html($visitors) . '</span>
-                    </div>
-                </div>
-                
-                <div class="message-box">
-                    <p>' . __('Please note: This is an automatic confirmation of your booking request. Our staff will contact you to confirm the availability and finalize your reservation.', $this->translate) . '</p>
-                </div>
-                
-                <p>' . __('If you need to make any changes to your reservation, please contact us directly.', $this->translate) . '</p>
-                
-                <p>' . __('We look forward to seeing you soon!', $this->translate) . '</p>
-                
-                <p>' . sprintf(__('The %s Team', $this->translate), esc_html($site_name)) . '</p>
-            </div>
-            <div class="email-footer">
-                <p>' . sprintf(__('This email was sent from %s | %s', $this->translate), esc_html($site_name), esc_url(home_url())) . '</p>
-            </div>
-        </div>
-    </body>
-    </html>';
-
-        // Cabeceras
-        $headers = array(
-            'Content-Type: text/html; charset=UTF-8',
-            'From: ' . get_bloginfo('name') . ' <' . $recipient . '>'
-        );
-
-        // Enviar el correo de confirmación al cliente
-        wp_mail($email, $subject, $html, $headers);
-    }
-
-    /**
-     * Guardar la reserva en la base de datos (opcional)
-     */
-    private function save_booking_to_database($name, $email, $service, $date, $time, $message, $duration = '', $visitors = 1)
-    {
-        global $wpdb;
-
-        // Comprobar si la tabla existe, si no, crearla
-        $table_name = $wpdb->prefix . 'spa_bookings';
-
-        if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-            $charset_collate = $wpdb->get_charset_collate();
-
-            $sql = "CREATE TABLE $table_name (
-            id mediumint(9) NOT NULL AUTO_INCREMENT,
-            time_created datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-            name tinytext NOT NULL,
-            email tinytext NOT NULL,
-            service tinytext NOT NULL,
-            date date NOT NULL,
-            time_slot time NOT NULL,
-            message text,
-            duration varchar(50),
-            visitors int DEFAULT 1 NOT NULL,
-            status varchar(20) DEFAULT 'pending' NOT NULL,
-            PRIMARY KEY  (id)
-        ) $charset_collate;";
-
-            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-            dbDelta($sql);
-        }
-
-        // Insertar la reserva en la base de datos
-        $wpdb->insert(
-            $table_name,
-            array(
-                'time_created' => current_time('mysql'),
-                'name' => $name,
-                'email' => $email,
-                'service' => $service,
-                'date' => $date,
-                'time_slot' => $time,
-                'message' => $message,
-                'duration' => $duration,
-                'visitors' => $visitors,
-                'status' => 'pending'
-            )
-        );
-    }
-
-    /**
-     * Renderizar shortcode de reservas
-     *
-     * @param array $atts Atributos del shortcode.
-     * @return string HTML del shortcode.
-     */
-    public function render_booking_shortcode($atts)
-    {
-        $attributes = shortcode_atts(
-            array(
-                'title' => __('Book Now', $this->translate),
-                'subtitle' => __('Appointment', $this->translate),
-                'description' => __('Book your spa treatment and enjoy a moment of relaxation.', $this->translate),
-                'image_id' => '',
-                'image_url' => '',
-                'button_text' => __('BOOK NOW', $this->translate),
-                'button_color' => '#D4B254',
-                'text_color' => '#FFFFFF',
-                'accent_color' => '#D4B254',
-                'email_recipient' => get_option('admin_email'),
-                'use_solid_js' => true,
-                'show_top_wave' => true,
-                'show_bottom_wave' => true
-            ),
-            $atts
-        );
-
-        // Convertir atributos para el formato que espera render_booking_block
-        $block_attributes = array(
-            'title' => $attributes['title'],
-            'subtitle' => $attributes['subtitle'],
-            'description' => $attributes['description'],
-            'imageID' => !empty($attributes['image_id']) ? (int)$attributes['image_id'] : null,
-            'imageURL' => $attributes['image_url'],
-            'buttonText' => $attributes['button_text'],
-            'buttonColor' => $attributes['button_color'],
-            'textColor' => $attributes['text_color'],
-            'accentColor' => $attributes['accent_color'],
-            'emailRecipient' => $attributes['email_recipient'],
-            'useSolidJs' => $attributes['use_solid_js'],
-            'showTopWave' => $attributes['show_top_wave'],
-            'showBottomWave' => $attributes['show_bottom_wave']
-        );
-
-        return $this->render_booking_block($block_attributes);
-    }
-
-    /**
-     * Formatear hora para mostrar en formato AM/PM
-     * 
-     * @param string $time24h Hora en formato 24h
-     * @return string Hora en formato AM/PM
-     */
-    public function formatTimeForDisplay($time24h)
-    {
-        // Convertir de formato 24h a 12h con AM/PM
-        $time_parts = explode(':', $time24h);
-        if (count($time_parts) < 2) return $time24h;
-
-        $hours = intval($time_parts[0]);
-        $minutes = $time_parts[1];
-
-        if ($hours === 0) {
-            return "12:{$minutes} AM";
-        } elseif ($hours < 12) {
-            return "{$hours}:{$minutes} AM";
-        } elseif ($hours === 12) {
-            return "12:{$minutes} PM";
-        } else {
-            return ($hours - 12) . ":{$minutes} PM";
-        }
     }
 }
 

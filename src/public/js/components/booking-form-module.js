@@ -84,6 +84,7 @@ function initBookingForms() {
 
             // VERIFICACIÓN: Log de debug para cada servicio
             console.log(`Processing service ${service.id}: ${hours.length} hours, ${durations.length} durations`);
+            console.log(`Service ${service.id} booking_config:`, service.booking_config);
             
             // Devolver el servicio con formato mejorado
             return {
@@ -92,6 +93,8 @@ function initBookingForms() {
               subtitle: service.subtitle || "", // Subtítulo del servicio
               hours: hours, // Horarios disponibles (array filtrado)
               durations: durations, // Duraciones y precios en nuevo formato
+              // NUEVO: Incluir configuración del tour
+              booking_config: service.booking_config || null, // Configuración del formulario de reservas
               // Mantener compatibilidad
               duration1: service.duration1 || '',
               price1: service.price1 || '',
@@ -177,5 +180,103 @@ if (document.readyState === "loading") {
   initBookingForms();
 }
 
+/**
+ * Función global para inicializar un formulario de reserva en un contenedor específico
+ */
+function initializeSolidBookingForm(container, options = {}) {
+  try {
+    // Función para obtener todos los tours del sitio
+    async function fetchAvailableTours() {
+      try {
+        const response = await fetch(window.wptbt_ajax?.url || '/wp-admin/admin-ajax.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            action: 'get_tours_for_booking',
+            nonce: window.wptbt_ajax?.nonce || ''
+          })
+        });
+        
+        const data = await response.json();
+        if (data.success && data.data) {
+          return data.data;
+        }
+      } catch (error) {
+        console.warn('Error fetching tours:', error);
+      }
+      
+      // Fallback por defecto
+      return [
+        {
+          id: "general",
+          title: "Reserva General",
+          subtitle: "Contacta para más información",
+          hours: ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"],
+          durations: [
+            {
+              minutes: 480,
+              price: "Consultar precio",
+              text: "Tour personalizado - Consultar precio",
+              duration: "1",
+              value: "custom-tour"
+            }
+          ]
+        }
+      ];
+    }
+
+    // Función para inicializar el formulario con los tours
+    async function initForm() {
+      const services = options.services || await fetchAvailableTours();
+      
+      const props = {
+        formId: options.formId || "modal-booking-form",
+        services: services,
+        isDarkMode: options.isDarkMode || false,
+        accentColor: options.accentColor || "#D4B254",
+        ajaxUrl: options.ajaxUrl || (window.wptbt_ajax?.url || ""),
+        nonce: options.nonce || (window.wptbt_ajax?.nonce || ""),
+        useSingleService: options.useSingleService || false, // CORREGIDO: Permitir selección múltiple
+        emailRecipient: options.emailRecipient || "",
+        modalMode: options.modalMode || false,
+        onComplete: options.onComplete || (() => {})
+      };
+
+      console.log("Initializing booking form in modal with props:", props);
+
+      // Renderizar el componente
+      const dispose = solidCore.renderComponent(
+        "booking-form",
+        container,
+        props
+      );
+
+      // Guardar referencia para limpieza
+      container._solidDispose = dispose;
+
+      return dispose;
+    }
+    
+    // Inicializar el formulario
+    return initForm();
+    
+  } catch (error) {
+    console.error("Error initializing booking form:", error);
+    container.innerHTML = `
+      <div class="p-4 bg-red-100 text-red-800 rounded-md">
+        <p>Error al cargar el formulario de reserva: ${error.message}</p>
+      </div>
+    `;
+    return null;
+  }
+}
+
+// Hacer la función disponible globalmente
+if (typeof window !== 'undefined') {
+  window.initializeSolidBookingForm = initializeSolidBookingForm;
+}
+
 // Exportar funciones para posible uso externo
-export { initBookingForms };
+export { initBookingForms, initializeSolidBookingForm };
