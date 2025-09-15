@@ -55,6 +55,7 @@ const ToursCarousel = (props) => {
   const [toursLoaded, setToursLoaded] = createSignal(0);
   const [hoveredTour, setHoveredTour] = createSignal(null);
   const [isTransitioning, setIsTransitioning] = createSignal(false);
+  const [currentSlidesToShow, setCurrentSlidesToShow] = createSignal(slidesToShow);
 
   // Referencias
   let carouselRef;
@@ -81,7 +82,7 @@ const ToursCarousel = (props) => {
   const totalSlides = () => {
     if (!infinite) {
       // En modo no infinito, cada card es un slide individual
-      return Math.max(0, tours.length - slidesToShow + 1);
+      return Math.max(0, tours.length - currentSlidesToShow() + 1);
     }
     return tours.length;
   };
@@ -136,7 +137,7 @@ const ToursCarousel = (props) => {
         setIsTransitioning(false);
       }, 500);
     } else {
-      setCurrentSlide((prev) => Math.min(prev + 1, tours.length - slidesToShow));
+      setCurrentSlide((prev) => Math.min(prev + 1, tours.length - currentSlidesToShow()));
     }
   };
 
@@ -171,6 +172,13 @@ const ToursCarousel = (props) => {
 
   // Efectos
   onMount(() => {
+    // Inicializar responsive
+    updateSlidesToShow();
+    
+    // Agregar listener para resize
+    const handleResize = () => updateSlidesToShow();
+    window.addEventListener('resize', handleResize);
+    
     // Inicializar tours circulares
     if (infinite && tours.length > 0) {
       setCircularTours(initializeCircularTours());
@@ -179,11 +187,16 @@ const ToursCarousel = (props) => {
       setCircularTours(tours);
     }
     
-    if (tours.length > slidesToShow) {
+    if (tours.length > currentSlidesToShow()) {
       startAutoplay();
     }
     setIsLoaded(true);
     setIsTransitioning(false);
+    
+    // Cleanup en onCleanup
+    onCleanup(() => {
+      window.removeEventListener('resize', handleResize);
+    });
   });
 
   onCleanup(() => {
@@ -249,14 +262,14 @@ const ToursCarousel = (props) => {
     
     if (priceData.hasPromotion) {
       return (
-        <div class="flex items-center gap-2">
-          <span class="text-lg font-bold">{priceData.promotional}</span>
-          <span class="text-sm line-through opacity-75">{priceData.original}</span>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+          <span class="text-base sm:text-lg font-bold">{priceData.promotional}</span>
+          <span class="text-xs sm:text-sm line-through opacity-75">{priceData.original}</span>
         </div>
       );
     }
     
-    return <span class="text-lg font-bold">{priceData.promotional}</span>;
+    return <span class="text-base sm:text-lg font-bold">{priceData.promotional}</span>;
   };
 
   // Obtener URL del tour
@@ -267,7 +280,7 @@ const ToursCarousel = (props) => {
   // Estilo de transformación para el carousel
   const getCarouselTransform = () => {
     // Ancho de un solo card (no del grupo completo)
-    const singleCardWidth = 100 / slidesToShow;
+    const singleCardWidth = 100 / currentSlidesToShow();
     
     if (!infinite) {
       const translateValue = animationDirection === "left" 
@@ -291,17 +304,28 @@ const ToursCarousel = (props) => {
     };
   };
 
-  // Calcular slides visibles responsivos
-  const getResponsiveSlidesToShow = () => {
+  // Función para detectar el tamaño de pantalla y actualizar slides
+  const updateSlidesToShow = () => {
+    const width = window.innerWidth;
     const maxSlides = slidesToShow; // Respeta la configuración del usuario
-    return {
-      small: Math.min(maxSlides, 1), // 1 en móvil
-      medium: Math.min(maxSlides, 3), // 3 en tablet
-      large: maxSlides, // Completo en desktop
-    };
+    
+    let newSlidesToShow;
+    if (width < 768) { // móvil
+      newSlidesToShow = Math.min(maxSlides, 1);
+    } else if (width < 1024) { // tablet
+      newSlidesToShow = Math.min(maxSlides, 2);
+    } else { // desktop
+      newSlidesToShow = maxSlides;
+    }
+    
+    if (newSlidesToShow !== currentSlidesToShow()) {
+      setCurrentSlidesToShow(newSlidesToShow);
+      // Reset currentSlide si es necesario
+      if (currentSlide() > Math.max(0, tours.length - newSlidesToShow)) {
+        setCurrentSlide(Math.max(0, tours.length - newSlidesToShow));
+      }
+    }
   };
-
-  const responsive = getResponsiveSlidesToShow();
 
   return (
     <>
@@ -325,7 +349,7 @@ const ToursCarousel = (props) => {
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
       >
-        <div class="container mx-auto px-4 relative">
+        <div class="container mx-auto px-4 relative overflow-y-visible">
           {/* Encabezado */}
           <Show when={title || subtitle || description}>
             <header class="text-center mb-8 relative">
@@ -365,18 +389,18 @@ const ToursCarousel = (props) => {
           </Show>
 
           {/* Carousel container */}
-          <div class="tours-carousel-wrapper relative">
+          <div class="tours-carousel-wrapper relative pt-3 pb-6">
             {/* Botones de navegación */}
-            <Show when={showArrows && tours.length > slidesToShow}>
+            <Show when={showArrows && tours.length > currentSlidesToShow()}>
               <button
                 type="button"
-                class="carousel-prev absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center transition-all duration-300 hover:shadow-xl hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                class="carousel-prev absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white shadow-lg flex items-center justify-center transition-all duration-300 hover:shadow-xl hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2"
                 style={{ "focus:ring-color": accentColor, border: `2px solid ${accentColor}20` }}
                 onClick={prevSlide}
                 aria-label={getTranslation("Previous tours")}
               >
                 <svg
-                  class="w-5 h-5"
+                  class="w-4 h-4 sm:w-5 sm:h-5"
                   fill="none"
                   stroke={textColor}
                   viewBox="0 0 24 24"
@@ -393,13 +417,13 @@ const ToursCarousel = (props) => {
 
               <button
                 type="button"
-                class="carousel-next absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center transition-all duration-300 hover:shadow-xl hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                class="carousel-next absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white shadow-lg flex items-center justify-center transition-all duration-300 hover:shadow-xl hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2"
                 style={{ "focus:ring-color": accentColor, border: `2px solid ${accentColor}20` }}
                 onClick={nextSlide}
                 aria-label={getTranslation("Next tours")}
               >
                 <svg
-                  class="w-5 h-5"
+                  class="w-4 h-4 sm:w-5 sm:h-5"
                   fill="none"
                   stroke={textColor}
                   viewBox="0 0 24 24"
@@ -416,7 +440,7 @@ const ToursCarousel = (props) => {
             </Show>
 
             {/* Carousel track */}
-            <div class="carousel-track overflow-hidden mx-12">
+            <div class="carousel-track overflow-x-hidden overflow-y-visible mx-6 sm:mx-8 md:mx-12 py-3">
               <div
                 class="carousel-slides flex transition-transform duration-600 ease-in-out"
                 style={getCarouselTransform()}
@@ -425,17 +449,24 @@ const ToursCarousel = (props) => {
                 <For each={circularTours()}>
                   {(tour, index) => (
                     <article
-                      class={`tour-card flex-shrink-0 px-3 transition-all duration-500`}
+                      class={`tour-card flex-shrink-0 px-2 sm:px-3 transition-all duration-500`}
                       style={{
-                        width: `${100 / slidesToShow}%`,
-                        "min-width": `${100 / slidesToShow}%`,
+                        width: `${100 / currentSlidesToShow()}%`,
+                        "min-width": `${100 / currentSlidesToShow()}%`,
                         "flex-shrink": "0",
-                        transform: hoveredTour() === index() ? "translateY(-8px)" : "translateY(0)",
+                        transform: hoveredTour() === index() ? "translateY(-4px)" : "translateY(0)",
                       }}
                       onMouseEnter={() => setHoveredTour(index())}
                       onMouseLeave={() => setHoveredTour(null)}
+                      
+                      // ALTERNATIVA SIN HOVER: Si el efecto sigue cortándose, reemplaza las líneas arriba con:
+                      // style={{
+                      //   width: `${100 / currentSlidesToShow()}%`,
+                      //   "min-width": `${100 / currentSlidesToShow()}%`,
+                      //   "flex-shrink": "0",
+                      // }}
                     >
-                      <div class="tour-card-inner bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-500 hover:shadow-2xl relative h-96 md:h-[500px]">
+                      <div class="tour-card-inner bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-500 hover:shadow-2xl relative h-80 sm:h-96 md:h-[440px] lg:h-[500px]">
                         {/* Imagen del tour que ocupa todo el card */}
                         <div class="tour-image absolute inset-0 overflow-hidden">
                           <img
@@ -505,23 +536,23 @@ const ToursCarousel = (props) => {
                           </div>
 
                           {/* Botón CTA y Precio */}
-                          <div class="flex items-center justify-between">
+                          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                             <a
                               href={getTourUrl(tour)}
-                              class="tour-cta-btn inline-flex items-center justify-center px-6 py-2 rounded-lg text-white font-medium transition-all duration-300 hover:shadow-lg hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                              class="tour-cta-btn inline-flex items-center justify-center px-4 sm:px-6 py-2 rounded-lg text-white font-medium transition-all duration-300 hover:shadow-lg hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 text-sm sm:text-base"
                               style={{ 
                                 "background-color": accentColor,
                                 "focus:ring-color": accentColor 
                               }}
                             >
                               {getTranslation("View Tour")}
-                              <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg class="w-3 h-3 sm:w-4 sm:h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                               </svg>
                             </a>
                             
                             <Show when={tour.price || tour.price_promotion || tour.price_international || tour.price_national}>
-                              <div class="text-white font-bold">
+                              <div class="text-white font-bold text-center sm:text-right">
                                 {getPriceComponent(tour)}
                               </div>
                             </Show>
@@ -535,7 +566,7 @@ const ToursCarousel = (props) => {
             </div>
 
             {/* Indicadores (dots) - Solo para modo no infinito */}
-            <Show when={showDots && !infinite && tours.length > slidesToShow}>
+            <Show when={showDots && !infinite && tours.length > currentSlidesToShow()}>
               <div class="carousel-dots flex justify-center space-x-2 mt-6">
                 <For each={Array(totalSlides()).fill().map((_, i) => i)}>
                   {(dotIndex) => (

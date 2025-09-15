@@ -450,9 +450,9 @@ class WPTBT_Booking_Block
         $accentColor = isset($attributes['accentColor']) ? $attributes['accentColor'] : '#D4B254';
         $imageURL = isset($attributes['imageURL']) ? $attributes['imageURL'] : '';
         $useSolidJs = isset($attributes['useSolidJs']) ? (bool)$attributes['useSolidJs'] : true; // Use Solid.js by default
-        $emailRecipient = isset($attributes['emailRecipient'])
+        $emailRecipient = isset($attributes['emailRecipient']) && !empty($attributes['emailRecipient'])
             ? $attributes['emailRecipient']
-            : '';
+            : get_theme_mod('booking_email', get_option('admin_email'));
         $showTopWave = isset($attributes['showTopWave']) ? (bool)$attributes['showTopWave'] : true;
         $showBottomWave = isset($attributes['showBottomWave']) ? (bool)$attributes['showBottomWave'] : true;
         // Generar un ID único para el formulario

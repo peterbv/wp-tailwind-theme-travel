@@ -365,7 +365,16 @@ if ($show_banner) {
 
     <?php if ($show_booking == '1') : ?>
         <?php 
-        // Cargar el componente de formulario de reserva
+        // Obtener email personalizado para reservas con fallbacks
+        $booking_email = get_post_meta(get_the_ID(), 'wptbt_banner_booking_email', true);
+        if (empty($booking_email)) {
+            $booking_email = get_theme_mod('booking_email'); // Fallback al email global de reservas
+        }
+        if (empty($booking_email)) {
+            $booking_email = get_option('admin_email'); // Fallback final al email del administrador
+        }
+        
+        // Cargar el componente de formulario de reserva con email personalizado
         if (function_exists('wptbt_load_solid_component')) {
             wptbt_load_solid_component('booking-form');
         }
@@ -440,10 +449,11 @@ if ($show_banner) {
                 return;
             }
             
-            // Cargar el componente de reserva
+            // Cargar el componente de reserva con email personalizado
             if (typeof window.initializeSolidBookingForm === 'function') {
                 window.initializeSolidBookingForm(container, {
                     modalMode: true,
+                    emailRecipient: '<?php echo esc_js($booking_email); ?>',
                     onComplete: function() {
                         closeBookingModal();
                         // Mostrar mensaje de éxito

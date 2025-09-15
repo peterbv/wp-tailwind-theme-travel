@@ -211,6 +211,31 @@ class WPTBT_Banner_Metabox
                                 value="<?php echo esc_attr(get_post_meta($post->ID, 'wptbt_banner_booking_text', true) ?: '🎯 Reservar Ahora'); ?>"
                                 style="width: 100%;" />
                         </p>
+
+                        <p style="margin-top: 10px;">
+                            <label for="wptbt_banner_booking_email" style="display: block; font-weight: bold; margin-bottom: 5px;">
+                                <?php _e('Email de destino para reservas:', 'wp-tailwind-theme'); ?>
+                            </label>
+                            <input type="email" id="wptbt_banner_booking_email" name="wptbt_banner_booking_email"
+                                value="<?php echo esc_attr(get_post_meta($post->ID, 'wptbt_banner_booking_email', true)); ?>"
+                                style="width: 100%;" 
+                                placeholder="<?php 
+                                    $fallback_email = get_theme_mod('booking_email') ?: get_option('admin_email');
+                                    echo esc_attr($fallback_email);
+                                ?>" />
+                            <small style="color: #666; font-size: 12px; display: block; margin-top: 3px;">
+                                <?php 
+                                $global_booking_email = get_theme_mod('booking_email');
+                                if ($global_booking_email) {
+                                    _e('Si se deja vacío, se usará el email global de reservas', 'wp-tailwind-theme');
+                                    echo ' (' . esc_html($global_booking_email) . ')';
+                                } else {
+                                    _e('Si se deja vacío, se usará el email del administrador', 'wp-tailwind-theme');
+                                    echo ' (' . esc_html(get_option('admin_email')) . ')';
+                                }
+                                ?>
+                            </small>
+                        </p>
                     </div>
                 </div>
 
@@ -615,6 +640,10 @@ class WPTBT_Banner_Metabox
 
             if (isset($_POST['wptbt_banner_booking_text'])) {
                 update_post_meta($post_id, 'wptbt_banner_booking_text', sanitize_text_field($_POST['wptbt_banner_booking_text']));
+            }
+
+            if (isset($_POST['wptbt_banner_booking_email'])) {
+                update_post_meta($post_id, 'wptbt_banner_booking_email', sanitize_email($_POST['wptbt_banner_booking_email']));
             }
 
             // Guardar slides individuales

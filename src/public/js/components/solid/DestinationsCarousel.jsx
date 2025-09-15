@@ -55,6 +55,7 @@ const DestinationsCarousel = (props) => {
   const [destinationsLoaded, setDestinationsLoaded] = createSignal(0);
   const [hoveredDestination, setHoveredDestination] = createSignal(null);
   const [isTransitioning, setIsTransitioning] = createSignal(false);
+  const [currentSlidesToShow, setCurrentSlidesToShow] = createSignal(slidesToShow);
 
   // Referencias
   let carouselRef;
@@ -81,7 +82,7 @@ const DestinationsCarousel = (props) => {
   const totalSlides = () => {
     if (!infinite) {
       // En modo no infinito, cada card es un slide individual
-      return Math.max(0, destinations.length - slidesToShow + 1);
+      return Math.max(0, destinations.length - currentSlidesToShow() + 1);
     }
     return destinations.length;
   };
@@ -136,7 +137,7 @@ const DestinationsCarousel = (props) => {
         setIsTransitioning(false);
       }, 500);
     } else {
-      setCurrentSlide((prev) => Math.min(prev + 1, destinations.length - slidesToShow));
+      setCurrentSlide((prev) => Math.min(prev + 1, destinations.length - currentSlidesToShow()));
     }
   };
 
@@ -171,6 +172,13 @@ const DestinationsCarousel = (props) => {
 
   // Efectos
   onMount(() => {
+    // Inicializar responsive
+    updateSlidesToShow();
+    
+    // Agregar listener para resize
+    const handleResize = () => updateSlidesToShow();
+    window.addEventListener('resize', handleResize);
+    
     // Inicializar destinos circulares
     if (infinite && destinations.length > 0) {
       setCircularDestinations(initializeCircularDestinations());
@@ -179,11 +187,16 @@ const DestinationsCarousel = (props) => {
       setCircularDestinations(destinations);
     }
     
-    if (destinations.length > slidesToShow) {
+    if (destinations.length > currentSlidesToShow()) {
       startAutoplay();
     }
     setIsLoaded(true);
     setIsTransitioning(false);
+    
+    // Cleanup en onCleanup
+    onCleanup(() => {
+      window.removeEventListener('resize', handleResize);
+    });
   });
 
   onCleanup(() => {
@@ -216,7 +229,7 @@ const DestinationsCarousel = (props) => {
   // Estilo de transformación para el carousel
   const getCarouselTransform = () => {
     // Ancho de un solo card (no del grupo completo)
-    const singleCardWidth = 100 / slidesToShow;
+    const singleCardWidth = 100 / currentSlidesToShow();
     
     if (!infinite) {
       const translateValue = animationDirection === "left" 
@@ -240,17 +253,28 @@ const DestinationsCarousel = (props) => {
     };
   };
 
-  // Calcular slides visibles responsivos
-  const getResponsiveSlidesToShow = () => {
+  // Función para detectar el tamaño de pantalla y actualizar slides
+  const updateSlidesToShow = () => {
+    const width = window.innerWidth;
     const maxSlides = slidesToShow; // Respeta la configuración del usuario
-    return {
-      small: Math.min(maxSlides, 1), // 1 en móvil
-      medium: Math.min(maxSlides, 3), // 3 en tablet
-      large: maxSlides, // Completo en desktop
-    };
+    
+    let newSlidesToShow;
+    if (width < 768) { // móvil
+      newSlidesToShow = Math.min(maxSlides, 1);
+    } else if (width < 1024) { // tablet
+      newSlidesToShow = Math.min(maxSlides, 2);
+    } else { // desktop
+      newSlidesToShow = maxSlides;
+    }
+    
+    if (newSlidesToShow !== currentSlidesToShow()) {
+      setCurrentSlidesToShow(newSlidesToShow);
+      // Reset currentSlide si es necesario
+      if (currentSlide() > Math.max(0, destinations.length - newSlidesToShow)) {
+        setCurrentSlide(Math.max(0, destinations.length - newSlidesToShow));
+      }
+    }
   };
-
-  const responsive = getResponsiveSlidesToShow();
 
   // Generar structured data para SEO
   const generateStructuredData = () => {
@@ -308,7 +332,7 @@ const DestinationsCarousel = (props) => {
           </script>
         </Show>
 
-        <div class="container mx-auto px-4 relative">
+        <div class="container mx-auto px-4 relative overflow-y-visible">
           {/* Encabezado */}
           <Show when={title || subtitle || description}>
             <header class="text-center mb-8 relative">
@@ -348,18 +372,18 @@ const DestinationsCarousel = (props) => {
           </Show>
 
           {/* Carousel container */}
-          <div class="destinations-carousel-wrapper relative">
+          <div class="destinations-carousel-wrapper relative pt-3 pb-6">
             {/* Botones de navegación */}
-            <Show when={showArrows && destinations.length > slidesToShow}>
+            <Show when={showArrows && destinations.length > currentSlidesToShow()}>
               <button
                 type="button"
-                class="carousel-prev absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center transition-all duration-300 hover:shadow-xl hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                class="carousel-prev absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white shadow-lg flex items-center justify-center transition-all duration-300 hover:shadow-xl hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2"
                 style={{ "focus:ring-color": accentColor, border: `2px solid ${accentColor}20` }}
                 onClick={prevSlide}
                 aria-label={getTranslation("Previous destinations")}
               >
                 <svg
-                  class="w-5 h-5"
+                  class="w-4 h-4 sm:w-5 sm:h-5"
                   fill="none"
                   stroke={textColor}
                   viewBox="0 0 24 24"
@@ -376,13 +400,13 @@ const DestinationsCarousel = (props) => {
 
               <button
                 type="button"
-                class="carousel-next absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center transition-all duration-300 hover:shadow-xl hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                class="carousel-next absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white shadow-lg flex items-center justify-center transition-all duration-300 hover:shadow-xl hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2"
                 style={{ "focus:ring-color": accentColor, border: `2px solid ${accentColor}20` }}
                 onClick={nextSlide}
                 aria-label={getTranslation("Next destinations")}
               >
                 <svg
-                  class="w-5 h-5"
+                  class="w-4 h-4 sm:w-5 sm:h-5"
                   fill="none"
                   stroke={textColor}
                   viewBox="0 0 24 24"
@@ -399,7 +423,7 @@ const DestinationsCarousel = (props) => {
             </Show>
 
             {/* Carousel track */}
-            <div class="carousel-track overflow-hidden mx-12">
+            <div class="carousel-track overflow-x-hidden overflow-y-visible mx-6 sm:mx-8 md:mx-12 py-3">
               <div
                 class="carousel-slides flex transition-transform duration-600 ease-in-out"
                 style={getCarouselTransform()}
@@ -408,10 +432,10 @@ const DestinationsCarousel = (props) => {
                 <For each={circularDestinations()}>
                   {(destination, index) => (
                     <article
-                      class={`destination-card flex-shrink-0 px-3 transition-all duration-300`}
+                      class={`destination-card flex-shrink-0 px-2 sm:px-3 transition-all duration-300`}
                       style={{
-                        width: `${100 / slidesToShow}%`,
-                        "min-width": `${100 / slidesToShow}%`,
+                        width: `${100 / currentSlidesToShow()}%`,
+                        "min-width": `${100 / currentSlidesToShow()}%`,
                         "flex-shrink": "0",
                         transform: hoveredDestination() === index() ? "translateY(-4px)" : "translateY(0)",
                       }}
@@ -419,40 +443,28 @@ const DestinationsCarousel = (props) => {
                       onMouseLeave={() => setHoveredDestination(null)}
                     >
                       {/* Diseño minimalista inspirado en la imagen de referencia */}
-                      <div class="destination-card-inner relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl aspect-[4/3] cursor-pointer group">
+                      <div class="destination-card-inner relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl h-64 sm:h-72 md:h-80 lg:h-80 cursor-pointer group">
                         
-                        {/* Imagen de fondo completa */}
-                        <div class="absolute inset-0">
-                          <Show 
-                            when={destination.image}
-                            fallback={
-                              <div class="w-full h-full bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 flex items-center justify-center">
-                                <div class="text-center">
-                                  <svg class="w-12 h-12 text-gray-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                  </svg>
-                                  <p class="text-gray-600 text-sm font-medium">{destination.name || destination.title}</p>
-                                </div>
-                              </div>
-                            }
-                          >
-                            <img
-                              src={destination.image}
-                              alt={destination.name || destination.title}
-                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                              loading="lazy"
-                              onLoad={handleImageLoad}
-                            />
-                          </Show>
-                          
-                          {/* Overlay con gradiente sutil desde abajo */}
-                          <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+                        {/* Imagen del destino que ocupa todo el card */}
+                        <div class="destination-image absolute inset-0 overflow-hidden">
+                          <img
+                            src={destination.image || destination.featured_image}
+                            alt={destination.name || destination.title}
+                            class="w-full h-full object-cover transition-transform duration-500"
+                            style={{
+                              transform: hoveredDestination() === index() ? "scale(1.05)" : "scale(1)",
+                            }}
+                            loading="lazy"
+                            onLoad={handleImageLoad}
+                          />
                         </div>
+                        
+                        {/* Degradado de oscuro a transparente */}
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
 
                         {/* Contenido minimalista centrado - solo nombre del destino */}
-                        <a href={getDestinationUrl(destination)} class="absolute inset-0 flex items-center justify-center text-center text-white z-10 group-hover:bg-black/10 transition-colors duration-300">
-                          <h3 class="text-2xl md:text-3xl font-bold tracking-tight drop-shadow-lg">
+                        <a href={getDestinationUrl(destination)} class="absolute inset-0 flex items-center justify-center text-center text-white z-10 group-hover:bg-black/10 transition-colors duration-300 p-4">
+                          <h3 class="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight drop-shadow-lg leading-tight">
                             {destination.name || destination.title}
                           </h3>
                         </a>
@@ -464,7 +476,7 @@ const DestinationsCarousel = (props) => {
             </div>
 
             {/* Indicadores (dots) - Solo para modo no infinito */}
-            <Show when={showDots && !infinite && destinations.length > slidesToShow}>
+            <Show when={showDots && !infinite && destinations.length > currentSlidesToShow()}>
               <div class="carousel-dots flex justify-center space-x-2 mt-6">
                 <For each={Array(totalSlides()).fill().map((_, i) => i)}>
                   {(dotIndex) => (

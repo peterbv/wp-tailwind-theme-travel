@@ -724,6 +724,21 @@ class WPTBT_Customizer
             'priority' => 10,
         ));
 
+        // Email para reservas
+        $wp_customize->add_setting('booking_email', array(
+            'default'           => '',
+            'sanitize_callback' => 'sanitize_email',
+            'transport'         => 'refresh',
+        ));
+
+        $wp_customize->add_control('booking_email', array(
+            'label'       => esc_html__('Email para reservas', 'wp-tailwind-blocks'),
+            'description' => esc_html__('Email específico para recibir formularios de reserva. Si se deja vacío, se usará el email del administrador.', 'wp-tailwind-blocks'),
+            'section'     => 'wptbt_contact_options',
+            'type'        => 'email',
+            'priority'    => 15,
+        ));
+
         // Teléfono de contacto
         $wp_customize->add_setting('contact_phone', array(
             'default'           => '',

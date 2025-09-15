@@ -71,7 +71,7 @@
 
 .destination-card img {
     width: 100%;
-    height: 16rem;
+    height: 100%;
     object-fit: cover;
     transition: transform 0.3s ease;
 }
@@ -199,9 +199,7 @@
         font-size: 1rem;
     }
     
-    .destination-card img {
-        height: 12rem;
-    }
+    /* Removed fixed height to allow responsive sizing from Solid.js component */
     
     .destinations-carousel button[aria-label*="Previous"],
     .destinations-carousel button[aria-label*="Next"] {
